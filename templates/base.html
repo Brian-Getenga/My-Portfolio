@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>{% block title %}{{ site_settings.site_name }} - {{ site_settings.site_description }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ site_settings.meta_description|default:site_settings.site_description }}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{{ site_settings.meta_keywords }}{% endblock %}">
+    <meta name="author" content="Brian Getenga">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ site_settings.site_description }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url
+    
+    }}{% endblock %}">
+    <meta property="og:site_name" content="{{ site_settings.site_name }}">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ site_settings.site_name }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ site_settings.site_description }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url
+     }}{% endblock %}">
+    {% if site_settings.twitter_url %}
+    <meta name="twitter:creator" content="@{{ site_settings.twitter_url|slice:'-15:' }}">
+    {% endif %}
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Animate.css for Entrance Animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        'display': ['Space Grotesk', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#172554',
+                        },
+                        accent: {
+                            purple: '#8b5cf6',
+                            pink: '#ec4899',
+                            orange: '#f97316',
+                            cyan: '#06b6d4',
+                        }
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'gradient-xy': 'gradient-xy 15s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'slide-up': 'slide-up 0.5s ease-out',
+                        'slide-down': 'slide-down 0.5s ease-out',
+                        'fade-in': 'fade-in 0.5s ease-out',
+                        'scale-in': 'scale-in 0.3s ease-out',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                        'typing': 'typing 3.5s steps(40, end), blink-caret .75s step-end infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
+                        'gradient-xy': {
+                            '0%, 100%': {
+                                'background-size': '400% 400%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(100px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        'slide-down': {
+                            '0%': { transform: 'translateY(-100px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        'scale-in': {
+                            '0%': { transform: 'scale(0.9)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
+                        },
+                        typing: {
+                            'from': { width: '0' },
+                            'to': { width: '100%' }
+                        },
+                        'blink-caret': {
+                            'from, to': { borderColor: 'transparent' },
+                            '50%': { borderColor: 'orange' },
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
+                        'glow-lg': '0 0 40px rgba(59, 130, 246, 0.6)',
+                        'inner-glow': 'inset 0 0 20px rgba(59, 130, 246, 0.3)',
+                    }
+                }
+            },
+            darkMode: 'class',
+        }
+    </script>
+    
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb, #7c3aed);
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #60a5fa, #a78bfa);
+        }
+        
+        /* Selection */
+        ::selection {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+        }
+        
+        /* Glass Morphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Card Hover Effect */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Smooth Transitions */
+        * {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        /* Code Blocks */
+        code {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875em;
+        }
+        
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+        
+        /* Link Underline Animation */
+        .link-underline {
+            position: relative;
+        }
+        
+        .link-underline::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+        
+        .link-underline:hover::after {
+            width: 100%;
+        }
+        
+        /* Shimmer Effect */
+        .shimmer {
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Blob Animation */
+        @keyframes blob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -50px) scale(1.1); }
+            50% { transform: translate(0, 20px) scale(0.9); }
+            75% { transform: translate(-20px, -15px) scale(1.05); }
+        }
+        
+        .blob {
+            animation: blob 7s infinite;
+        }
+        
+        /* Skip to Content (Accessibility) */
+        .skip-to-content {
+            position: absolute;
+            left: -9999px;
+            z-index: 999;
+        }
+        
+        .skip-to-content:focus {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 10px;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-sans antialiased text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-950 transition-colors duration-300">
+    
+    <!-- Skip to Content (Accessibility) -->
+    <a href="#main-content" class="skip-to-content bg-primary-600 text-white px-4 py-2 rounded">
+        Skip to main content
+    </a>
+    
+    <!-- Maintenance Mode Banner -->
+    {% if site_settings.maintenance_mode %}
+    <div class="bg-yellow-500 text-black px-4 py-2 text-center font-semibold">
+        <i class="fas fa-tools mr-2"></i>
+        Site is currently under maintenance. Some features may be unavailable.
+    </div>
+    {% endif %}
+    
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-all duration-300">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="flex items-center space-x-2 group">
+                    <div class="text-2xl lg:text-3xl font-display font-bold gradient-text group-hover:scale-105 transition-transform">
+                        <i class="fas fa-code mr-2"></i>{{ site_settings.site_name|truncatewords:2 }}
+                    </div>
+                    {% if site_settings.available_for_work %}
+                    <span class="hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
+                        Available
+                    </span>
+                    {% endif %}
+                </a>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors {% if request.path == '/' %}text-primary-600 dark:text-primary-400{% endif %}">
+                        Home
+                    </a>
+                    <a href="{% url 'about' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        About
+                    </a>
+                    <a href="{% url 'projects' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors {% if '/project' in request.path %}text-primary-600 dark:text-primary-400{% endif %}">
+                        Projects
+                    </a>
+                    <a href="{% url 'services' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        Services
+                    </a>
+                    {% if site_settings.enable_blog %}
+                    <a href="{% url 'blog' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors {% if '/blog' in request.path %}text-primary-600 dark:text-primary-400{% endif %}">
+                        Blog
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'contact' %}" class="px-6 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300">
+                        Get in Touch
+                    </a>
+                    
+                    <!-- Theme Toggle -->
+                    {% if site_settings.enable_dark_mode %}
+                    <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon dark:hidden text-gray-700"></i>
+                        <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center space-x-4 lg:hidden">
+                    {% if site_settings.enable_dark_mode %}
+                    <button id="mobile-theme-toggle-btn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+                    {% endif %}
+                    <button id="mobile-menu-button" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Open menu">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 animate__animated animate__fadeInDown">
+            <div class="container mx-auto px-4 py-6 space-y-4">
+                <a href="{% url 'home' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-2">
+                    <i class="fas fa-home w-6"></i> Home
+                </a>
+                <a href="{% url 'about' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 py-2">
+                    <i class="fas fa-user w-6"></i> About
+                </a>
+                <a href="{% url 'projects' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 py-2">
+                    <i class="fas fa-folder w-6"></i> Projects
+                </a>
+                <a href="{% url 'services' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 py-2">
+                    <i class="fas fa-briefcase w-6"></i> Services
+                </a>
+                {% if site_settings.enable_blog %}
+                <a href="{% url 'blog' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 py-2">
+                    <i class="fas fa-blog w-6"></i> Blog
+                </a>
+                {% endif %}
+                <a href="{% url 'contact' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 py-2">
+                    <i class="fas fa-envelope w-6"></i> Contact
+                </a>
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <a href="{% url 'download_resume' %}" class="block w-full text-center px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold">
+                        <i class="fas fa-download mr-2"></i>Download Resume
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 z-50 transition-all duration-300" style="width: 0%"></div>
+    
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="hidden fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 z-50 shadow-lg">
+        <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+            <p class="text-sm">
+                <i class="fas fa-cookie-bite mr-2"></i>
+                We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.
+            </p>
+            <div class="flex space-x-4">
+                <button id="cookie-accept" class="px-4 py-2 bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
+                    Accept
+                </button>
+                <button id="cookie-decline" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors text-sm font-semibold">
+                    Decline
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="min-h-screen">
+        <!-- Flash Messages -->
+        {% if messages %}
+        <div class="fixed top-20 right-4 z-50 space-y-2 max-w-md">
+            {% for message in messages %}
+            <div class="message-alert animate__animated animate__fadeInRight bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border-l-4 
+                {% if message.tags == 'success' %}border-green-500{% elif message.tags == 'error' %}border-red-500{% elif message.tags == 'warning' %}border-yellow-500{% else %}border-blue-500{% endif %}">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ message }}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 opacity-0 pointer-events-none z-40" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 pt-20 pb-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <!-- About Column -->
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl lg:text-3xl font-display font-bold text-white mb-4">
+                        {{ site_settings.site_name }}
+                    </h3>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        {{ site_settings.tagline|default:site_settings.site_description }}
+                    </p>
+                    
+                    <!-- Social Links -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        {% if site_settings.github_url %}
+                        <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" 
+                           class="w-12 h-12 rounded-full bg-gray-800 hover:bg-primary-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow"
+                           aria-label="GitHub">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        {% endif %}
+                        {% if site_settings.linkedin_url %}
+                        <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer"
+                           class="w-12 h-12 rounded-full bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow"
+                           aria-label="LinkedIn">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        {% endif %}
+                        {% if site_settings.twitter_url %}
+                        <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer"
+                           class="w-12 h-12 rounded-full bg-gray-800 hover:bg-sky-500 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow"
+                           aria-label="Twitter">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        {% endif %}
+                        {% if site_settings.youtube_url %}
+                        <a href="{{ site_settings.youtube_url }}" target="_blank" rel="noopener noreferrer"
+                           class="w-12 h-12 rounded-full bg-gray-800 hover:bg-red-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow"
+                           aria-label="YouTube">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        {% endif %}
+                        <a href="mailto:{{ site_settings.email }}" 
+                           class="w-12 h-12 rounded-full bg-gray-800 hover:bg-purple-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow"
+                           aria-label="Email">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Newsletter Signup -->
+                    {% if site_settings.enable_newsletter %}
+                    <div class="mt-6">
+                        <h4 class="text-white font-semibold mb-3">📧 Subscribe to Newsletter</h4>
+                        <form id="footer-newsletter-form" class="flex gap-2">
+                            {% csrf_token %}
+                            <input type="email" name="email" placeholder="Enter your email" required
+                                   class="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-primary-500 focus:outline-none text-white placeholder-gray-500">
+                            <button type="submit" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-semibold transition-colors whitespace-nowrap">
+                                Subscribe
+                            </button>
+                        </form>
+                        <div id="footer-newsletter-message" class="mt-2 text-sm hidden"></div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-link mr-2 text-primary-400"></i>Quick Links
+                    </h4>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'home' %}" class="hover:text-primary-400 transition-colors link-underline">Home</a></li>
+                        <li><a href="{% url 'about' %}" class="hover:text-primary-400 transition-colors link-underline">About Me</a></li>
+                        <li><a href="{% url 'projects' %}" class="hover:text-primary-400 transition-colors link-underline">Portfolio</a></li>
+                        <li><a href="{% url 'services' %}" class="hover:text-primary-400 transition-colors link-underline">Services</a></li>
+                        {% if site_settings.enable_blog %}
+                        <li><a href="{% url 'blog' %}" class="hover:text-primary-400 transition-colors link-underline">Blog</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'contact' %}" class="hover:text-primary-400 transition-colors link-underline">Contact</a></li>
+                        {% if site_settings.resume_file %}
+                        <li><a href="{% url 'download_resume' %}" class="hover:text-primary-400 transition-colors link-underline">
+                            <i class="fas fa-download mr-1"></i>Resume
+                        </a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-address-book mr-2 text-primary-400"></i>Get in Touch
+                    </h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-envelope text-primary-400 mt-1"></i>
+                            <a href="mailto:{{ site_settings.email }}" class="hover:text-primary-400 break-all">
+                                {{ site_settings.email }}
+                            </a>
+                        </li>
+                        {% if site_settings.phone %}
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-phone text-primary-400 mt-1"></i>
+                            <a href="tel:{{ site_settings.phone }}" class="hover:text-primary-400">
+                                {{ site_settings.phone }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-map-marker-alt text-primary-400 mt-1"></i>
+                            <span>{{ site_settings.location }}</span>
+                        </li>
+                        {% if site_settings.available_for_work %}
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-briefcase text-green-400 mt-1"></i>
+                            <span class="text-green-400">Available for work</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <p class="text-gray-400 text-sm text-center md:text-left">
+                        {{ site_settings.footer_text|default:"© 2024 Brian Getenga. All rights reserved." }}
+                    </p>
+                    <div class="flex items-center space-x-6 text-sm">
+                        <a href="/privacy/" class="hover:text-primary-400 transition-colors">Privacy Policy</a>
+                        <a href="/terms/" class="hover:text-primary-400 transition-colors">Terms of Service</a>
+                        <a href="/sitemap.xml" class="hover:text-primary-400 transition-colors">Sitemap</a>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">
+                    Built with <i class="fas fa-heart text-red-500 animate-pulse"></i> using Django & Tailwind CSS
+                </p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100,
+            easing: 'ease-out-cubic',
+        });
+        
+        // Dark Mode Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const mobileThemeToggle = document.getElementById('mobile-theme-toggle-btn');
+        const htmlElement = document.documentElement;
+        
+        // Check for saved theme preference or default to 'light'
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            htmlElement.classList.add('dark');
+        }
+        
+        function toggleTheme() {
+            htmlElement.classList.toggle('dark');
+            const newTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            
+            // Dispatch event for other scripts
+            window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: newTheme } }));
+        }
+        
+        themeToggle?.addEventListener('click', toggleTheme);
+        mobileThemeToggle?.addEventListener('click', toggleTheme);
+        
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton?.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuButton.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenuButton?.contains(e.target) && !mobileMenu?.contains(e.target)) {
+                mobileMenu?.classList.add('hidden');
+                const icon = mobileMenuButton?.querySelector('i');
+                icon?.classList.remove('fa-times');
+                icon?.classList.add('fa-bars');
+            }
+        });
+        
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+        
+        // Back to Top Button
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('opacity-0', 'pointer-events-none');
+                backToTop.classList.add('opacity-100');
+            } else {
+                backToTop.classList.add('opacity-0', 'pointer-events-none');
+                backToTop.classList.remove('opacity-100');
+            }
+        });
+        
+        backToTop?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Smooth Scroll for Anchor Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    const offset = 80; // Navbar height
+                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+                    
+                    // Close mobile menu if open
+                    mobileMenu?.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Navbar Background on Scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-lg', 'bg-white/95', 'dark:bg-gray-950/95');
+            } else {
+                navbar.classList.remove('shadow-lg', 'bg-white/95', 'dark:bg-gray-950/95');
+            }
+        });
+        
+        // Auto-dismiss Flash Messages
+        setTimeout(() => {
+            document.querySelectorAll('.message-alert').forEach(alert => {
+                alert.classList.add('animate__fadeOutRight');
+                setTimeout(() => alert.remove(), 1000);
+            });
+        }, 5000);
+        
+        // Cookie Consent
+        const cookieBanner = document.getElementById('cookie-banner');
+        const cookieAccept = document.getElementById('cookie-accept');
+        const cookieDecline = document.getElementById('cookie-decline');
+        
+        if (!localStorage.getItem('cookieConsent')) {
+            setTimeout(() => cookieBanner?.classList.remove('hidden'), 2000);
+        }
+        
+        cookieAccept?.addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'accepted');
+            cookieBanner.classList.add('hidden');
+        });
+        
+        cookieDecline?.addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'declined');
+            cookieBanner.classList.add('hidden');
+        });
+        
+        // Newsletter Form (Footer)
+        const footerNewsletterForm = document.getElementById('footer-newsletter-form');
+        if (footerNewsletterForm) {
+            footerNewsletterForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(footerNewsletterForm);
+                const messageDiv = document.getElementById('footer-newsletter-message');
+                
+                try {
+                    const response = await fetch('{% url "newsletter_subscribe" %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    messageDiv.className = 'mt-2 text-sm ' + (data.success ? 'text-green-400' : 'text-red-400');
+                    messageDiv.textContent = data.success ? data.message : 'Subscription failed. Please try again.';
+                    messageDiv.classList.remove('hidden');
+                    
+                    if (data.success) {
+                        footerNewsletterForm.reset();
+                        setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+                    }
+                } catch (error) {
+                    messageDiv.className = 'mt-2 text-sm text-red-400';
+                    messageDiv.textContent = 'An error occurred. Please try again.';
+                    messageDiv.classList.remove('hidden');
+                }
+            });
+        }
+        
+        // CSRF Token Helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        window.csrfToken = getCookie('csrftoken');
+        
+        // Loading State Helper
+        function setLoading(element, isLoading) {
+            if (isLoading) {
+                element.disabled = true;
+                element.dataset.originalText = element.innerHTML;
+                element.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+            } else {
+                element.disabled = false;
+                element.innerHTML = element.dataset.originalText;
+            }
+        }
+        
+        // Performance: Lazy Load Images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('img.lazy').forEach(img => imageObserver.observe(img));
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    {% if site_settings.google_analytics_id %}
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ site_settings.google_analytics_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ site_settings.google_analytics_id }}', {
+            'anonymize_ip': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        });
+    </script>
+    {% endif %}
+    
+    <!-- Structured Data (JSON-LD) for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "{{ site_settings.site_name }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}",
+        "image": "{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}",
+        "sameAs": [
+            {% if site_settings.github_url %}"{{ site_settings.github_url }}",{% endif %}
+            {% if site_settings.linkedin_url %}"{{ site_settings.linkedin_url }}",{% endif %}
+            {% if site_settings.twitter_url %}"{{ site_settings.twitter_url }}"{% endif %}
+        ],
+        "jobTitle": "Full Stack Developer",
+        "worksFor": {
+            "@type": "Organization",
+            "name": "Freelance"
+        }
+    }
+    </script>
+</body>
+</html>

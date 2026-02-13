@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to My Newsletter</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+            color: #333333;
+        }
+        .content p {
+            margin: 0 0 15px;
+            font-size: 16px;
+        }
+        .welcome-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .welcome-box h2 {
+            margin: 0 0 15px;
+            font-size: 24px;
+        }
+        .benefits {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+        .benefit-item {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .benefit-item:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome Aboard!</h1>
+            <p>You're now part of an exclusive community</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi there! 👋</p>
+            
+            <p>Thank you for subscribing to my newsletter! I'm excited to have you join our growing community of developers, designers, and tech enthusiasts.</p>
+            
+            <div class="welcome-box">
+                <h2>Please Verify Your Email</h2>
+                <p style="margin: 15px 0;">Click the button below to confirm your subscription and start receiving updates.</p>
+                <a href="{{ verification_url }}" class="button">✅ Verify Email Address</a>
+            </div>
+            
+            <h3 style="color: #667eea; margin-top: 30px;">What You'll Receive:</h3>
+            
+            <div class="benefits">
+                <div class="benefit-item">
+                    <strong>Latest Blog Posts</strong><br>
+                    <span style="color: #6c757d;">Be the first to read new articles and tutorials</span>
+                </div>
+                <div class="benefit-item">
+                    <strong>Project Updates</strong><br>
+                    <span style="color: #6c757d;">See my latest work and case studies</span>
+                </div>
+                <div class="benefit-item">
+                    <strong>Tech Tips & Tricks</strong><br>
+                    <span style="color: #6c757d;">Exclusive development insights and best practices</span>
+                </div>
+                <div class="benefit-item">
+                    <strong>Industry News</strong><br>
+                    <span style="color: #6c757d;">Curated updates about web development and technology</span>
+                </div>
+                <div class="benefit-item">
+                    <strong>Exclusive Content</strong><br>
+                    <span style="color: #6c757d;">Special offers and early access to new projects</span>
+                </div>
+            </div>
+            
+            <p><strong>📬 Frequency:</strong> I send updates 2-3 times per month. No spam, I promise!</p>
+            
+            <p style="margin-top: 30px;">
+                If you have any questions or suggestions, feel free to reply to this email. I'd love to hear from you!
+            </p>
+            
+            <p style="font-weight: 600; margin-top: 30px;">
+                Cheers,<br>
+                {{ site_settings.site_name }}
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>{{ site_settings.site_name }}</p>
+            <p>{{ site_settings.email }} | {{ site_settings.location }}</p>
+            <p style="margin-top: 15px;">
+                <a href="{{ unsubscribe_url }}">Unsubscribe</a> | 
+                <a href="{{ site_url }}">Visit Website</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

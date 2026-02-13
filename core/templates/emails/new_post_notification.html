@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Blog Post</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .post-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .content {
+            padding: 40px 30px;
+            color: #333333;
+        }
+        .content h2 {
+            color: #667eea;
+            margin: 0 0 15px;
+            font-size: 24px;
+        }
+        .content p {
+            margin: 0 0 15px;
+            font-size: 16px;
+            color: #495057;
+        }
+        .meta-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .meta-info span {
+            margin-right: 15px;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .tags {
+            margin: 20px 0;
+        }
+        .tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #e7f3ff;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 13px;
+            margin: 4px;
+            text-decoration: none;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 New Blog Post Published!</h1>
+        </div>
+        
+        {% if post.featured_image %}
+        <img src="{{ site_url }}{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-image">
+        {% endif %}
+        
+        <div class="content">
+            <h2>{{ post.title }}</h2>
+            
+            <div class="meta-info">
+                <span>📅 {{ post.published_date|date:"F d, Y" }}</span>
+                <span>⏱️ {{ post.reading_time }} min read</span>
+                <span>✍️ {{ post.author.get_full_name }}</span>
+            </div>
+            
+            <p>{{ post.excerpt }}</p>
+            
+            {% if post.tags.all %}
+            <div class="tags">
+                {% for tag in post.tags.all %}
+                <a href="{{ site_url }}/blog/?tag={{ tag.slug }}" class="tag">#{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <center>
+                <a href="{{ site_url }}{{ post.get_absolute_url }}" class="button">📖 Read Full Article</a>
+            </center>
+            
+            <p style="margin-top: 30px; font-size: 14px; color: #6c757d;">
+                You're receiving this because you subscribed to {{ site_settings.site_name }}'s newsletter.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>{{ site_settings.site_name }}</p>
+            <p>
+                <a href="{{ unsubscribe_url }}">Unsubscribe</a> | 
+                <a href="{{ site_url }}">Visit Website</a> |
+                <a href="{{ site_url }}/blog/">Browse Blog</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

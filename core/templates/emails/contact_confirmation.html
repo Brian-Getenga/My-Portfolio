@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Contacting Us</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 40px 30px;
+            color: #333333;
+        }
+        .content p {
+            margin: 0 0 15px;
+            font-size: 16px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin: 0 0 15px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .info-item {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            display: inline-block;
+            width: 120px;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: transform 0.3s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            font-size: 20px;
+            text-decoration: none;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e9ecef, transparent);
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✉️ Message Received!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hi <strong>{{ contact.name }}</strong>,</p>
+            
+            <p>Thank you for reaching out! I've received your message and wanted to confirm that it's safely in my inbox.</p>
+            
+            <div class="info-box">
+                <h3>📋 Your Message Details</h3>
+                <div class="info-item">
+                    <span class="info-label">Subject:</span>
+                    <span>{{ contact.subject }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span>{{ contact.email }}</span>
+                </div>
+                {% if contact.phone %}
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    <span>{{ contact.phone }}</span>
+                </div>
+                {% endif %}
+                {% if contact.budget %}
+                <div class="info-item">
+                    <span class="info-label">Budget:</span>
+                    <span>{{ contact.get_budget_display }}</span>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <span class="info-label">Received:</span>
+                    <span>{{ contact.created_at|date:"F d, Y at g:i A" }}</span>
+                </div>
+            </div>
+            
+            <p><strong>What happens next?</strong></p>
+            <ul style="color: #495057; margin: 15px 0; padding-left: 20px;">
+                <li>I'll review your message carefully</li>
+                <li>You'll receive a detailed response within 24 hours</li>
+                <li>We can schedule a call to discuss your project</li>
+            </ul>
+            
+            <div class="divider"></div>
+            
+            <p>In the meantime, feel free to:</p>
+            
+            <center>
+                <a href="{{ site_url }}/projects/" class="button">📁 View My Portfolio</a>
+                <a href="{{ site_url }}/blog/" class="button">📝 Read My Blog</a>
+            </center>
+            
+            <p style="margin-top: 30px;">Looking forward to working with you!</p>
+            
+            <p style="font-weight: 600; margin-top: 20px;">
+                Best regards,<br>
+                {{ site_settings.site_name }}
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="social-links">
+                {% if site_settings.github_url %}
+                <a href="{{ site_settings.github_url }}">🐙 GitHub</a>
+                {% endif %}
+                {% if site_settings.linkedin_url %}
+                <a href="{{ site_settings.linkedin_url }}">💼 LinkedIn</a>
+                {% endif %}
+                {% if site_settings.twitter_url %}
+                <a href="{{ site_settings.twitter_url }}">🐦 Twitter</a>
+                {% endif %}
+            </div>
+            
+            <p>{{ site_settings.site_name }}</p>
+            <p>{{ site_settings.email }} | {{ site_settings.location }}</p>
+            <p style="margin-top: 15px; font-size: 12px; color: #adb5bd;">
+                This is an automated confirmation email. Please do not reply directly to this message.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

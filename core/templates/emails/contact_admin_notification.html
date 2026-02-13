@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Message</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .info-row {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: 600;
+            color: #667eea;
+            display: inline-block;
+            min-width: 100px;
+        }
+        .message-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .priority {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .priority-low { background-color: #d4edda; color: #155724; }
+        .priority-medium { background-color: #fff3cd; color: #856404; }
+        .priority-high { background-color: #f8d7da; color: #721c24; }
+        .priority-urgent { background-color: #dc3545; color: white; }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            background-color: #f8f9fa;
+        }
+        .metadata {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 New Contact Message</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">{{ contact.created_at|date:"F d, Y \a\t H:i" }}</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-row">
+                <span class="label">From:</span>
+                <strong>{{ contact.name }}</strong>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Email:</span>
+                <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+            </div>
+            
+            {% if contact.phone %}
+            <div class="info-row">
+                <span class="label">Phone:</span>
+                <a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>
+            </div>
+            {% endif %}
+            
+            <div class="info-row">
+                <span class="label">Subject:</span>
+                <strong>{{ contact.subject }}</strong>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Priority:</span>
+                <span class="priority priority-{{ contact.priority }}">{{ contact.get_priority_display }}</span>
+            </div>
+            
+            {% if contact.budget %}
+            <div class="info-row">
+                <span class="label">Budget:</span>
+                {{ contact.budget }}
+            </div>
+            {% endif %}
+            
+            {% if contact.timeline %}
+            <div class="info-row">
+                <span class="label">Timeline:</span>
+                {{ contact.timeline }}
+            </div>
+            {% endif %}
+            
+            <h3 style="color: #667eea; margin-top: 30px;">Message:</h3>
+            <div class="message-box">
+                {{ contact.message|linebreaks }}
+            </div>
+            
+            <div style="text-align: center;">
+                {% if admin_url %}
+                <a href="{{ admin_url }}" class="button">View in Admin Panel</a>
+                {% endif %}
+                <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject }}" class="button" style="background: #28a745; margin-left: 10px;">
+                    Reply to {{ contact.name }}
+                </a>
+            </div>
+            
+            <div class="metadata">
+                <strong>Technical Details:</strong><br>
+                IP Address: {{ contact.ip_address }}<br>
+                Submitted: {{ contact.created_at|date:"Y-m-d H:i:s" }}<br>
+                {% if contact.referrer %}
+                Referrer: {{ contact.referrer }}<br>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>{{ site_settings.site_name }}</strong></p>
+            <p>{{ site_settings.email }} | {{ site_settings.location }}</p>
+            <p style="font-size: 12px; color: #999; margin-top: 15px;">
+                This is an automated notification from your portfolio contact form.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
