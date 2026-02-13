@@ -1,33 +1,35 @@
-# Core Django
-Django==4.2.7
-django-environ==0.11.2
-
-# Database
-psycopg2-binary==2.9.9
-dj-database-url==2.1.0
-
-# Static & Media Files
-whitenoise==6.6.0
+asgiref==3.11.1
+boto3==1.34.34
+botocore==1.34.162
+certifi==2026.1.4
+charset-normalizer==3.4.4
 cloudinary==1.36.0
-django-cloudinary-storage==0.3.0
-Pillow==10.1.0
-
-# Forms & Admin
-django-crispy-forms==2.1
 crispy-tailwind==0.5.0
-
-# Rich Text Editor
+dj-database-url==2.1.0
+Django==5.0.1
+django-appconf==1.2.0
 django-ckeditor==6.7.0
-
-# Tags
+django-cloudinary-storage==0.3.0
+django-cors-headers==4.3.1
+django-crispy-forms==2.1
+django-environ==0.11.2
+django-js-asset==3.1.2
+django-storages==1.14.2
 django-taggit==5.0.1
-
-# WSGI Server
 gunicorn==21.2.0
-
-# Environment
-python-dotenv==1.0.0
-
-# Utilities
+idna==3.11
+jmespath==1.1.0
+packaging==26.0
+Pillow==10.1.0
+psycopg2-binary==2.9.9
+pycryptodome==3.21.0
 python-dateutil==2.8.2
+python-dotenv==1.0.0
 pytz==2023.3
+requests==2.32.5
+s3transfer==0.10.4
+six==1.17.0
+sqlparse==0.5.5
+typing_extensions==4.15.0
+urllib3==2.6.3
+whitenoise==6.6.0
