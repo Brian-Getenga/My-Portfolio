@@ -92,11 +92,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'portfolio.wsgi.application'
 
 # Database Configuration
-# Use PostgreSQL from Neon or environment variable
-if 'DATABASE_URL' in os.environ:
+# IMPROVED: Check if DATABASE_URL exists AND is not empty
+database_url = os.environ.get('DATABASE_URL', '')
+if database_url:  # Only use if not empty
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
+            default=database_url,
             conn_max_age=600,
             conn_health_checks=True,
         )
