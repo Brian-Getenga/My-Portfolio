@@ -21,7 +21,8 @@ django-compressor==4.4
 django-cors-headers==4.3.1
 
 # Database
-psycopg[binary]==3.2.3 
+psycopg[binary]==3.3.2
+
 
 # Python helpers
 Pillow==12.1.0 # stable build on Render
