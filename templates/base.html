@@ -1,5 +1,3 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -889,7 +887,7 @@
         "@type": "Person",
         "name": "{{ site_settings.site_name }}",
         "url": "{{ request.scheme }}://{{ request.get_host }}",
-        "image": "{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}",
+        "image": "{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image }}",
         "sameAs": [
             {% if site_settings.github_url %}"{{ site_settings.github_url }}",{% endif %}
             {% if site_settings.linkedin_url %}"{{ site_settings.linkedin_url }}",{% endif %}
