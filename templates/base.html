@@ -24,8 +24,8 @@
 
 
     {% if site_settings.profile_image %}
-    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}{% endblock %}">
-    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image }}{% endblock %}">
     {% else %}
     <meta property="og:image" content="{% static 'images/default_profile.png' %}">
     <meta name="twitter:image" content="{% static 'images/default_profile.png' %}">
