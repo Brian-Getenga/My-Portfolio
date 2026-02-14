@@ -1,68 +1,458 @@
-
 {% extends 'base.html' %}
 {% load static %}
 {% load math_filters %}
+
 {% block title %}Services - {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Professional web development, design, and consulting services. Custom solutions tailored to your business needs.{% endblock %}
 
 {% block content %}
-<section class="pt-32 pb-20 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
-    <div class="container mx-auto px-4 text-center">
-        <h1 class="text-5xl md:text-6xl font-display font-bold mb-6" data-aos="fade-up">
-            My <span class="text-yellow-300">Services</span>
-        </h1>
-        <p class="text-xl opacity-90 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-            Professional web development and design services tailored to your needs
-        </p>
+
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white overflow-hidden">
+    <!-- Animated Background Blobs -->
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-20 left-20 w-72 lg:w-96 h-72 lg:h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+        <div class="absolute bottom-20 right-20 w-72 lg:w-96 h-72 lg:h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute top-1/2 left-1/2 w-72 lg:w-96 h-72 lg:h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+    </div>
+    
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div class="max-w-4xl mx-auto">
+            <!-- Badge -->
+            <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6 sm:mb-8" data-aos="fade-down">
+                <span class="text-sm sm:text-base font-semibold">💼 Professional Services</span>
+            </div>
+            
+            <!-- Title -->
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 sm:mb-6 leading-tight" data-aos="fade-up">
+                My <span class="text-yellow-300">Services</span>
+            </h1>
+            
+            <!-- Description -->
+            <p class="text-lg sm:text-xl md:text-2xl opacity-90 max-w-3xl mx-auto mb-8 sm:mb-10 leading-relaxed px-4" data-aos="fade-up" data-aos-delay="100">
+                Professional web development and design services tailored to your unique business needs
+            </p>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center">
+                    <div class="text-3xl sm:text-4xl font-bold mb-1">{{ services|length }}+</div>
+                    <div class="text-xs sm:text-sm opacity-80">Services</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl sm:text-4xl font-bold mb-1">{{ site_settings.happy_clients|default:50 }}+</div>
+                    <div class="text-xs sm:text-sm opacity-80">Happy Clients</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl sm:text-4xl font-bold mb-1">{{ site_settings.projects_completed|default:100 }}+</div>
+                    <div class="text-xs sm:text-sm opacity-80">Projects Done</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <a href="#services-grid" class="text-white hover:text-yellow-300 transition-colors">
+            <i class="fas fa-chevron-down text-2xl sm:text-3xl"></i>
+        </a>
     </div>
 </section>
 
-<section class="py-20">
-    <div class="container mx-auto px-4">
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+<!-- Services Grid -->
+<section id="services-grid" class="py-16 sm:py-20 lg:py-28 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        {% if services %}
+        <!-- Section Header -->
+        <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-4 sm:mb-6">
+                What I <span class="gradient-text">Offer</span>
+            </h2>
+            <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4">
+                Comprehensive solutions designed to help your business succeed in the digital world
+            </p>
+        </div>
+        
+        <!-- Services Grid -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-7xl mx-auto">
             {% for service in services %}
-            <div class="group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" 
-                 data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
-                {% if service.image %}
-                <img src="{{ service.image.url }}" alt="{{ service.title }}" class="w-full h-48 object-cover rounded-lg mb-6">
-                {% else %}
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="{{ service.icon }} text-white text-3xl"></i>
+            <article class="group bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden" 
+                     data-aos="fade-up" 
+                     data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+                <!-- Service Image/Icon -->
+                <div class="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+                    {% if service.image %}
+                    <img src="{{ service.image.url }}" 
+                         alt="{{ service.title }}" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                         loading="lazy">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    {% else %}
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                            <i class="{{ service.icon|default:'fas fa-cog' }} text-white text-4xl sm:text-5xl"></i>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Featured Badge -->
+                    {% if service.featured %}
+                    <div class="absolute top-4 right-4">
+                        <span class="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
+                            <i class="fas fa-star mr-1"></i>Popular
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
                 
-                <h3 class="text-2xl font-bold mb-4 group-hover:text-primary-600 transition-colors">
-                    {{ service.title }}
-                </h3>
-                
-                <p class="text-gray-600 dark:text-gray-400 mb-6">
-                    {{ service.short_description }}
+                <!-- Service Content -->
+                <div class="p-6 sm:p-8">
+                    <!-- Title -->
+                    <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 group-hover:text-primary-600 transition-colors line-clamp-2">
+                        {{ service.title }}
+                    </h3>
+                    
+                    <!-- Description -->
+                    <p class="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 line-clamp-3 text-sm sm:text-base leading-relaxed">
+                        {{ service.short_description }}
+                    </p>
+                    
+                    <!-- Features/Tech Tags (if available) -->
+                    {% if service.technologies %}
+                    <div class="flex flex-wrap gap-2 mb-4 sm:mb-6">
+                        {% for tech in service.tech_list|slice:":3" %}
+                        <span class="px-2 sm:px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
+                            {{ tech }}
+                        </span>
+                        {% endfor %}
+                        {% if service.tech_list|length > 3 %}
+                        <span class="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">
+                            +{{ service.tech_list|length|add:"-3" }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Pricing & CTA -->
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                        {% if service.starting_price %}
+                        <div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Starting at</div>
+                            <div class="text-2xl sm:text-3xl font-bold text-primary-600">
+                                ${{ service.starting_price }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Pricing</div>
+                            <div class="text-lg sm:text-xl font-bold text-primary-600">
+                                Custom Quote
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <a href="{% url 'service_detail' service.slug %}" 
+                           class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                           aria-label="Learn more about {{ service.title }}">
+                            <span class="hidden sm:inline">Learn More</span>
+                            <span class="sm:hidden">Details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-16 sm:py-20" data-aos="zoom-in">
+            <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 sm:mb-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <i class="fas fa-briefcase text-5xl sm:text-6xl text-gray-300 dark:text-gray-600"></i>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">No Services Available</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 max-w-md mx-auto px-4">
+                Services are being updated. Please check back soon or contact me directly.
+            </p>
+            <a href="{% url 'contact' %}" 
+               class="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-primary-600 text-white rounded-full font-bold hover:bg-primary-700 transition-colors">
+                <i class="fas fa-envelope mr-2"></i>Get in Touch
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Process Section -->
+<section class="py-16 sm:py-20 lg:py-28 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-4 sm:mb-6">
+                    How I <span class="gradient-text">Work</span>
+                </h2>
+                <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4">
+                    A streamlined process designed for exceptional results
                 </p>
-                
-                {% if service.starting_price %}
-                <div class="text-sm text-gray-500 mb-4">
-                    Starting at <span class="text-2xl font-bold text-primary-600">${{ service.starting_price }}</span>
+            </div>
+            
+            <!-- Process Steps - FIXED: Removed split filter -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                {% for step in process_steps %}
+                <div class="relative group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+                    <!-- Connector Line (hidden on mobile, shown on desktop) -->
+                    {% if not forloop.last %}
+                    <div class="hidden lg:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-primary-600 to-purple-600 z-0"></div>
+                    {% endif %}
+                    
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                        <!-- Step Number -->
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-600 to-purple-600 text-white rounded-xl flex items-center justify-center text-xl sm:text-2xl font-bold mb-4 sm:mb-6 mx-auto group-hover:scale-110 transition-transform">
+                            {{ forloop.counter }}
+                        </div>
+                        
+                        <!-- Step Title -->
+                        <h3 class="text-lg sm:text-xl font-bold text-center mb-2 sm:mb-3">
+                            {{ step }}
+                        </h3>
+                        
+                        <!-- Step Description -->
+                        <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 text-center">
+                            {% if forloop.counter == 1 %}
+                            We discuss your goals and requirements
+                            {% elif forloop.counter == 2 %}
+                            I create a detailed project roadmap
+                            {% elif forloop.counter == 3 %}
+                            Building your solution with regular updates
+                            {% else %}
+                            Deploy and provide ongoing support
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
-                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section (if available) -->
+{% if testimonials %}
+<section class="py-16 sm:py-20 lg:py-28 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-4 sm:mb-6">
+                Client <span class="text-yellow-300">Success Stories</span>
+            </h2>
+            <p class="text-lg sm:text-xl opacity-90 max-w-3xl mx-auto px-4">
+                What clients say about working with me
+            </p>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+            {% for testimonial in testimonials|slice:":3" %}
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-8 hover:bg-white/20 transition-all duration-300" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+                <!-- Rating -->
+                <div class="flex mb-4">
+                    {% for i in "12345" %}
+                    <i class="fas fa-star {% if forloop.counter <= testimonial.rating|default:5 %}text-yellow-300{% else %}text-gray-400{% endif %} text-lg sm:text-xl"></i>
+                    {% endfor %}
+                </div>
                 
-                <a href="{% url 'service_detail' service.slug %}" 
-                   class="inline-flex items-center text-primary-600 hover:text-primary-700 font-semibold">
-                    Learn More <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+                <!-- Quote -->
+                <blockquote class="text-base sm:text-lg italic mb-4 sm:mb-6 leading-relaxed">
+                    "{{ testimonial.content|truncatewords:30 }}"
+                </blockquote>
+                
+                <!-- Author -->
+                <div class="flex items-center">
+                    {% if testimonial.image %}
+                    <img src="{{ testimonial.image.url }}" 
+                         alt="{{ testimonial.name }}" 
+                         class="w-12 h-12 rounded-full mr-3 sm:mr-4 object-cover border-2 border-white"
+                         loading="lazy">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full mr-3 sm:mr-4 bg-white/20 flex items-center justify-center">
+                        <i class="fas fa-user text-xl"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <div class="font-bold text-sm sm:text-base">{{ testimonial.name }}</div>
+                        <div class="text-xs sm:text-sm opacity-80">{{ testimonial.position }}</div>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 text-center">
+<!-- FAQ Section -->
+{% if faqs %}
+<section class="py-16 sm:py-20 lg:py-28 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
-            <h2 class="text-4xl font-bold mb-8">Ready to Get Started?</h2>
-            <a href="{% url 'contact' %}" 
-               class="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-bold hover:shadow-lg hover:scale-105 transition-all">
-                Contact Me Today
-            </a>
+            <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-4 sm:mb-6">
+                    Frequently Asked <span class="gradient-text">Questions</span>
+                </h2>
+                <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-4">
+                    Quick answers to common questions about my services
+                </p>
+            </div>
+            
+            <div class="space-y-4" data-aos="fade-up">
+                {% for faq in faqs|slice:":6" %}
+                <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <button class="faq-question w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                            onclick="toggleFaq(this)"
+                            aria-expanded="false">
+                        <span class="font-semibold text-base sm:text-lg pr-4 sm:pr-8 group-hover:text-primary-600 transition-colors">
+                            {{ faq.question }}
+                        </span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-primary-600 transition-colors">
+                            <i class="fas fa-chevron-down text-primary-600 dark:text-primary-400 group-hover:text-white transition-all duration-300"></i>
+                        </div>
+                    </button>
+                    <div class="faq-answer hidden px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {{ faq.answer }}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="mt-8 sm:mt-12 text-center" data-aos="fade-up">
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                    Still have questions?
+                </p>
+                <a href="{% url 'contact' %}" 
+                   class="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-primary-600 text-white rounded-full font-bold hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-envelope mr-2"></i>Get in Touch
+                </a>
+            </div>
         </div>
     </div>
 </section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-16 sm:py-20 lg:py-32 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="relative p-8 sm:p-12 lg:p-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl text-white text-center overflow-hidden shadow-2xl" 
+                 data-aos="zoom-in">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-0 left-0 w-48 sm:w-64 h-48 sm:h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                    <div class="absolute bottom-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
+                </div>
+                
+                <div class="relative z-10">
+                    <!-- Icon -->
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8">
+                        <i class="fas fa-rocket text-3xl sm:text-4xl lg:text-5xl"></i>
+                    </div>
+                    
+                    <!-- Title -->
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-4 sm:mb-6 leading-tight px-4">
+                        Ready to Get <span class="text-yellow-300">Started?</span>
+                    </h2>
+                    
+                    <!-- Description -->
+                    <p class="text-base sm:text-lg lg:text-xl xl:text-2xl opacity-90 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-4">
+                        Let's discuss your project and create something amazing together. I'm available for freelance work and collaborations.
+                    </p>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center px-4">
+                        <a href="{% url 'contact' %}" 
+                           class="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-full font-bold text-base sm:text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Contact Me Today
+                        </a>
+                        <a href="{% url 'projects' %}" 
+                           class="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-base sm:text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
+                            <i class="fas fa-folder mr-2"></i>
+                            View Portfolio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// FAQ Toggle Function
+function toggleFaq(button) {
+    const answer = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    
+    // Close all other FAQs
+    document.querySelectorAll('.faq-answer').forEach(a => {
+        if (a !== answer && !a.classList.contains('hidden')) {
+            a.classList.add('hidden');
+            const btn = a.previousElementSibling;
+            btn.querySelector('i').classList.remove('rotate-180');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Toggle current FAQ
+    answer.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+    button.setAttribute('aria-expanded', !isExpanded);
+    
+    // Animate
+    if (!answer.classList.contains('hidden')) {
+        answer.classList.add('animate__animated', 'animate__fadeIn');
+        setTimeout(() => {
+            answer.classList.remove('animate__animated', 'animate__fadeIn');
+        }, 1000);
+    }
+}
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+            const offset = 80;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+    });
+});
+
+// Add loading animation for service cards
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('article[data-aos]').forEach(card => {
+    observer.observe(card);
+});
+</script>
 {% endblock %}

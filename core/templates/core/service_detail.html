@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load math_filters %}
+
 {% block title %}{{ service.title }} - Services{% endblock %}
 {% block meta_description %}{{ service.short_description }}{% endblock %}
 
@@ -17,23 +17,25 @@
         <div class="max-w-5xl mx-auto">
             <!-- Breadcrumb -->
             <nav class="mb-8" data-aos="fade-down">
-                <ol class="flex items-center space-x-2 text-sm opacity-80">
-                    <li><a href="{% url 'home' %}" class="hover:text-primary-400 transition-colors">Home</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'services' %}" class="hover:text-primary-400 transition-colors">Services</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-primary-400">{{ service.title }}</li>
+                <ol class="flex items-center flex-wrap space-x-2 text-sm opacity-80">
+                    <li><a href="{% url 'home' %}" class="hover:text-yellow-300 transition-colors">Home</a></li>
+                    <li><i class="fas fa-chevron-right text-xs mx-2"></i></li>
+                    <li><a href="{% url 'services' %}" class="hover:text-yellow-300 transition-colors">Services</a></li>
+                    <li><i class="fas fa-chevron-right text-xs mx-2"></i></li>
+                    <li class="text-yellow-300 truncate">{{ service.title }}</li>
                 </ol>
             </nav>
             
             <!-- Service Header -->
             <div data-aos="fade-up" class="text-center lg:text-left">
                 <!-- Icon -->
+                {% if service.icon %}
                 <div class="inline-flex w-24 h-24 bg-white/20 backdrop-blur-md rounded-2xl items-center justify-center mb-8">
                     <i class="{{ service.icon }} text-5xl"></i>
                 </div>
+                {% endif %}
                 
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 leading-tight">
                     {{ service.title }}
                 </h1>
                 
@@ -90,12 +92,12 @@
                             <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
                             Service Overview
                         </h2>
-                        <div class="prose dark:prose-invert prose-lg max-w-none">
+                        <div class="prose dark:prose-invert prose-lg max-w-none leading-relaxed">
                             {{ service.description|safe }}
                         </div>
                     </div>
                     
-                    <!-- What's Included / Deliverables -->
+                    <!-- What's Included / Deliverables - FIXED -->
                     {% if service.deliverables %}
                     <div data-aos="fade-up">
                         <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
@@ -115,7 +117,7 @@
                     </div>
                     {% endif %}
                     
-                    <!-- Process / How It Works -->
+                    <!-- How It Works / Process Steps - FIXED -->
                     {% if service.process_steps %}
                     <div data-aos="fade-up">
                         <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
@@ -164,15 +166,16 @@
                         <div class="space-y-4">
                             {% for faq in service.faqs.all %}
                             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-                                <button class="faq-question w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                                        onclick="toggleFaq(this)">
-                                    <span class="font-semibold text-lg pr-8">{{ faq.question }}</span>
-                                    <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-300"></i>
+                                <button class="faq-question w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                                        onclick="toggleFaq(this)"
+                                        aria-expanded="false">
+                                    <span class="font-semibold text-lg pr-8 group-hover:text-primary-600 transition-colors">{{ faq.question }}</span>
+                                    <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-primary-600 transition-colors">
+                                        <i class="fas fa-chevron-down text-primary-600 dark:text-primary-400 group-hover:text-white transition-transform duration-300"></i>
                                     </div>
                                 </button>
                                 <div class="faq-answer hidden px-6 py-5 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                    <p class="text-gray-700 dark:text-gray-300">{{ faq.answer }}</p>
+                                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ faq.answer }}</p>
                                 </div>
                             </div>
                             {% endfor %}
@@ -192,11 +195,7 @@
                             <div class="p-8 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl">
                                 <div class="flex mb-4">
                                     {% for i in "12345" %}
-                                    {% if forloop.counter <= testimonial.rating %}
-                                    <i class="fas fa-star text-yellow-300 text-xl"></i>
-                                    {% else %}
-                                    <i class="far fa-star text-yellow-300 text-xl"></i>
-                                    {% endif %}
+                                    <i class="fas fa-star {% if forloop.counter <= testimonial.rating %}text-yellow-300{% else %}text-gray-400{% endif %} text-xl"></i>
                                     {% endfor %}
                                 </div>
                                 <blockquote class="text-xl italic mb-6 leading-relaxed">
@@ -206,7 +205,11 @@
                                     {% if testimonial.image %}
                                     <img src="{{ testimonial.image.url }}" 
                                          alt="{{ testimonial.name }}"
-                                         class="w-14 h-14 rounded-full mr-4 border-2 border-white">
+                                         class="w-14 h-14 rounded-full mr-4 border-2 border-white object-cover">
+                                    {% else %}
+                                    <div class="w-14 h-14 rounded-full mr-4 bg-white/20 flex items-center justify-center text-2xl font-bold">
+                                        {{ testimonial.name|first }}
+                                    </div>
                                     {% endif %}
                                     <div>
                                         <div class="font-bold">{{ testimonial.name }}</div>
@@ -282,30 +285,30 @@
                     </div>
                     
                     <!-- Why Choose Me -->
-                    <div class="p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-lg" data-aos="fade-left" data-aos-delay="100">
+                    <div class="p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-lg border border-green-200 dark:border-green-900" data-aos="fade-left" data-aos-delay="100">
                         <h3 class="text-2xl font-bold mb-6 flex items-center">
                             <i class="fas fa-star text-yellow-500 mr-3"></i>
                             Why Choose Me?
                         </h3>
                         <ul class="space-y-4">
                             <li class="flex items-start space-x-3">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
                                 <span class="text-gray-700 dark:text-gray-300">Years of experience</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
                                 <span class="text-gray-700 dark:text-gray-300">High-quality work</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
                                 <span class="text-gray-700 dark:text-gray-300">On-time delivery</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
                                 <span class="text-gray-700 dark:text-gray-300">Clear communication</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
                                 <span class="text-gray-700 dark:text-gray-300">Post-launch support</span>
                             </li>
                         </ul>
@@ -319,13 +322,13 @@
                         </p>
                         <div class="space-y-3">
                             <a href="mailto:{{ site_settings.email }}" 
-                               class="flex items-center space-x-3 text-primary-600 hover:text-primary-700">
+                               class="flex items-center space-x-3 text-primary-600 hover:text-primary-700 transition-colors">
                                 <i class="fas fa-envelope"></i>
-                                <span>{{ site_settings.email }}</span>
+                                <span class="break-all">{{ site_settings.email }}</span>
                             </a>
                             {% if site_settings.phone %}
                             <a href="tel:{{ site_settings.phone }}" 
-                               class="flex items-center space-x-3 text-primary-600 hover:text-primary-700">
+                               class="flex items-center space-x-3 text-primary-600 hover:text-primary-700 transition-colors">
                                 <i class="fas fa-phone"></i>
                                 <span>{{ site_settings.phone }}</span>
                             </a>
@@ -356,14 +359,14 @@
             <div class="group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2" 
                  data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
                 <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <i class="{{ related.icon }} text-white text-3xl"></i>
+                    <i class="{{ related.icon|default:'fas fa-cog' }} text-white text-3xl"></i>
                 </div>
                 
                 <h3 class="text-2xl font-bold mb-4 group-hover:text-primary-600 transition-colors">
                     {{ related.title }}
                 </h3>
                 
-                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                <p class="text-gray-600 dark:text-gray-400 mb-6 line-clamp-3">
                     {{ related.short_description }}
                 </p>
                 
@@ -396,6 +399,9 @@
                 </div>
                 
                 <div class="relative z-10">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-8">
+                        <i class="fas fa-rocket text-5xl"></i>
+                    </div>
                     <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
                         Ready to Get <span class="text-yellow-300">Started?</span>
                     </h2>
@@ -428,24 +434,32 @@
 function toggleFaq(button) {
     const answer = button.nextElementSibling;
     const icon = button.querySelector('i');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
     
     // Close all other FAQs
     document.querySelectorAll('.faq-answer').forEach(a => {
         if (a !== answer && !a.classList.contains('hidden')) {
             a.classList.add('hidden');
-            a.previousElementSibling.querySelector('i').classList.remove('rotate-180');
+            const btn = a.previousElementSibling;
+            btn.querySelector('i').classList.remove('rotate-180');
+            btn.setAttribute('aria-expanded', 'false');
         }
     });
     
     // Toggle current FAQ
     answer.classList.toggle('hidden');
     icon.classList.toggle('rotate-180');
-}
-
-// Pre-fill service in contact form if coming from CTA
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('service')) {
-    localStorage.setItem('selectedService', '{{ service.title }}');
+    button.setAttribute('aria-expanded', !isExpanded);
+    
+    // Smooth animation
+    if (!answer.classList.contains('hidden')) {
+        answer.style.maxHeight = '0px';
+        answer.style.overflow = 'hidden';
+        answer.style.transition = 'max-height 0.3s ease-out';
+        setTimeout(() => {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+        }, 10);
+    }
 }
 </script>
 {% endblock %}
