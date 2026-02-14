@@ -20,6 +20,9 @@
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ site_settings.site_description }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url
+    
+    }}{% endblock %}">
     <meta property="og:site_name" content="{{ site_settings.site_name }}">
     
     <!-- Twitter Card -->
@@ -27,6 +30,8 @@
     <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
     <meta name="twitter:title" content="{% block twitter_title %}{{ site_settings.site_name }}{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}{{ site_settings.site_description }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url
+     }}{% endblock %}">
     {% if site_settings.twitter_url %}
     <meta name="twitter:creator" content="@{{ site_settings.twitter_url|slice:'-15:' }}">
     {% endif %}
