@@ -979,7 +979,6 @@ def services_view(request):
             'site_settings': get_site_settings(),
         })
 
-
 def service_detail(request, slug):
     """Individual service detail"""
     try:
@@ -991,11 +990,14 @@ def service_detail(request, slug):
             is_active=True
         ).exclude(id=service.id).order_by('-featured', '?')[:3]
         
-        # Service testimonials
-        testimonials = service.testimonials.filter(is_approved=True)
+        # Get general testimonials (not service-specific since model doesn't have that relationship)
+        testimonials = Testimonial.objects.filter(
+            is_approved=True,
+            is_featured=True
+        )[:3]
         
-        # Service FAQs
-        service_faqs = service.faqs.filter(is_active=True)
+        # Get general FAQs (not service-specific)
+        faqs = FAQ.objects.filter(is_active=True)[:6]
         
         # Contact form with pre-filled subject
         initial_data = {'subject': f'Inquiry about {service.title}'}
@@ -1005,17 +1007,17 @@ def service_detail(request, slug):
             'service': service,
             'related_services': related_services,
             'testimonials': testimonials,
+            'faqs': faqs,
             'site_settings': site_settings,
             'contact_form': contact_form,
-            'service_faqs': service_faqs,
         })
         
     except Exception as e:
         logger.error(f"Error in service_detail: {e}")
         messages.error(request, 'Service not found.')
         return redirect('services')
-
-
+    
+    
 def about_view(request):
     """About page with full bio"""
     try:

@@ -1,57 +1,499 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Something Went Wrong - {{ site_settings.site_name }}{% endblock %}
+{% block title %}Server Error (500) - {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Internal server error. We're working to fix the issue.{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes glitch-skew {
+        0% { transform: skew(0deg); }
+        10% { transform: skew(-2deg); }
+        20% { transform: skew(2deg); }
+        30% { transform: skew(-1deg); }
+        40% { transform: skew(1deg); }
+        50% { transform: skew(0deg); }
+        100% { transform: skew(0deg); }
+    }
+    
+    @keyframes error-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    @keyframes binary-rain {
+        0% { transform: translateY(-100%); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(100vh); opacity: 0; }
+    }
+    
+    @keyframes server-beat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    @keyframes warning-blink {
+        0%, 49%, 100% { opacity: 1; }
+        50%, 99% { opacity: 0.3; }
+    }
+    
+    .glitch-500 {
+        font-size: 8rem;
+        font-weight: 900;
+        color: #ef4444;
+        text-shadow: 
+            0.05em 0 0 rgba(255, 0, 0, 0.75),
+            -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+        animation: glitch-skew 1s infinite;
+    }
+    
+    .binary-char {
+        position: fixed;
+        font-family: 'Courier New', monospace;
+        color: #22c55e;
+        opacity: 0;
+        animation: binary-rain linear forwards;
+        pointer-events: none;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .status-indicator {
+        position: relative;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .status-indicator::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: inherit;
+        opacity: 0.3;
+        animation: error-pulse 2s ease-in-out infinite;
+    }
+    
+    .terminal {
+        background: #1a1a1a;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .terminal-header {
+        background: #2d2d2d;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .terminal-body {
+        padding: 1rem;
+        color: #22c55e;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .typing-cursor {
+        display: inline-block;
+        width: 8px;
+        height: 1em;
+        background: #22c55e;
+        margin-left: 2px;
+        animation: warning-blink 1s infinite;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<!-- 500 Hero -->
-<section class="relative min-h-screen flex items-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white overflow-hidden">
-    <!-- Animated blobs (identical to reference) -->
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-10 left-10 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div class="absolute top-40 right-10 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute -bottom-8 left-40 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+<!-- 500 Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-red-900 via-gray-900 to-black">
+    <!-- Binary Rain Background -->
+    <div id="binary-rain" class="absolute inset-0 overflow-hidden opacity-20 pointer-events-none"></div>
+    
+    <!-- Gradient Orbs -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-10 w-96 h-96 bg-red-500/20 rounded-full blur-3xl animate-blob"></div>
+        <div class="absolute top-1/2 right-10 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-1/4 left-1/2 w-96 h-96 bg-yellow-500/20 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
     </div>
-
-    <div class="container mx-auto px-4 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-block px-6 py-3 bg-white/20 backdrop-blur-md rounded-full mb-10" data-aos="fade-down">
-                <span class="text-xl font-semibold">500</span>
+    
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
+        <div class="max-w-5xl mx-auto">
+            <!-- Error Code & Icon -->
+            <div class="text-center mb-12" data-aos="zoom-in">
+                <div class="relative inline-block mb-8">
+                    <!-- Server Icon with Pulse -->
+                    <div class="w-32 h-32 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl flex items-center justify-center shadow-2xl" style="animation: server-beat 2s ease-in-out infinite;">
+                        <i class="fas fa-server text-white text-6xl"></i>
+                    </div>
+                    <!-- Warning Badge -->
+                    <div class="absolute -top-2 -right-2 w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg" style="animation: warning-blink 1s infinite;">
+                        <i class="fas fa-exclamation text-white text-xl"></i>
+                    </div>
+                </div>
+                
+                <div class="glitch-500 select-none mb-6">500</div>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
+                    Internal Server Error
+                </h1>
+                <p class="text-xl sm:text-2xl text-gray-300 mb-4">
+                    Oops! Something went wrong on our end.
+                </p>
+                <p class="text-lg text-gray-400">
+                    Our servers are experiencing technical difficulties. Don't worry, we're on it!
+                </p>
             </div>
-
-            <h1 class="text-7xl md:text-9xl lg:text-[12rem] font-display font-extrabold mb-8 leading-none" data-aos="zoom-in">
-                OOPS!
-            </h1>
-
-            <h2 class="text-4xl md:text-6xl font-display font-bold mb-8 gradient-text" data-aos="fade-up" data-aos-delay="200">
-                Server Error
-            </h2>
-
-            <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed mb-12" data-aos="fade-up" data-aos-delay="300">
-                Something broke on our end. Don't worry — our team has been notified and we're working on it.
-                In the meantime, try refreshing or heading back to the homepage.
-            </p>
-
-            <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-6 justify-center" data-aos="fade-up" data-aos-delay="400">
+            
+            <!-- System Status Grid -->
+            <div class="grid md:grid-cols-3 gap-6 mb-12" data-aos="fade-up" data-aos-delay="200">
+                <!-- Server Status -->
+                <div class="p-6 bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <i class="fas fa-server text-red-400"></i>
+                            Server Status
+                        </h3>
+                        <div class="status-indicator bg-red-500"></div>
+                    </div>
+                    <p class="text-gray-400 text-sm">Status: <span class="text-red-400 font-semibold">Error</span></p>
+                    <p class="text-gray-500 text-xs mt-2">Investigating issues...</p>
+                </div>
+                
+                <!-- Database Status -->
+                <div class="p-6 bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <i class="fas fa-database text-yellow-400"></i>
+                            Database
+                        </h3>
+                        <div class="status-indicator bg-yellow-500"></div>
+                    </div>
+                    <p class="text-gray-400 text-sm">Status: <span class="text-yellow-400 font-semibold">Degraded</span></p>
+                    <p class="text-gray-500 text-xs mt-2">Partial availability</p>
+                </div>
+                
+                <!-- Network Status -->
+                <div class="p-6 bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <i class="fas fa-network-wired text-green-400"></i>
+                            Network
+                        </h3>
+                        <div class="status-indicator bg-green-500"></div>
+                    </div>
+                    <p class="text-gray-400 text-sm">Status: <span class="text-green-400 font-semibold">Online</span></p>
+                    <p class="text-gray-500 text-xs mt-2">All systems operational</p>
+                </div>
+            </div>
+            
+            <!-- Error Details Terminal -->
+            <div class="terminal mb-12" data-aos="fade-up" data-aos-delay="300">
+                <div class="terminal-header">
+                    <div class="terminal-dot bg-red-500"></div>
+                    <div class="terminal-dot bg-yellow-500"></div>
+                    <div class="terminal-dot bg-green-500"></div>
+                    <span class="text-gray-400 text-sm ml-2">error.log</span>
+                </div>
+                <div class="terminal-body" id="error-log">
+                    <div>[{{ now|date:"Y-m-d H:i:s" }}] ERROR: Internal server error occurred</div>
+                    <div>[{{ now|date:"Y-m-d H:i:s" }}] INFO: Error ID: #{{ error_id|default:"ERR-500-XXXX" }}</div>
+                    <div>[{{ now|date:"Y-m-d H:i:s" }}] INFO: Technical team has been notified</div>
+                    <div>[{{ now|date:"Y-m-d H:i:s" }}] INFO: Initiating diagnostic procedures...</div>
+                    <div>[{{ now|date:"Y-m-d H:i:s" }}] STATUS: Working on resolution</div>
+                    <div class="mt-2">
+                        <span class="text-yellow-500">$ </span>
+                        <span id="typing-text"></span>
+                        <span class="typing-cursor"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- What You Can Do -->
+            <div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-md border border-blue-700/50 rounded-3xl p-8 sm:p-10 mb-12" data-aos="fade-up" data-aos-delay="400">
+                <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                    <i class="fas fa-tools text-blue-400"></i>
+                    What You Can Do
+                </h2>
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-redo text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">Refresh the Page</h3>
+                            <p class="text-gray-400 text-sm">The issue might be temporary. Try refreshing the page in a few moments.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-home text-purple-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">Go to Homepage</h3>
+                            <p class="text-gray-400 text-sm">Return to our homepage and try navigating from there.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-green-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">Wait a Moment</h3>
+                            <p class="text-gray-400 text-sm">We're actively working on fixing this issue. It should be resolved shortly.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-yellow-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-semibold mb-2">Contact Support</h3>
+                            <p class="text-gray-400 text-sm">If the problem persists, please let us know so we can help.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center" data-aos="fade-up" data-aos-delay="500">
+                <button onclick="location.reload()" 
+                        class="group px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-bold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 flex items-center justify-center gap-3">
+                    <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                    Refresh Page
+                </button>
+                
                 <a href="{% url 'home' %}" 
-                   class="inline-flex items-center px-12 py-6 bg-white text-blue-600 rounded-full font-bold text-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                    <i class="fas fa-home mr-3 text-2xl"></i> Back to Home
+                   class="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 rounded-xl font-bold hover:border-blue-500 dark:hover:border-blue-400 transition-all hover:scale-105 flex items-center justify-center gap-3">
+                    <i class="fas fa-home"></i>
+                    Go to Homepage
                 </a>
+                
                 <a href="{% url 'contact' %}" 
-                   class="inline-flex items-center px-12 py-6 bg-white/20 backdrop-blur-md border-2 border-white text-white rounded-full font-bold text-xl hover:bg-white hover:text-blue-600 transition-all duration-300">
-                    <i class="fas fa-envelope mr-3 text-2xl"></i> Report This Issue
+                   class="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-bold shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-105 flex items-center justify-center gap-3">
+                    <i class="fas fa-life-ring"></i>
+                    Get Help
                 </a>
-            </div>
-
-            <!-- Fun Element -->
-            <div class="mt-16 opacity-80" data-aos="fade-up" data-aos-delay="500">
-                <i class="fas fa-tools text-8xl animate-pulse"></i>
-                <p class="mt-4 text-lg">Fixing things behind the scenes...</p>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Additional Info Section -->
+<section class="py-20 bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Technical Details -->
+            <div class="p-8 bg-gray-800 rounded-3xl border border-gray-700 mb-12" data-aos="fade-up">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                    Technical Details
+                </h2>
+                <div class="grid sm:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <div class="text-gray-400 mb-1">Error Code:</div>
+                        <div class="text-white font-mono">HTTP 500</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-400 mb-1">Error ID:</div>
+                        <div class="text-white font-mono">{{ error_id|default:"ERR-500-XXXX" }}</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-400 mb-1">Timestamp:</div>
+                        <div class="text-white font-mono">{{ now|date:"Y-m-d H:i:s T" }}</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-400 mb-1">Server:</div>
+                        <div class="text-white font-mono">{{ request.get_host }}</div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-yellow-900/20 border border-yellow-700 rounded-xl">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-shield-alt text-yellow-400 mt-1"></i>
+                        <div>
+                            <h3 class="text-yellow-400 font-semibold mb-2">Your Data is Safe</h3>
+                            <p class="text-gray-300 text-sm">This error doesn't affect your data or account security. Everything is safely stored.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Meanwhile Section -->
+            <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+                <h2 class="text-3xl font-bold text-white mb-6">
+                    Meanwhile, Check Out These
+                </h2>
+                <div class="grid sm:grid-cols-3 gap-6">
+                    <a href="{% url 'projects' %}" 
+                       class="group p-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-blue-500 rounded-2xl transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-500/20">
+                        <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
+                            <i class="fas fa-folder text-blue-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Projects</h3>
+                        <p class="text-gray-400 text-sm">View portfolio</p>
+                    </a>
+                    
+                    <a href="{% url 'blog' %}" 
+                       class="group p-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-purple-500 rounded-2xl transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-purple-500/20">
+                        <div class="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
+                            <i class="fas fa-newspaper text-purple-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Blog</h3>
+                        <p class="text-gray-400 text-sm">Read articles</p>
+                    </a>
+                    
+                    <a href="{% url 'services' %}" 
+                       class="group p-6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-green-500 rounded-2xl transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-green-500/20">
+                        <div class="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
+                            <i class="fas fa-briefcase text-green-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Services</h3>
+                        <p class="text-gray-400 text-sm">What I offer</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize AOS
+AOS.init({
+    duration: 800,
+    once: true,
+    offset: 100
+});
+
+// Binary rain effect
+function createBinaryRain() {
+    const container = document.getElementById('binary-rain');
+    if (!container) return;
+    
+    const chars = '01';
+    const columns = Math.floor(window.innerWidth / 20);
+    
+    function createColumn() {
+        const char = document.createElement('div');
+        char.className = 'binary-char';
+        char.textContent = chars[Math.floor(Math.random() * chars.length)];
+        char.style.left = (Math.random() * 100) + '%';
+        char.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        char.style.animationDelay = Math.random() + 's';
+        container.appendChild(char);
+        
+        setTimeout(() => char.remove(), 5000);
+    }
+    
+    // Create initial columns
+    for (let i = 0; i < 30; i++) {
+        setTimeout(createColumn, i * 100);
+    }
+    
+    // Continue creating columns
+    setInterval(createColumn, 200);
+}
+
+createBinaryRain();
+
+// Typing effect in terminal
+const messages = [
+    'Running system diagnostics...',
+    'Checking database connections...',
+    'Analyzing error logs...',
+    'Notifying development team...',
+    'Estimated fix time: 5-10 minutes'
+];
+
+let currentMsg = 0;
+let currentChar = 0;
+const typingElement = document.getElementById('typing-text');
+
+function typeMessage() {
+    if (!typingElement) return;
+    
+    if (currentChar < messages[currentMsg].length) {
+        typingElement.textContent += messages[currentMsg][currentChar];
+        currentChar++;
+        setTimeout(typeMessage, 50);
+    } else {
+        setTimeout(() => {
+            currentChar = 0;
+            currentMsg = (currentMsg + 1) % messages.length;
+            typingElement.textContent = '';
+            setTimeout(typeMessage, 500);
+        }, 2000);
+    }
+}
+
+setTimeout(typeMessage, 1000);
+
+// Auto-refresh timer (optional - uncomment if you want auto-refresh)
+// let countdown = 30;
+// const refreshTimer = setInterval(() => {
+//     countdown--;
+//     if (countdown <= 0) {
+//         clearInterval(refreshTimer);
+//         location.reload();
+//     }
+// }, 1000);
+
+// Log error for tracking
+console.log('%c500 Server Error', 'color: #ef4444; font-size: 24px; font-weight: bold;');
+console.log('Error ID:', '{{ error_id|default:"ERR-500-XXXX" }}');
+console.log('Timestamp:', '{{ now|date:"c" }}');
+console.log('URL:', window.location.href);
+console.log('User Agent:', navigator.userAgent);
+
+// Send error report to monitoring service (if configured)
+if (typeof gtag !== 'undefined') {
+    gtag('event', 'exception', {
+        'description': 'Internal Server Error',
+        'fatal': false,
+        'error_id': '{{ error_id|default:"ERR-500-XXXX" }}'
+    });
+}
+
+// Easter egg: Shake on triple click
+let clickCount = 0;
+let clickTimer;
+
+document.addEventListener('click', () => {
+    clickCount++;
+    clearTimeout(clickTimer);
+    
+    if (clickCount === 3) {
+        document.body.style.animation = 'glitch-skew 0.5s';
+        setTimeout(() => {
+            document.body.style.animation = '';
+        }, 500);
+        clickCount = 0;
+    }
+    
+    clickTimer = setTimeout(() => {
+        clickCount = 0;
+    }, 500);
+});
+</script>
 {% endblock %}

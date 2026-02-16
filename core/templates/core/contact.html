@@ -1,29 +1,97 @@
-
 {% extends 'base.html' %}
 {% load static %}
-{% load math_filters %}Z
+{% load math_filters %}
+
 {% block title %}Contact - {{ site_settings.site_name }}{% endblock %}
 {% block meta_description %}Get in touch with {{ site_settings.site_name }}. Let's discuss your project ideas and create something amazing together.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gradient-animate {
+        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+    
+    @keyframes gradient {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .input-focus:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    .contact-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .contact-card:hover {
+        transform: translateY(-8px) scale(1.02);
+    }
+    
+    .form-group {
+        position: relative;
+    }
+    
+    .form-label {
+        transition: all 0.3s ease;
+    }
+    
+    .char-counter {
+        transition: color 0.3s ease;
+    }
+    
+    .char-counter.warning {
+        color: #f59e0b;
+    }
+    
+    .char-counter.danger {
+        color: #ef4444;
+    }
+    
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out;
+    }
+    
+    .faq-answer.active {
+        max-height: 500px;
+    }
+    
+    .map-overlay {
+        transition: opacity 0.3s ease;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
 <!-- Hero Section -->
-<section class="pt-32 pb-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+<section class="relative pt-32 pb-20 gradient-animate text-white overflow-hidden">
+    <!-- Animated Background -->
     <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
     </div>
     
-    <div class="container mx-auto px-4 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="max-w-4xl mx-auto text-center">
+            <!-- Badge -->
             <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down">
                 <span class="text-sm font-semibold">💬 Let's Connect</span>
             </div>
+            
+            <!-- Main Heading -->
             <h1 class="text-5xl md:text-7xl font-display font-bold mb-6" data-aos="fade-up">
                 Get in <span class="text-yellow-300">Touch</span>
             </h1>
-            <p class="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+            
+            <!-- Description -->
+            <p class="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="100">
                 Have a project in mind? Let's discuss how we can work together to bring your vision to life
             </p>
         </div>
@@ -31,129 +99,165 @@
 </section>
 
 <!-- Main Content -->
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
+<section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-12">
                 <!-- Contact Form -->
                 <div data-aos="fade-right">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 lg:p-12">
-                        <h2 class="text-3xl lg:text-4xl font-bold mb-2">Send Me a Message</h2>
-                        <p class="text-gray-600 dark:text-gray-400 mb-8">Fill out the form below and I'll get back to you within 24 hours.</p>
+                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700">
+                        <div class="mb-8">
+                            <h2 class="text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">Send Me a Message</h2>
+                            <p class="text-gray-600 dark:text-gray-400">Fill out the form below and I'll get back to you within 24 hours.</p>
+                        </div>
                         
                         <form method="post" id="contact-form" class="space-y-6">
                             {% csrf_token %}
                             
                             <!-- Name & Email Row -->
                             <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="id_name" class="block text-sm font-semibold mb-2">
+                                <div class="form-group">
+                                    <label for="id_name" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Full Name <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="id_name" name="name" required
-                                           class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors"
-                                           placeholder="John Doe">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-user text-gray-400"></i>
+                                        </div>
+                                        <input type="text" id="id_name" name="name" required
+                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
+                                               placeholder="John Doe">
+                                    </div>
                                 </div>
                                 
-                                <div>
-                                    <label for="id_email" class="block text-sm font-semibold mb-2">
+                                <div class="form-group">
+                                    <label for="id_email" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Email Address <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="email" id="id_email" name="email" required
-                                           class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors"
-                                           placeholder="john@example.com">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-envelope text-gray-400"></i>
+                                        </div>
+                                        <input type="email" id="id_email" name="email" required
+                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
+                                               placeholder="john@example.com">
+                                    </div>
                                 </div>
                             </div>
                             
                             <!-- Phone & Subject Row -->
                             <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="id_phone" class="block text-sm font-semibold mb-2">
+                                <div class="form-group">
+                                    <label for="id_phone" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Phone Number <span class="text-gray-400 text-xs">(Optional)</span>
                                     </label>
-                                    <input type="tel" id="id_phone" name="phone"
-                                           class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors"
-                                           placeholder="+1 (555) 123-4567">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-phone text-gray-400"></i>
+                                        </div>
+                                        <input type="tel" id="id_phone" name="phone"
+                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
+                                               placeholder="+1 (555) 123-4567">
+                                    </div>
                                 </div>
                                 
-                                <div>
-                                    <label for="id_subject" class="block text-sm font-semibold mb-2">
+                                <div class="form-group">
+                                    <label for="id_subject" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Subject <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="id_subject" name="subject" required
-                                           class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors"
-                                           placeholder="Project Inquiry">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-tag text-gray-400"></i>
+                                        </div>
+                                        <input type="text" id="id_subject" name="subject" required
+                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
+                                               placeholder="Project Inquiry">
+                                    </div>
                                 </div>
                             </div>
                             
                             <!-- Budget & Timeline Row -->
                             <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="id_budget" class="block text-sm font-semibold mb-2">
+                                <div class="form-group">
+                                    <label for="id_budget" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Project Budget
                                     </label>
-                                    <select id="id_budget" name="budget"
-                                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors">
-                                        <option value="">Select budget range</option>
-                                        <option value="under_5k">Under $5,000</option>
-                                        <option value="5k_10k">$5,000 - $10,000</option>
-                                        <option value="10k_25k">$10,000 - $25,000</option>
-                                        <option value="25k_50k">$25,000 - $50,000</option>
-                                        <option value="over_50k">Over $50,000</option>
-                                    </select>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-dollar-sign text-gray-400"></i>
+                                        </div>
+                                        <select id="id_budget" name="budget"
+                                                class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all appearance-none cursor-pointer">
+                                            <option value="">Select budget range</option>
+                                            <option value="under_5k">Under $5,000</option>
+                                            <option value="5k_10k">$5,000 - $10,000</option>
+                                            <option value="10k_25k">$10,000 - $25,000</option>
+                                            <option value="25k_50k">$25,000 - $50,000</option>
+                                            <option value="over_50k">Over $50,000</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-chevron-down text-gray-400"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <div>
-                                    <label for="id_timeline" class="block text-sm font-semibold mb-2">
+                                <div class="form-group">
+                                    <label for="id_timeline" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Expected Timeline
                                     </label>
-                                    <select id="id_timeline" name="timeline"
-                                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors">
-                                        <option value="">Select timeline</option>
-                                        <option value="asap">ASAP (Within 1 week)</option>
-                                        <option value="1_2_weeks">1-2 weeks</option>
-                                        <option value="2_4_weeks">2-4 weeks</option>
-                                        <option value="1_3_months">1-3 months</option>
-                                        <option value="3_6_months">3-6 months</option>
-                                        <option value="flexible">Flexible</option>
-                                    </select>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-calendar text-gray-400"></i>
+                                        </div>
+                                        <select id="id_timeline" name="timeline"
+                                                class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all appearance-none cursor-pointer">
+                                            <option value="">Select timeline</option>
+                                            <option value="asap">ASAP (Within 1 week)</option>
+                                            <option value="1_2_weeks">1-2 weeks</option>
+                                            <option value="2_4_weeks">2-4 weeks</option>
+                                            <option value="1_3_months">1-3 months</option>
+                                            <option value="3_6_months">3-6 months</option>
+                                            <option value="flexible">Flexible</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-chevron-down text-gray-400"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
                             <!-- Message -->
-                            <div>
-                                <label for="id_message" class="block text-sm font-semibold mb-2">
+                            <div class="form-group">
+                                <label for="id_message" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                     Your Message <span class="text-red-500">*</span>
                                 </label>
-                                <textarea id="id_message" name="message" rows="6" required
-                                          class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-900 dark:text-white transition-colors resize-none"
+                                <textarea id="id_message" name="message" rows="6" required maxlength="1000"
+                                          class="input-focus w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all resize-none"
                                           placeholder="Tell me about your project, goals, and any specific requirements..."></textarea>
-                                <div class="flex justify-between text-xs text-gray-500 mt-2">
-                                    <span id="char-count">0 / 1000 characters</span>
+                                <div class="flex justify-between text-xs mt-2">
+                                    <span id="char-count" class="char-counter text-gray-500">0 / 1000 characters</span>
                                     <span class="text-gray-400">Minimum 10 characters</span>
                                 </div>
                             </div>
                             
-                            <!-- Honeypot (spam protection - hidden) -->
+                            <!-- Honeypot -->
                             <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-                            
-                            <!-- reCAPTCHA (if enabled) -->
-                            <!-- <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div> -->
                             
                             <!-- Submit Button -->
                             <button type="submit" id="submit-btn"
-                                    class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center">
-                                <span id="submit-text">
-                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                                <span id="submit-text" class="flex items-center justify-center gap-2">
+                                    <i class="fas fa-paper-plane"></i>
                                     Send Message
                                 </span>
-                                <span id="submit-loading" class="hidden">
-                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                <span id="submit-loading" class="hidden flex items-center justify-center gap-2">
+                                    <i class="fas fa-spinner fa-spin"></i>
                                     Sending...
                                 </span>
                             </button>
                             
                             <p class="text-xs text-gray-500 text-center">
+                                <i class="fas fa-lock mr-1"></i>
                                 By submitting this form, you agree to our privacy policy. We'll never share your information.
                             </p>
                         </form>
@@ -165,19 +269,19 @@
                     <!-- Contact Info Cards -->
                     <div class="space-y-4">
                         <!-- Email -->
-                        <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4 border-blue-500">
+                        <div class="contact-card p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-l-4 border-blue-500">
                             <div class="flex items-start space-x-4">
-                                <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-envelope text-blue-600 dark:text-blue-400 text-2xl"></i>
+                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                                    <i class="fas fa-envelope text-white text-2xl"></i>
                                 </div>
-                                <div class="flex-1">
-                                    <h3 class="font-bold text-lg mb-1">Email Me</h3>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold text-lg mb-1 text-gray-900 dark:text-white">Email Me</h3>
                                     <a href="mailto:{{ site_settings.email }}" 
-                                       class="text-primary-600 hover:text-primary-700 break-all text-lg">
+                                       class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 break-all text-lg font-semibold">
                                         {{ site_settings.email }}
                                     </a>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                        <i class="fas fa-clock mr-1"></i>Response time: Within 24 hours
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
+                                        <i class="fas fa-clock"></i>Response time: Within 24 hours
                                     </p>
                                 </div>
                             </div>
@@ -185,19 +289,19 @@
                         
                         <!-- Phone -->
                         {% if site_settings.phone %}
-                        <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4 border-green-500">
+                        <div class="contact-card p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-l-4 border-green-500">
                             <div class="flex items-start space-x-4">
-                                <div class="w-14 h-14 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-phone text-green-600 dark:text-green-400 text-2xl"></i>
+                                <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                                    <i class="fas fa-phone text-white text-2xl"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-lg mb-1">Call Me</h3>
+                                    <h3 class="font-bold text-lg mb-1 text-gray-900 dark:text-white">Call Me</h3>
                                     <a href="tel:{{ site_settings.phone }}" 
-                                       class="text-primary-600 hover:text-primary-700 text-lg">
+                                       class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-lg font-semibold">
                                         {{ site_settings.phone }}
                                     </a>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                        <i class="fas fa-clock mr-1"></i>Mon-Fri, 9am-6pm EST
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
+                                        <i class="fas fa-clock"></i>Mon-Fri, 9am-6pm EST
                                     </p>
                                 </div>
                             </div>
@@ -205,16 +309,16 @@
                         {% endif %}
                         
                         <!-- Location -->
-                        <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-4 border-purple-500">
+                        <div class="contact-card p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-l-4 border-purple-500">
                             <div class="flex items-start space-x-4">
-                                <div class="w-14 h-14 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt text-purple-600 dark:text-purple-400 text-2xl"></i>
+                                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                                    <i class="fas fa-map-marker-alt text-white text-2xl"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-lg mb-1">Visit Me</h3>
-                                    <p class="text-gray-900 dark:text-white mb-2">{{ site_settings.location }}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                                        <i class="fas fa-globe mr-1"></i>Open to remote work worldwide
+                                    <h3 class="font-bold text-lg mb-1 text-gray-900 dark:text-white">Visit Me</h3>
+                                    <p class="text-gray-900 dark:text-white mb-2 font-semibold">{{ site_settings.location }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                        <i class="fas fa-globe"></i>Open to remote work worldwide
                                     </p>
                                 </div>
                             </div>
@@ -224,13 +328,12 @@
                     <!-- Google Maps -->
                     <div class="rounded-2xl overflow-hidden shadow-2xl">
                         <div class="bg-white dark:bg-gray-800 p-4">
-                            <h3 class="font-bold text-lg mb-2 flex items-center">
-                                <i class="fas fa-location-dot text-primary-600 mr-2"></i>
+                            <h3 class="font-bold text-lg mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+                                <i class="fas fa-location-dot text-blue-600"></i>
                                 Location Map
                             </h3>
                         </div>
                         <div class="relative h-80">
-                            <!-- Replace with your actual coordinates -->
                             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255282.35823184754!2d36.70730158674246!3d-1.3031976327445654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1707758400000!5m2!1sen!2sus"
                                     width="100%" 
                                     height="100%" 
@@ -244,13 +347,16 @@
                     
                     <!-- Availability Status -->
                     <div class="p-8 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
-                        <h3 class="font-bold text-xl mb-4 flex items-center">
-                            <i class="fas fa-calendar-check mr-2"></i>
+                        <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+                            <i class="fas fa-calendar-check"></i>
                             Current Availability
                         </h3>
                         {% if site_settings.available_for_work %}
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+                            <div class="relative flex h-4 w-4">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-4 w-4 bg-green-400"></span>
+                            </div>
                             <span class="font-semibold text-lg">Available for new projects</span>
                         </div>
                         <p class="opacity-90 leading-relaxed">
@@ -269,32 +375,32 @@
                     
                     <!-- Social Media -->
                     <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
-                        <h3 class="font-bold text-lg mb-4">Connect on Social Media</h3>
+                        <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">Connect on Social Media</h3>
                         <div class="grid grid-cols-4 gap-3">
                             {% if site_settings.github_url %}
                             <a href="{{ site_settings.github_url }}" target="_blank" 
-                               class="aspect-square bg-gray-900 hover:bg-gray-800 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+                               class="aspect-square bg-gray-900 hover:bg-gray-800 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
                                title="GitHub">
                                 <i class="fab fa-github text-2xl"></i>
                             </a>
                             {% endif %}
                             {% if site_settings.linkedin_url %}
                             <a href="{{ site_settings.linkedin_url }}" target="_blank" 
-                               class="aspect-square bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+                               class="aspect-square bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
                                title="LinkedIn">
                                 <i class="fab fa-linkedin text-2xl"></i>
                             </a>
                             {% endif %}
                             {% if site_settings.twitter_url %}
                             <a href="{{ site_settings.twitter_url }}" target="_blank" 
-                               class="aspect-square bg-sky-500 hover:bg-sky-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+                               class="aspect-square bg-sky-500 hover:bg-sky-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
                                title="Twitter">
                                 <i class="fab fa-twitter text-2xl"></i>
                             </a>
                             {% endif %}
                             {% if site_settings.youtube_url %}
                             <a href="{{ site_settings.youtube_url }}" target="_blank" 
-                               class="aspect-square bg-red-600 hover:bg-red-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+                               class="aspect-square bg-red-600 hover:bg-red-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
                                title="YouTube">
                                 <i class="fab fa-youtube text-2xl"></i>
                             </a>
@@ -309,12 +415,15 @@
 
 <!-- FAQ Section -->
 {% if faqs %}
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
+<section class="py-20 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-12" data-aos="fade-up">
-                <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                    Frequently Asked <span class="gradient-text">Questions</span>
+                <span class="inline-block px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm font-semibold mb-4">
+                    <i class="fas fa-question-circle mr-2"></i>FAQ
+                </span>
+                <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Frequently Asked Questions
                 </h2>
                 <p class="text-xl text-gray-600 dark:text-gray-400">
                     Quick answers to common questions about working with me
@@ -325,17 +434,17 @@
                 {% for faq in faqs %}
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700" 
                      data-aos="fade-up" 
-                     data-aos-delay="{{ forloop.counter0|add:1|mul:50 }}">
+                     data-aos-delay="{{ forloop.counter0|mul:50 }}">
                     <button class="faq-question w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
                             onclick="toggleFaq(this)">
-                        <span class="font-semibold text-lg pr-8 group-hover:text-primary-600 transition-colors">
+                        <span class="font-semibold text-lg pr-8 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {{ faq.question }}
                         </span>
-                        <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-primary-600 transition-colors">
-                            <i class="fas fa-chevron-down text-primary-600 dark:text-primary-400 group-hover:text-white transition-all duration-300"></i>
+                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-chevron-down text-blue-600 dark:text-blue-400 group-hover:text-white transition-all duration-300"></i>
                         </div>
                     </button>
-                    <div class="faq-answer hidden px-8 py-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    <div class="faq-answer px-8 py-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                         <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ faq.answer }}</p>
                     </div>
                 </div>
@@ -347,8 +456,8 @@
                     Still have questions?
                 </p>
                 <a href="#contact-form" 
-                   class="inline-flex items-center px-8 py-4 bg-primary-600 text-white rounded-full font-bold hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-envelope mr-2"></i>
+                   class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl hover:scale-105">
+                    <i class="fas fa-envelope"></i>
                     Send Me a Message
                 </a>
             </div>
@@ -358,20 +467,14 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
+<section class="py-20 lg:py-32 gradient-animate">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-5xl mx-auto">
-            <div class="relative p-12 lg:p-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl text-white text-center overflow-hidden shadow-2xl" 
+            <div class="relative p-12 lg:p-20 bg-white/10 backdrop-blur-md rounded-3xl text-white text-center overflow-hidden shadow-2xl border border-white/20" 
                  data-aos="zoom-in">
-                <!-- Background Pattern -->
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
-                    <div class="absolute top-1/2 left-1/2 w-80 h-80 bg-yellow-200 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                </div>
                 
                 <div class="relative z-10">
-                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
                         <i class="fas fa-rocket text-5xl"></i>
                     </div>
                     <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6 leading-tight">
@@ -382,13 +485,13 @@
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <a href="#contact-form" 
-                           class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-paper-plane mr-2"></i>
+                           class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-paper-plane"></i>
                             Send a Message
                         </a>
                         <a href="{% url 'projects' %}" 
-                           class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                            <i class="fas fa-folder mr-2"></i>
+                           class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
+                            <i class="fas fa-folder"></i>
                             View Portfolio
                         </a>
                     </div>
@@ -401,10 +504,13 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- reCAPTCHA (if enabled) -->
-<!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
 <script>
+// Initialize AOS
+AOS.init({ duration: 1000, once: true, offset: 100 });
+
 // Character counter
 const messageField = document.getElementById('id_message');
 const charCount = document.getElementById('char-count');
@@ -413,16 +519,15 @@ messageField?.addEventListener('input', function() {
     const count = this.value.length;
     charCount.textContent = `${count} / 1000 characters`;
     
-    if (count > 1000) {
-        charCount.classList.add('text-red-500');
-        charCount.classList.remove('text-gray-500');
-    } else {
-        charCount.classList.remove('text-red-500');
-        charCount.classList.add('text-gray-500');
+    charCount.classList.remove('warning', 'danger');
+    if (count > 900) {
+        charCount.classList.add('danger');
+    } else if (count > 800) {
+        charCount.classList.add('warning');
     }
 });
 
-// Form submission with validation
+// Form submission
 const contactForm = document.getElementById('contact-form');
 const submitBtn = document.getElementById('submit-btn');
 const submitText = document.getElementById('submit-text');
@@ -431,15 +536,13 @@ const submitLoading = document.getElementById('submit-loading');
 contactForm?.addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    // Validate message length
     const message = messageField.value.trim();
     if (message.length < 10) {
-        alert('Please write a message of at least 10 characters.');
+        showToast('Please write a message of at least 10 characters.', 'error');
         messageField.focus();
         return;
     }
     
-    // Disable button
     submitBtn.disabled = true;
     submitText.classList.add('hidden');
     submitLoading.classList.remove('hidden');
@@ -450,61 +553,19 @@ contactForm?.addEventListener('submit', async function(e) {
         const response = await fetch('{% url "contact" %}', {
             method: 'POST',
             body: formData,
-            headers: {
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-            }
+            headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
         });
         
         if (response.ok) {
-            // Success
             contactForm.reset();
             charCount.textContent = '0 / 1000 characters';
-            
-            // Show success message
-            const successDiv = document.createElement('div');
-            successDiv.className = 'p-6 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-2xl mb-6 animate__animated animate__fadeInDown border-l-4 border-green-500';
-            successDiv.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <i class="fas fa-check-circle text-2xl mt-1"></i>
-                    <div>
-                        <h4 class="font-bold mb-1">Message Sent Successfully!</h4>
-                        <p class="text-sm">Thank you for reaching out. I'll get back to you within 24 hours.</p>
-                    </div>
-                </div>
-            `;
-            contactForm.insertAdjacentElement('beforebegin', successDiv);
-            
-            // Scroll to success message
-            successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            setTimeout(() => {
-                successDiv.classList.add('animate__fadeOutUp');
-                setTimeout(() => successDiv.remove(), 1000);
-            }, 8000);
+            showToast('✅ Message sent successfully! I\'ll respond within 24 hours.', 'success');
         } else {
             throw new Error('Submission failed');
         }
     } catch (error) {
-        // Error
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'p-6 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-2xl mb-6 animate__animated animate__fadeInDown border-l-4 border-red-500';
-        errorDiv.innerHTML = `
-            <div class="flex items-start space-x-3">
-                <i class="fas fa-exclamation-circle text-2xl mt-1"></i>
-                <div>
-                    <h4 class="font-bold mb-1">Oops! Something went wrong</h4>
-                    <p class="text-sm">Please try again or contact me directly at ${site_settings.email}.</p>
-                </div>
-            </div>
-        `;
-        contactForm.insertAdjacentElement('beforebegin', errorDiv);
-        
-        setTimeout(() => {
-            errorDiv.classList.add('animate__fadeOutUp');
-            setTimeout(() => errorDiv.remove(), 1000);
-        }, 8000);
+        showToast('❌ An error occurred. Please try again or email me directly.', 'error');
     } finally {
-        // Re-enable button
         submitBtn.disabled = false;
         submitText.classList.remove('hidden');
         submitLoading.classList.add('hidden');
@@ -515,26 +576,33 @@ contactForm?.addEventListener('submit', async function(e) {
 function toggleFaq(button) {
     const answer = button.nextElementSibling;
     const icon = button.querySelector('i');
+    const isOpen = answer.classList.contains('active');
     
     // Close all other FAQs
     document.querySelectorAll('.faq-answer').forEach(a => {
-        if (a !== answer && !a.classList.contains('hidden')) {
-            a.classList.add('hidden');
+        if (a !== answer && a.classList.contains('active')) {
+            a.classList.remove('active');
             a.previousElementSibling.querySelector('i').classList.remove('rotate-180');
         }
     });
     
     // Toggle current FAQ
-    answer.classList.toggle('hidden');
+    answer.classList.toggle('active');
     icon.classList.toggle('rotate-180');
+}
+
+// Toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    toast.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl z-50 animate__animated animate__fadeInUp`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
     
-    // Animate
-    if (!answer.classList.contains('hidden')) {
-        answer.classList.add('animate__animated', 'animate__fadeIn');
-        setTimeout(() => {
-            answer.classList.remove('animate__animated', 'animate__fadeIn');
-        }, 1000);
-    }
+    setTimeout(() => {
+        toast.classList.add('animate__fadeOut');
+        setTimeout(() => toast.remove(), 500);
+    }, 5000);
 }
 
 // Smooth scroll to form
@@ -542,33 +610,28 @@ document.querySelectorAll('a[href="#contact-form"]').forEach(link => {
     link.addEventListener('click', function(e) {
         e.preventDefault();
         const form = document.getElementById('contact-form');
-        const offset = 100;
-        const targetPosition = form.getBoundingClientRect().top + window.pageYOffset - offset;
-        window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        if (form) {
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            form.querySelector('input').focus();
+        }
     });
 });
 
-// Real-time form validation
-const nameInput = document.getElementById('id_name');
-const emailInput = document.getElementById('id_email');
-
-nameInput?.addEventListener('blur', function() {
-    if (this.value.trim().length < 2) {
-        this.classList.add('border-red-500');
-    } else {
-        this.classList.remove('border-red-500');
-        this.classList.add('border-green-500');
-    }
-});
-
-emailInput?.addEventListener('blur', function() {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.value)) {
-        this.classList.add('border-red-500');
-    } else {
-        this.classList.remove('border-red-500');
-        this.classList.add('border-green-500');
-    }
+// Input validation feedback
+const inputs = document.querySelectorAll('input[required], textarea[required]');
+inputs.forEach(input => {
+    input.addEventListener('blur', function() {
+        if (this.value.trim()) {
+            this.classList.add('border-green-500');
+            this.classList.remove('border-red-500');
+        }
+    });
+    
+    input.addEventListener('input', function() {
+        if (this.classList.contains('border-red-500')) {
+            this.classList.remove('border-red-500');
+        }
+    });
 });
 </script>
 {% endblock %}

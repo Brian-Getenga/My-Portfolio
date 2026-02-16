@@ -2,250 +2,216 @@
 {% load static %}
 {% load math_filters %}
 
-{% block title %}{{ project.title }} - Projects{% endblock %}
-{% block meta_description %}{{ project.description }}{% endblock %}
+{% block title %}{{ project.title }} - Projects - {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}{{ project.short_description|default:project.description|truncatewords:30 }}{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Lightbox styles */
-    .lightbox {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.95);
-        align-items: center;
-        justify-content: center;
+    .gradient-hero {
+        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
     }
     
-    .lightbox.active {
-        display: flex;
+    @keyframes gradient {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
     }
     
-    .lightbox img {
-        max-width: 90%;
-        max-height: 90vh;
-        object-fit: contain;
-    }
-    
-    .lightbox-controls {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        padding: 0 20px;
-    }
-    
-    .lightbox-btn {
-        background: rgba(255, 255, 255, 0.2);
-        border: none;
-        color: white;
-        padding: 15px 25px;
+    .gallery-item {
+        transition: all 0.4s ease;
         cursor: pointer;
-        font-size: 24px;
-        border-radius: 50%;
-        transition: all 0.3s;
     }
     
-    .lightbox-btn:hover {
-        background: rgba(255, 255, 255, 0.4);
+    .gallery-item:hover {
+        transform: scale(1.05);
     }
     
-    .lightbox-close {
-        position: absolute;
-        top: 20px;
-        right: 30px;
-        font-size: 40px;
-        color: white;
-        cursor: pointer;
-        background: none;
-        border: none;
-        transition: all 0.3s;
+    #lightbox {
+        backdrop-filter: blur(10px);
     }
     
-    .lightbox-close:hover {
-        color: #ff0000;
-        transform: rotate(90deg);
+    .feature-check {
+        transition: all 0.3s ease;
+    }
+    
+    .feature-check:hover {
+        transform: translateX(4px);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section with Breadcrumb -->
-<section class="pt-32 pb-16 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl animate-blob"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500 rounded-full filter blur-3xl animate-blob animation-delay-4000"></div>
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 gradient-hero text-white overflow-hidden">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
     </div>
     
-    <div class="container mx-auto px-4 relative z-10">
-        <div class="max-w-5xl mx-auto">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-4xl mx-auto">
             <!-- Breadcrumb -->
             <nav class="mb-8" data-aos="fade-down">
-                <ol class="flex items-center space-x-2 text-sm opacity-80">
-                    <li><a href="{% url 'home' %}" class="hover:text-primary-400 transition-colors">Home</a></li>
+                <ol class="flex items-center flex-wrap gap-2 text-sm opacity-90">
+                    <li><a href="{% url 'home' %}" class="hover:text-yellow-300 transition-colors">Home</a></li>
                     <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'projects' %}" class="hover:text-primary-400 transition-colors">Projects</a></li>
+                    <li><a href="{% url 'projects' %}" class="hover:text-yellow-300 transition-colors">Projects</a></li>
                     <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-primary-400">{{ project.title }}</li>
+                    <li class="text-yellow-300 truncate">{{ project.title|truncatewords:5 }}</li>
                 </ol>
             </nav>
             
-            <!-- Project Header -->
-            <div data-aos="fade-up">
-                <!-- Badges -->
-                <div class="flex flex-wrap items-center gap-3 mb-6">
-                    <span class="px-4 py-2 bg-primary-600 rounded-full text-sm font-semibold">
-                        {{ project.get_category_display }}
-                    </span>
-                    {% if project.featured %}
-                    <span class="px-4 py-2 bg-yellow-500 rounded-full text-sm font-semibold">
-                        <i class="fas fa-star mr-1"></i>Featured
-                    </span>
-                    {% endif %}
-                    {% if project.completed %}
-                    <span class="px-4 py-2 bg-green-500 rounded-full text-sm font-semibold">
-                        <i class="fas fa-check-circle mr-1"></i>Completed
-                    </span>
-                    {% else %}
-                    <span class="px-4 py-2 bg-orange-500 rounded-full text-sm font-semibold">
-                        <i class="fas fa-spinner mr-1"></i>In Progress
-                    </span>
-                    {% endif %}
+            <div class="text-center">
+                <!-- Category Badge -->
+                <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down" data-aos-delay="100">
+                    <span class="text-sm font-semibold">{{ project.category.name|default:'Project' }}</span>
                 </div>
                 
                 <!-- Title -->
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight">
+                <h1 class="text-4xl md:text-6xl font-display font-bold mb-6" data-aos="fade-up" data-aos-delay="200">
                     {{ project.title }}
                 </h1>
                 
-                <!-- Description -->
-                <p class="text-xl md:text-2xl opacity-90 mb-8 leading-relaxed">
-                    {{ project.description }}
+                <!-- Short Description -->
+                <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="300">
+                    {{ project.short_description|default:project.description|truncatewords:30 }}
                 </p>
                 
-                <!-- Meta Info -->
-                <div class="flex flex-wrap items-center gap-6 text-sm md:text-base">
+                <!-- Quick Actions -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8" data-aos="fade-up" data-aos-delay="400">
+                    {% if project.live_url %}
+                    <a href="{{ project.live_url }}" target="_blank"
+                       class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all">
+                        <i class="fas fa-external-link-alt"></i>View Live Demo
+                    </a>
+                    {% endif %}
+                    {% if project.github_url %}
+                    <a href="{{ project.github_url }}" target="_blank"
+                       class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all">
+                        <i class="fab fa-github"></i>View Source Code
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="flex flex-wrap justify-center gap-6 text-base" data-aos="fade-up" data-aos-delay="500">
+                    {% if project.completion_date %}
+                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
+                        <i class="fas fa-calendar"></i>{{ project.completion_date|date:"M Y" }}
+                    </span>
+                    {% endif %}
                     {% if project.client %}
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-user text-primary-400"></i>
-                        <span><strong>Client:</strong> {{ project.client }}</span>
-                    </div>
+                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
+                        <i class="fas fa-building"></i>{{ project.client }}
+                    </span>
                     {% endif %}
-                    
-                    {% if project.project_date %}
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-calendar text-primary-400"></i>
-                        <span>{{ project.project_date|date:"F Y" }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if project.duration %}
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-clock text-primary-400"></i>
-                        <span>{{ project.duration }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-eye text-primary-400"></i>
-                        <span id="view-count">{{ project.views }}</span>
-                    </div>
-                    
-                    <button class="like-btn flex items-center space-x-2 hover:text-red-400 transition-colors" 
-                            data-url="{% url 'project_like' project.slug %}"
-                            data-liked="false">
-                        <i class="far fa-heart text-primary-400"></i>
-                        <span class="like-count">{{ project.likes }}</span>
-                    </button>
+                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
+                        <i class="fas fa-eye"></i>{{ project.views }} views
+                    </span>
+                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
+                        <i class="fas fa-heart"></i>{{ project.likes }} likes
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Main Image -->
+{% if project.featured_image %}
+<section class="py-12 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto" data-aos="zoom-in">
+            <div class="rounded-3xl overflow-hidden shadow-2xl">
+                <img src="{{ project.featured_image.url }}" 
+                     alt="{{ project.title }}" 
+                     class="w-full h-auto"
+                     loading="eager">
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- Main Content -->
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
+<section class="py-20 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
             <div class="grid lg:grid-cols-3 gap-12">
-                <!-- Main Content Column -->
-                <div class="lg:col-span-2 space-y-16">
-                    <!-- Featured Image -->
-                    <div data-aos="fade-up">
-                        <div class="relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer" 
-                             onclick="openLightbox(0)">
-                            <img src="{{ project.featured_image }}" 
-                                 alt="{{ project.title }}" 
-                                 class="w-full h-auto transform group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                <i class="fas fa-search-plus text-white text-5xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                <!-- Main Content -->
+                <div class="lg:col-span-2 space-y-12">
+                    <!-- Overview -->
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-info-circle text-white text-xl"></i>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Project Overview -->
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-6 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
                             Project Overview
                         </h2>
                         <div class="prose dark:prose-invert prose-lg max-w-none">
-                            {{ project.full_description|safe }}
+                            {{ project.description|safe }}
                         </div>
                     </div>
                     
-                    <!-- Project Gallery -->
-                    {% if project.gallery_images.all %}
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
-                            Project Gallery
+                    <!-- Features -->
+                    {% if project.features %}
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-check-double text-white text-xl"></i>
+                            </div>
+                            Key Features
                         </h2>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            {% for image in project.gallery_images.all %}
-                            <div class="relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300" 
-                                 onclick="openLightbox({{ forloop.counter }})">
-                                <img src="{{ image.image.url }}" 
-                                     alt="{{ image.caption }}" 
-                                     class="w-full h-72 object-cover transform group-hover:scale-110 transition-transform duration-500">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                                        <div class="flex items-center justify-center mb-2">
-                                            <i class="fas fa-search-plus text-3xl"></i>
-                                        </div>
-                                        {% if image.caption %}
-                                        <p class="text-sm text-center">{{ image.caption }}</p>
-                                        {% endif %}
-                                    </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            {% for feature in project.feature_list %}
+                            <div class="feature-check flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-check text-green-600 dark:text-green-400"></i>
                                 </div>
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">{{ feature }}</span>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
                     
-                    <!-- Key Features -->
-                    {% if project.features %}
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
-                            Key Features
+                    <!-- Technologies -->
+                    {% if project.technologies %}
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-code text-white text-xl"></i>
+                            </div>
+                            Technologies Used
                         </h2>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            {% for feature in project.features_list %}
-                            <div class="flex items-start space-x-4 p-6 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                                <div class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-check text-white"></i>
-                                </div>
-                                <span class="flex-1 text-gray-900 dark:text-white">{{ feature }}</span>
+                        <div class="flex flex-wrap gap-3">
+                            {% for tech in project.tech_list %}
+                            <span class="px-5 py-3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-xl font-semibold hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-lg hover:scale-105">
+                                {{ tech }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Image Gallery -->
+                    {% if project.images.all %}
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-images text-white text-xl"></i>
+                            </div>
+                            Gallery
+                        </h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            {% for image in project.images.all %}
+                            <div class="gallery-item rounded-2xl overflow-hidden shadow-lg" onclick="openLightbox({{ forloop.counter0 }})">
+                                <img src="{{ image.image.url }}" 
+                                     alt="{{ image.caption }}" 
+                                     class="w-full h-64 object-cover"
+                                     loading="lazy">
                             </div>
                             {% endfor %}
                         </div>
@@ -253,77 +219,51 @@
                     {% endif %}
                     
                     <!-- Challenges & Solutions -->
-                    {% if project.challenges %}
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
+                    {% if project.challenges or project.solutions %}
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-lightbulb text-white text-xl"></i>
+                            </div>
                             Challenges & Solutions
                         </h2>
-                        <div class="p-8 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border-l-4 border-orange-500">
+                        
+                        {% if project.challenges %}
+                        <div class="mb-6 p-6 bg-orange-50 dark:bg-orange-900/20 rounded-2xl border-2 border-orange-200 dark:border-orange-800">
+                            <h3 class="font-bold text-xl mb-4 text-orange-600 dark:text-orange-400 flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle"></i>Challenges
+                            </h3>
                             <div class="prose dark:prose-invert max-w-none">
                                 {{ project.challenges|safe }}
                             </div>
                         </div>
+                        {% endif %}
+                        
+                        {% if project.solutions %}
+                        <div class="p-6 bg-green-50 dark:bg-green-900/20 rounded-2xl border-2 border-green-200 dark:border-green-800">
+                            <h3 class="font-bold text-xl mb-4 text-green-600 dark:text-green-400 flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>Solutions
+                            </h3>
+                            <div class="prose dark:prose-invert max-w-none">
+                                {{ project.solutions|safe }}
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
                     
-                    <!-- Results & Impact -->
-                    {% if project.results %}
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
+                    <!-- Results/Outcome -->
+                    {% if project.outcome %}
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-chart-line text-white text-xl"></i>
+                            </div>
                             Results & Impact
                         </h2>
-                        <div class="p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border-l-4 border-green-500">
+                        <div class="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
                             <div class="prose dark:prose-invert max-w-none">
-                                {{ project.results|safe }}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Video Demo -->
-                    {% if project.video_url %}
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
-                            Project Demo
-                        </h2>
-                        <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="padding-top: 56.25%;">
-                            <iframe src="{{ project.video_url }}" 
-                                    class="absolute inset-0 w-full h-full"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Testimonial -->
-                    {% if project.testimonial %}
-                    <div data-aos="fade-up">
-                        <h2 class="text-3xl lg:text-4xl font-display font-bold mb-8 flex items-center">
-                            <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-4"></span>
-                            Client Feedback
-                        </h2>
-                        <div class="p-8 lg:p-12 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-2xl">
-                            <div class="flex mb-6">
-                                {% for i in "12345" %}
-                                <i class="fas fa-star text-yellow-300 text-xl"></i>
-                                {% endfor %}
-                            </div>
-                            <blockquote class="text-xl lg:text-2xl font-light italic mb-8 leading-relaxed">
-                                "{{ project.testimonial.content }}"
-                            </blockquote>
-                            <div class="flex items-center">
-                                {% if project.testimonial.image %}
-                                <img src="{{ project.testimonial.image.url }}" 
-                                     alt="{{ project.testimonial.name }}"
-                                     class="w-16 h-16 rounded-full mr-4 border-2 border-white">
-                                {% endif %}
-                                <div>
-                                    <div class="font-bold text-lg">{{ project.testimonial.name }}</div>
-                                    <div class="opacity-90">{{ project.testimonial.position }}{% if project.testimonial.company %}, {{ project.testimonial.company }}{% endif %}</div>
-                                </div>
+                                {{ project.outcome|safe }}
                             </div>
                         </div>
                     </div>
@@ -331,130 +271,92 @@
                 </div>
                 
                 <!-- Sidebar -->
-                <div class="space-y-8">
+                <div class="space-y-6" data-aos="fade-left">
                     <!-- Project Info Card -->
-                    <div class="p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl sticky top-24" data-aos="fade-left">
-                        <h3 class="text-2xl font-bold mb-6 flex items-center">
-                            <i class="fas fa-info-circle text-primary-600 mr-3"></i>
-                            Project Details
-                        </h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 sticky top-24">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Project Info</h3>
                         
-                        <div class="space-y-6">
-                            <!-- Client -->
+                        <div class="space-y-4">
                             {% if project.client %}
-                            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">Client</div>
-                                <div class="font-semibold text-lg">{{ project.client }}</div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-building text-blue-600 dark:text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Client</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.client }}</div>
+                                </div>
                             </div>
                             {% endif %}
                             
-                            <!-- Date -->
-                            {% if project.project_date %}
-                            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">Completion Date</div>
-                                <div class="font-semibold">{{ project.project_date|date:"F Y" }}</div>
+                            {% if project.completion_date %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-calendar-check text-green-600 dark:text-green-400"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Completed</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.completion_date|date:"F Y" }}</div>
+                                </div>
                             </div>
                             {% endif %}
                             
-                            <!-- Duration -->
                             {% if project.duration %}
-                            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">Duration</div>
-                                <div class="font-semibold">{{ project.duration }}</div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-clock text-purple-600 dark:text-purple-400"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Duration</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.duration }}</div>
+                                </div>
                             </div>
                             {% endif %}
                             
-                            <!-- Team Size -->
-                            {% if project.team_size %}
-                            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">Team Size</div>
-                                <div class="font-semibold">{{ project.team_size }} members</div>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Role -->
-                            {% if project.role %}
-                            <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">My Role</div>
-                                <div class="font-semibold">{{ project.role }}</div>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Technologies -->
-                            <div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Technologies Used</div>
-                                <div class="flex flex-wrap gap-2">
-                                    {% for tech in project.tech_list %}
-                                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-sm font-medium">
-                                        {{ tech }}
-                                    </span>
-                                    {% endfor %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-folder text-orange-600 dark:text-orange-400"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Category</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.category.name }}</div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Tags -->
-                        {% if project.tags.all %}
-                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Tags</div>
-                            <div class="flex flex-wrap gap-2">
-                                {% for tag in project.tags.all %}
-                                <a href="{% url 'projects' %}?tag={{ tag.slug }}" 
-                                   class="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-600 dark:hover:text-primary-400 rounded-full text-sm transition-colors">
-                                    #{{ tag.name }}
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
-                        
                         <!-- Action Buttons -->
-                        <div class="mt-8 space-y-3">
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
                             {% if project.live_url %}
-                            <a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer"
-                               class="block w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                <i class="fas fa-external-link-alt mr-2"></i>Visit Live Site
+                            <a href="{{ project.live_url }}" target="_blank"
+                               class="block text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-2xl hover:scale-105 transition-all">
+                                <i class="fas fa-external-link-alt mr-2"></i>Visit Website
                             </a>
                             {% endif %}
-                            
                             {% if project.github_url %}
-                            <a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer"
-                               class="block w-full px-6 py-4 bg-gray-900 dark:bg-gray-700 text-white text-center rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors">
-                                <i class="fab fa-github mr-2"></i>View Source Code
-                            </a>
-                            {% endif %}
-                            
-                            {% if project.client_url %}
-                            <a href="{{ project.client_url }}" target="_blank" rel="noopener noreferrer"
-                               class="block w-full px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white text-center rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                <i class="fas fa-link mr-2"></i>Client Website
+                            <a href="{{ project.github_url }}" target="_blank"
+                               class="block text-center px-6 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all">
+                                <i class="fab fa-github mr-2"></i>View Code
                             </a>
                             {% endif %}
                         </div>
                         
-                        <!-- Share Section -->
-                        <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                            <div class="text-sm font-semibold mb-4">Share This Project</div>
-                            <div class="flex items-center space-x-3">
-                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ project.title }}" 
-                                   target="_blank" 
-                                   class="w-12 h-12 bg-blue-400 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center transition-colors">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+                        <!-- Share -->
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">Share This Project</h4>
+                            <div class="flex gap-3">
+                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ project.title|urlencode }}" 
                                    target="_blank"
-                                   class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-colors">
-                                    <i class="fab fa-facebook"></i>
+                                   class="flex-1 aspect-square bg-blue-500 hover:bg-blue-600 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                                    <i class="fab fa-twitter text-xl"></i>
                                 </a>
                                 <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
                                    target="_blank"
-                                   class="w-12 h-12 bg-blue-700 hover:bg-blue-800 text-white rounded-xl flex items-center justify-center transition-colors">
-                                    <i class="fab fa-linkedin"></i>
+                                   class="flex-1 aspect-square bg-blue-700 hover:bg-blue-800 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                                    <i class="fab fa-linkedin-in text-xl"></i>
                                 </a>
-                                <button onclick="copyToClipboard('{{ request.build_absolute_uri }}')"
-                                        class="w-12 h-12 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-xl flex items-center justify-center transition-colors"
-                                        title="Copy link">
-                                    <i class="fas fa-link"></i>
+                                <button onclick="copyLink()" 
+                                        class="flex-1 aspect-square bg-gray-600 hover:bg-gray-700 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                                    <i class="fas fa-link text-xl"></i>
                                 </button>
                             </div>
                         </div>
@@ -468,237 +370,148 @@
 <!-- Related Projects -->
 {% if related_projects %}
 <section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12" data-aos="fade-up">
             <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Related <span class="gradient-text">Projects</span>
+                Related <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Projects</span>
             </h2>
             <p class="text-xl text-gray-600 dark:text-gray-400">
-                Check out more of my work
+                More projects you might like
             </p>
         </div>
         
-        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {% for related in related_projects|slice:":3" %}
-            <div class="group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
-                <a href="{{ related.get_absolute_url }}" class="block">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="{{ related.thumbnail|default:related.featured_image }}" 
-                                 alt="{{ related.title }}"
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {% for related in related_projects %}
+            <article data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
+                <a href="{{ related.get_absolute_url }}" class="block group">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border border-gray-100 dark:border-gray-700 h-full">
+                        {% if related.featured_image or related.thumbnail %}
+                        <div class="h-48 overflow-hidden">
+                            <img src="{% if related.thumbnail %}{{ related.thumbnail.url }}{% else %}{{ related.featured_image.url }}{% endif %}" 
+                                 alt="{{ related.title }}" 
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            {% if related.featured %}
-                            <span class="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full">
-                                Featured
-                            </span>
-                            {% endif %}
                         </div>
+                        {% endif %}
                         <div class="p-6">
-                            <div class="text-sm text-gray-500 mb-2">{{ related.get_category_display }}</div>
-                            <h3 class="text-xl font-bold mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
+                            <h3 class="text-xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                                 {{ related.title }}
                             </h3>
                             <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">
-                                {{ related.description }}
+                                {{ related.short_description }}
                             </p>
-                            <div class="flex items-center justify-between text-sm text-gray-500">
-                                <span><i class="fas fa-eye mr-1"></i>{{ related.views }}</span>
-                                <span><i class="fas fa-heart mr-1"></i>{{ related.likes }}</span>
-                            </div>
+                            <span class="text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
+                                View Project <i class="fas fa-arrow-right"></i>
+                            </span>
                         </div>
                     </div>
                 </a>
-            </div>
+            </article>
             {% endfor %}
-        </div>
-        
-        <div class="text-center mt-12" data-aos="fade-up">
-            <a href="{% url 'projects' %}" 
-               class="inline-flex items-center px-8 py-4 bg-primary-600 text-white rounded-full font-bold hover:bg-primary-700 transition-colors">
-                View All Projects <i class="fas fa-arrow-right ml-2"></i>
-            </a>
         </div>
     </div>
 </section>
 {% endif %}
 
-<!-- CTA Section -->
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="relative p-12 lg:p-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl text-white text-center overflow-hidden shadow-2xl" 
-                 data-aos="zoom-in">
-                <!-- Background Pattern -->
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
-                </div>
-                
-                <div class="relative z-10">
-                    <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
-                        Like This <span class="text-yellow-300">Project?</span>
-                    </h2>
-                    <p class="text-xl lg:text-2xl opacity-90 mb-8 max-w-2xl mx-auto">
-                        Let's work together to bring your ideas to life. I'm available for freelance projects and collaborations.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{% url 'contact' %}" 
-                           class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-envelope mr-2"></i>
-                            Get In Touch
-                        </a>
-                        <a href="{% url 'projects' %}" 
-                           class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all duration-300">
-                            <i class="fas fa-folder mr-2"></i>
-                            View More Projects
-                        </a>
-                    </div>
-                </div>
+<!-- Lightbox -->
+<div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4" onclick="closeLightbox()">
+    <button class="absolute top-4 right-4 text-white text-4xl hover:scale-110 transition-transform" onclick="closeLightbox()">
+        <i class="fas fa-times"></i>
+    </button>
+    <button class="absolute left-4 text-white text-4xl hover:scale-110 transition-transform" onclick="prevImage(); event.stopPropagation();">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="absolute right-4 text-white text-4xl hover:scale-110 transition-transform" onclick="nextImage(); event.stopPropagation();">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain" onclick="event.stopPropagation();">
+</div>
+
+<!-- CTA -->
+<section class="py-24 gradient-hero text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
+            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
+                <i class="fas fa-handshake text-5xl"></i>
+            </div>
+            <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6">
+                Like What You See?
+            </h2>
+            <p class="text-xl lg:text-2xl opacity-90 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Let's work together on your next project and create something amazing
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'contact' %}" 
+                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <i class="fas fa-envelope"></i>Start a Project
+                </a>
+                <a href="{% url 'projects' %}" 
+                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
+                    <i class="fas fa-folder"></i>View More Projects
+                </a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Lightbox Modal -->
-<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
-    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
-    <div class="lightbox-controls">
-        <button class="lightbox-btn" onclick="previousImage(event)">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="lightbox-btn" onclick="nextImage(event)">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-    <img id="lightbox-img" src="" alt="">
-    <div class="absolute bottom-8 left-0 right-0 text-center text-white text-sm" id="lightbox-caption"></div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
 <script>
-// Gallery images array
-const galleryImages = [
-    {
-        src: '{{ project.featured_image }}',
-        caption: '{{ project.title }}'
-    }
-    {% for image in project.gallery_images.all %}
-    ,{
-        src: '{{ image.image }}',
-        caption: '{{ image.caption|default:"" }}'
-    }
+// Initialize AOS
+AOS.init({ duration: 1000, once: true, offset: 100 });
+
+// Lightbox
+const images = [
+    {% for image in project.images.all %}
+    '{{ image.image.url }}',
     {% endfor %}
 ];
+let currentIndex = 0;
 
-let currentImageIndex = 0;
-
-// Open lightbox
 function openLightbox(index) {
-    currentImageIndex = index;
-    const lightbox = document.getElementById('lightbox');
-    const img = document.getElementById('lightbox-img');
-    const caption = document.getElementById('lightbox-caption');
-    
-    img.src = galleryImages[index].src;
-    caption.textContent = galleryImages[index].caption;
-    lightbox.classList.add('active');
+    currentIndex = index;
+    document.getElementById('lightbox').classList.remove('hidden');
+    document.getElementById('lightbox-image').src = images[currentIndex];
     document.body.style.overflow = 'hidden';
 }
 
-// Close lightbox
-function closeLightbox(event) {
-    if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
-        document.getElementById('lightbox').classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
+function closeLightbox() {
+    document.getElementById('lightbox').classList.add('hidden');
+    document.body.style.overflow = 'auto';
 }
 
-// Previous image
-function previousImage(event) {
-    event.stopPropagation();
-    currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
-    document.getElementById('lightbox-img').src = galleryImages[currentImageIndex].src;
-    document.getElementById('lightbox-caption').textContent = galleryImages[currentImageIndex].caption;
+function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    document.getElementById('lightbox-image').src = images[currentIndex];
 }
 
-// Next image
-function nextImage(event) {
-    event.stopPropagation();
-    currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
-    document.getElementById('lightbox-img').src = galleryImages[currentImageIndex].src;
-    document.getElementById('lightbox-caption').textContent = galleryImages[currentImageIndex].caption;
+function prevImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    document.getElementById('lightbox-image').src = images[currentIndex];
 }
 
 // Keyboard navigation
 document.addEventListener('keydown', function(e) {
     const lightbox = document.getElementById('lightbox');
-    if (lightbox.classList.contains('active')) {
-        if (e.key === 'Escape') {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        } else if (e.key === 'ArrowLeft') {
-            previousImage(e);
-        } else if (e.key === 'ArrowRight') {
-            nextImage(e);
-        }
+    if (!lightbox.classList.contains('hidden')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') nextImage();
+        if (e.key === 'ArrowLeft') prevImage();
     }
 });
 
-// Like functionality
-const likeBtn = document.querySelector('.like-btn');
-if (likeBtn) {
-    likeBtn.addEventListener('click', async function() {
-        const url = this.dataset.url;
-        const icon = this.querySelector('i');
-        const count = this.querySelector('.like-count');
-        
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': window.csrfToken,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                count.textContent = data.likes;
-                
-                if (data.action === 'liked') {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    this.classList.add('text-red-500');
-                } else {
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                    this.classList.remove('text-red-500');
-                }
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-}
-
-// Copy to clipboard
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Show success message
-        const btn = event.target.closest('button');
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i>';
-        btn.classList.add('bg-green-500', 'text-white');
-        
-        setTimeout(() => {
-            btn.innerHTML = originalHTML;
-            btn.classList.remove('bg-green-500', 'text-white');
-        }, 2000);
-    }, function(err) {
-        console.error('Could not copy text: ', err);
+// Copy link
+function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50';
+        toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Link copied to clipboard!';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     });
 }
 </script>

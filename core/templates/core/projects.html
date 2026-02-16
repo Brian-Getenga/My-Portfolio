@@ -1,44 +1,110 @@
-
 {% extends 'base.html' %}
 {% load static %}
 {% load math_filters %}
+
 {% block title %}Projects - {{ site_settings.site_name }}{% endblock %}
-{% block meta_description %}Explore my portfolio of web applications, mobile apps, and innovative digital solutions.{% endblock %}
+{% block meta_description %}Browse my portfolio of web development projects, applications, and creative works showcasing expertise in modern technologies.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .animated-gradient {
+        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+    
+    @keyframes gradient {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .project-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .project-card:hover {
+        transform: translateY(-12px) scale(1.02);
+    }
+    
+    .filter-btn {
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn.active {
+        background: linear-gradient(to right, #3b82f6, #8b5cf6);
+        color: white;
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .tech-badge {
+        transition: all 0.3s ease;
+    }
+    
+    .tech-badge:hover {
+        transform: translateY(-2px) scale(1.05);
+    }
+    
+    .project-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    }
+    
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .fade-in-scale {
+        animation: fadeInScale 0.5s ease-out;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
 <!-- Hero Section -->
-<section class="pt-32 pb-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+<section class="relative pt-32 pb-20 animated-gradient text-white overflow-hidden">
+    <!-- Animated Background -->
     <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
     </div>
     
-    <div class="container mx-auto px-4 text-center relative z-10">
-        <div class="max-w-4xl mx-auto">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-4xl mx-auto text-center">
+            <!-- Badge -->
             <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down">
-                <span class="text-sm font-semibold">💼 Portfolio Showcase</span>
+                <span class="text-sm font-semibold">💼 My Work</span>
             </div>
+            
+            <!-- Main Heading -->
             <h1 class="text-5xl md:text-7xl font-display font-bold mb-6" data-aos="fade-up">
-                My <span class="text-yellow-300">Projects</span>
+                Featured <span class="text-yellow-300">Projects</span>
             </h1>
-            <p class="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                Explore my portfolio of innovative web applications and digital solutions
+            
+            <!-- Description -->
+            <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="100">
+                Explore my portfolio of web applications, designs, and creative solutions
             </p>
             
             <!-- Stats -->
-            <div class="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-12" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex justify-center gap-8 flex-wrap" data-aos="fade-up" data-aos-delay="200">
                 <div class="text-center">
-                    <div class="text-4xl font-bold mb-1">{{ stats.total_projects }}+</div>
-                    <div class="text-sm opacity-80">Projects</div>
+                    <div class="text-4xl font-bold counter" data-target="{{ stats.total_projects|default:50 }}">0</div>
+                    <div class="text-sm opacity-80">Projects Completed</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-4xl font-bold mb-1">{{ stats.total_clients }}+</div>
-                    <div class="text-sm opacity-80">Clients</div>
+                    <div class="text-4xl font-bold counter" data-target="{{ stats.total_clients|default:30 }}">0</div>
+                    <div class="text-sm opacity-80">Happy Clients</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-4xl font-bold mb-1">{{ stats.total_technologies }}+</div>
+                    <div class="text-4xl font-bold counter" data-target="{{ stats.technologies|default:20 }}">0</div>
                     <div class="text-sm opacity-80">Technologies</div>
                 </div>
             </div>
@@ -46,251 +112,202 @@
     </div>
 </section>
 
-<!-- Filters & Search Bar -->
-<section class="py-8 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-16 z-40 shadow-sm">
-    <div class="container mx-auto px-4">
-        <form method="get" id="filter-form">
-            <div class="flex flex-col lg:flex-row gap-4">
-                <!-- Search -->
-                <div class="relative flex-1 max-w-md">
+<!-- Filter & Search Bar -->
+<section class="sticky top-20 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg backdrop-blur-sm bg-opacity-95">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+            <!-- Search Bar -->
+            <div class="w-full lg:w-96">
+                <form method="get" class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
                     <input type="text" 
                            name="search" 
-                           value="{{ request.GET.search }}" 
+                           value="{{ request.GET.search }}"
                            placeholder="Search projects..." 
-                           class="w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-primary-500 focus:outline-none dark:bg-gray-800 dark:text-white transition-colors">
-                    <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 transition-colors">
-                        <i class="fas fa-search text-lg"></i>
-                    </button>
-                </div>
-                
-                <!-- Category Filter -->
-                <div class="flex flex-wrap gap-2">
-                    <a href="{% url 'projects' %}" 
-                       class="px-5 py-3 rounded-xl font-semibold transition-all duration-300 {% if not request.GET.category %}bg-primary-600 text-white shadow-lg{% else %}bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700{% endif %}">
-                        All Projects
-                    </a>
-                    {% for cat_value, cat_name in categories %}
-                    <a href="?category={{ cat_value }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
-                       class="px-5 py-3 rounded-xl font-semibold transition-all duration-300 {% if request.GET.category == cat_value %}bg-primary-600 text-white shadow-lg{% else %}bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700{% endif %}">
-                        {{ cat_name }}
-                    </a>
-                    {% endfor %}
-                </div>
-                
-                <!-- Sort & View Toggle -->
-                <div class="flex gap-2">
+                           class="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border-2 border-transparent rounded-xl focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 transition-all outline-none">
+                </form>
+            </div>
+            
+            <!-- Category Filters -->
+            <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <button class="filter-btn px-5 py-2 rounded-full font-semibold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all {% if not current_category %}active{% endif %}" 
+                        data-filter="all">
+                    All Projects
+                </button>
+                {% for category in categories %}
+                <button class="filter-btn px-5 py-2 rounded-full font-semibold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all {% if current_category == category.slug %}active{% endif %}" 
+                        data-filter="{{ category.slug }}">
+                    {{ category.name }}
+                </button>
+                {% endfor %}
+            </div>
+            
+            <!-- Sort & View Toggle -->
+            <div class="flex items-center gap-3">
+                <!-- Sort -->
+                <form method="get" class="flex items-center gap-2">
+                    {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}">{% endif %}
+                    {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+                    
                     <select name="sort" 
-                            onchange="this.form.submit()" 
-                            class="px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl dark:bg-gray-800 focus:border-primary-500 focus:outline-none font-semibold">
-                        <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Latest First</option>
+                            onchange="this.form.submit()"
+                            class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border-2 border-transparent rounded-lg focus:border-blue-500 transition-all outline-none cursor-pointer">
+                        <option value="-created" {% if current_sort == '-created' %}selected{% endif %}>Latest</option>
                         <option value="-views" {% if current_sort == '-views' %}selected{% endif %}>Most Viewed</option>
                         <option value="-likes" {% if current_sort == '-likes' %}selected{% endif %}>Most Liked</option>
                         <option value="title" {% if current_sort == 'title' %}selected{% endif %}>A-Z</option>
-                        <option value="-title" {% if current_sort == '-title' %}selected{% endif %}>Z-A</option>
                     </select>
-                    
-                    <!-- Grid/List View Toggle -->
-                    <button type="button" 
-                            id="view-grid" 
-                            class="px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
-                            title="Grid View">
+                </form>
+                
+                <!-- View Toggle -->
+                <div class="hidden md:flex gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                    <button id="grid-view" class="p-2 rounded bg-blue-600 text-white transition-all">
                         <i class="fas fa-th"></i>
                     </button>
-                    <button type="button" 
-                            id="view-list" 
-                            class="px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                            title="List View">
+                    <button id="list-view" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
                         <i class="fas fa-list"></i>
                     </button>
                 </div>
             </div>
-            
-            <!-- Active Filters Display -->
-            {% if request.GET.search or request.GET.category or request.GET.tag %}
-            <div class="mt-4 flex flex-wrap items-center gap-2">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Active Filters:</span>
-                {% if request.GET.search %}
-                <span class="inline-flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded-full text-sm">
-                    Search: "{{ request.GET.search }}"
-                    <a href="?{% if request.GET.category %}category={{ request.GET.category }}{% endif %}" 
-                       class="ml-2 hover:text-primary-600">
-                        <i class="fas fa-times"></i>
-                    </a>
-                </span>
-                {% endif %}
-                {% if request.GET.category %}
-                <span class="inline-flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 rounded-full text-sm">
-                    Category: {{ request.GET.category }}
-                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}{% endif %}" 
-                       class="ml-2 hover:text-primary-600">
-                        <i class="fas fa-times"></i>
-                    </a>
-                </span>
-                {% endif %}
-                <a href="{% url 'projects' %}" class="text-sm text-primary-600 hover:text-primary-700 font-semibold">
-                    Clear All
-                </a>
-            </div>
-            {% endif %}
-        </form>
+        </div>
     </div>
 </section>
 
-<!-- Projects Grid/List -->
-<section class="py-20">
-    <div class="container mx-auto px-4">
+<!-- Projects Grid -->
+<section class="py-20 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         {% if projects %}
-        <!-- Results Count -->
-        <div class="mb-8 text-center md:text-left" data-aos="fade-up">
-            <p class="text-gray-600 dark:text-gray-400">
-                Showing <strong>{{ projects|length }}</strong> project{{ projects|length|pluralize }} 
-                {% if request.GET.search %}matching "<strong>{{ request.GET.search }}</strong>"{% endif %}
-            </p>
-        </div>
-        
-        <!-- Projects Container -->
-        <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="projects-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for project in projects %}
-            <article class="project-card group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:50 }}">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
-                    <!-- Image -->
-                    <div class="relative h-64 overflow-hidden">
-                        <a href="{{ project.get_absolute_url }}">
-                            <img src="{{ project.thumbnail|default:project.featured_image }}" 
+            <article class="project-card group fade-in-scale" 
+                     data-category="{{ project.category.slug }}"
+                     data-aos="fade-up" 
+                     data-aos-delay="{{ forloop.counter0|mul:50 }}">
+                <a href="{{ project.get_absolute_url }}" class="block h-full">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-gray-100 dark:border-gray-700 h-full flex flex-col">
+                        <!-- Project Image -->
+                        <div class="relative h-64 overflow-hidden bg-gray-200 dark:bg-gray-700">
+                            {% if project.featured_image or project.thumbnail %}
+                            <img src="{% if project.thumbnail %}{{ project.thumbnail.url }}{% else %}{{ project.featured_image.url }}{% endif %}" 
                                  alt="{{ project.title }}" 
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        </a>
-                        
-                        <!-- Overlay on Hover -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div class="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                <div class="flex space-x-2">
-                                    {% if project.live_url %}
-                                    <a href="{{ project.live_url }}" 
-                                       target="_blank" 
-                                       onclick="event.stopPropagation()"
-                                       class="flex-1 px-4 py-2 bg-white text-black rounded-lg text-sm font-semibold text-center hover:bg-gray-100 transition-colors">
-                                        <i class="fas fa-external-link-alt mr-1"></i>Live
-                                    </a>
-                                    {% endif %}
-                                    {% if project.github_url %}
-                                    <a href="{{ project.github_url }}" 
-                                       target="_blank" 
-                                       onclick="event.stopPropagation()"
-                                       class="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold text-center hover:bg-gray-900 transition-colors">
-                                        <i class="fab fa-github mr-1"></i>Code
-                                    </a>
-                                    {% endif %}
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                 loading="lazy">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-image text-6xl text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Overlay with Quick Actions -->
+                            <div class="absolute inset-0 project-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute bottom-0 left-0 right-0 p-6">
+                                    <div class="flex gap-3">
+                                        {% if project.live_url %}
+                                        <button onclick="window.open('{{ project.live_url }}', '_blank'); event.preventDefault(); event.stopPropagation();"
+                                                class="flex-1 px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-semibold text-center hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+                                            <i class="fas fa-external-link-alt"></i>Live Demo
+                                        </button>
+                                        {% endif %}
+                                        {% if project.github_url %}
+                                        <button onclick="window.open('{{ project.github_url }}', '_blank'); event.preventDefault(); event.stopPropagation();"
+                                                class="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold text-center hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                            <i class="fab fa-github"></i>Code
+                                        </button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <!-- Category Badge -->
+                            <span class="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full shadow-lg">
+                                {{ project.category.name|default:'Project' }}
+                            </span>
+                            
+                            <!-- Featured Badge -->
+                            {% if project.featured %}
+                            <span class="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
+                                <i class="fas fa-star"></i> Featured
+                            </span>
+                            {% endif %}
                         </div>
                         
-                        <!-- Badges -->
-                        <div class="absolute top-4 left-4 flex flex-col gap-2">
-                            {% if project.featured %}
-                            <span class="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                <i class="fas fa-star mr-1"></i>Featured
-                            </span>
-                            {% endif %}
-                            {% if project.completed %}
-                            <span class="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                <i class="fas fa-check-circle mr-1"></i>Completed
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="p-6 flex-1 flex flex-col">
-                        <!-- Category & Stats -->
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">
-                                {{ project.get_category_display }}
-                            </span>
-                            <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                <span title="Views">
-                                    <i class="fas fa-eye mr-1"></i>{{ project.views }}
+                        <!-- Project Info -->
+                        <div class="p-6 flex-grow flex flex-col">
+                            <!-- Title -->
+                            <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                                {{ project.title }}
+                            </h3>
+                            
+                            <!-- Description -->
+                            <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-grow">
+                                {{ project.short_description|default:project.description|truncatewords:20 }}
+                            </p>
+                            
+                            <!-- Tech Stack -->
+                            {% if project.technologies %}
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                {% for tech in project.tech_list|slice:":4" %}
+                                <span class="tech-badge px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
+                                    {{ tech }}
                                 </span>
-                                <button class="like-btn hover:text-red-500 transition-colors" 
-                                        data-url="{% url 'project_like' project.slug %}"
-                                        title="Like">
-                                    <i class="far fa-heart mr-1"></i>
-                                    <span class="like-count">{{ project.likes }}</span>
-                                </button>
+                                {% endfor %}
+                                {% if project.tech_list|length > 4 %}
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">
+                                    +{{ project.tech_list|length|add:"-4" }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Meta Info -->
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 text-sm">
+                                <div class="flex items-center gap-4 text-gray-500 dark:text-gray-400">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fas fa-eye"></i>{{ project.views|default:0 }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <i class="fas fa-heart"></i>{{ project.likes|default:0 }}
+                                    </span>
+                                </div>
+                                <span class="text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
+                                    View <i class="fas fa-arrow-right"></i>
+                                </span>
                             </div>
                         </div>
-                        
-                        <!-- Title -->
-                        <h3 class="text-xl font-bold mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
-                            <a href="{{ project.get_absolute_url }}">
-                                {{ project.title }}
-                            </a>
-                        </h3>
-                        
-                        <!-- Description -->
-                        <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-1">
-                            {{ project.description }}
-                        </p>
-                        
-                        <!-- Tech Stack -->
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            {% for tech in project.tech_list|slice:":5" %}
-                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
-                                {{ tech }}
-                            </span>
-                            {% endfor %}
-                            {% if project.tech_list|length > 5 %}
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">
-                                +{{ project.tech_list|length|add:"-5" }}
-                            </span>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- View Details Button -->
-                        <a href="{{ project.get_absolute_url }}" 
-                           class="inline-flex items-center text-primary-600 hover:text-primary-700 font-semibold group-hover:translate-x-2 transition-transform">
-                            View Details <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
                     </div>
-                </div>
+                </a>
             </article>
             {% endfor %}
         </div>
         
         <!-- Pagination -->
         {% if is_paginated %}
-        <div class="flex justify-center mt-16" data-aos="fade-up">
-            <nav class="flex items-center space-x-2">
+        <div class="flex justify-center mt-12" data-aos="fade-up">
+            <nav class="flex items-center gap-2">
                 {% if page_obj.has_previous %}
-                <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
+                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
                     <i class="fas fa-chevron-left"></i>
                 </a>
                 {% endif %}
                 
                 {% for num in page_obj.paginator.page_range %}
                 {% if page_obj.number == num %}
-                <span class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold">{{ num }}</span>
+                <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg">{{ num }}</span>
                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
+                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
                     {{ num }}
                 </a>
                 {% endif %}
                 {% endfor %}
                 
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
+                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
                     <i class="fas fa-chevron-right"></i>
-                </a>
-                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <i class="fas fa-angle-double-right"></i>
                 </a>
                 {% endif %}
             </nav>
@@ -300,58 +317,73 @@
         {% else %}
         <!-- Empty State -->
         <div class="text-center py-20" data-aos="zoom-in">
-            <div class="w-32 h-32 mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                <i class="fas fa-folder-open text-6xl text-gray-300 dark:text-gray-600"></i>
+            <div class="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center">
+                <i class="fas fa-folder-open text-6xl text-blue-600 dark:text-blue-400"></i>
             </div>
-            <h3 class="text-3xl font-bold mb-4">No Projects Found</h3>
+            <h3 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">No Projects Found</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
                 {% if request.GET.search %}
-                No projects match your search "{{ request.GET.search }}". Try different keywords.
+                No projects match "{{ request.GET.search }}". Try different keywords.
                 {% else %}
-                No projects available in this category. Try browsing all projects.
+                Check back soon for exciting new projects!
                 {% endif %}
             </p>
-            <a href="{% url 'projects' %}" 
-               class="inline-flex items-center px-8 py-4 bg-primary-600 text-white rounded-full font-bold hover:bg-primary-700 transition-colors">
-                <i class="fas fa-refresh mr-2"></i>View All Projects
+            <a href="{% url 'projects' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-refresh"></i>View All Projects
             </a>
         </div>
         {% endif %}
     </div>
 </section>
 
+<!-- Technologies Section -->
+{% if technologies %}
+<section class="py-20 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
+                Technologies <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">I Use</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-400">
+                Tools and frameworks I work with
+            </p>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+            {% for tech in technologies %}
+            <div class="tech-badge group px-6 py-3 bg-gray-100 dark:bg-gray-800 rounded-full font-semibold hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-lg" 
+                 data-aos="zoom-in" 
+                 data-aos-delay="{{ forloop.counter0|mul:20 }}">
+                {{ tech }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- CTA Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
+<section class="py-24 animated-gradient text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
-            <div class="p-12 lg:p-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl text-white relative overflow-hidden shadow-2xl">
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full"></div>
-                    <div class="absolute bottom-0 left-0 w-96 h-96 bg-yellow-200 rounded-full"></div>
-                </div>
-                
-                <div class="relative z-10">
-                    <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
-                        Have a Project in <span class="text-yellow-300">Mind?</span>
-                    </h2>
-                    <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-                        Let's work together to bring your ideas to life. I'm available for freelance work and collaborations.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{% url 'contact' %}" 
-                           class="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-envelope mr-2"></i>
-                            Get In Touch
-                        </a>
-                        {% if site_settings.resume_file %}
-                        <a href="{% url 'download_resume' %}" 
-                           class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all duration-300">
-                            <i class="fas fa-download mr-2"></i>
-                            Download Resume
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
+                <i class="fas fa-lightbulb text-5xl"></i>
+            </div>
+            <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6">
+                Have a Project in Mind?
+            </h2>
+            <p class="text-xl lg:text-2xl opacity-90 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Let's collaborate and bring your ideas to life with cutting-edge technology
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'contact' %}" 
+                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <i class="fas fa-paper-plane"></i>Get Started
+                </a>
+                <a href="{% url 'services' %}" 
+                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
+                    <i class="fas fa-briefcase"></i>View Services
+                </a>
             </div>
         </div>
     </div>
@@ -360,83 +392,116 @@
 {% endblock %}
 
 {% block extra_js %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
 <script>
-// View Toggle (Grid/List)
-const viewGrid = document.getElementById('view-grid');
-const viewList = document.getElementById('view-list');
-const projectsContainer = document.getElementById('projects-container');
-
-viewGrid?.addEventListener('click', function() {
-    projectsContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8';
-    viewGrid.classList.add('bg-primary-600', 'text-white');
-    viewGrid.classList.remove('bg-gray-100', 'dark:bg-gray-800');
-    viewList.classList.remove('bg-primary-600', 'text-white');
-    viewList.classList.add('bg-gray-100', 'dark:bg-gray-800');
-    localStorage.setItem('projectsView', 'grid');
+// Initialize AOS
+AOS.init({
+    duration: 800,
+    once: true,
+    offset: 100
 });
 
-viewList?.addEventListener('click', function() {
-    projectsContainer.className = 'grid grid-cols-1 gap-6';
-    viewList.classList.add('bg-primary-600', 'text-white');
-    viewList.classList.remove('bg-gray-100', 'dark:bg-gray-800');
-    viewGrid.classList.remove('bg-primary-600', 'text-white');
-    viewGrid.classList.add('bg-gray-100', 'dark:bg-gray-800');
-    localStorage.setItem('projectsView', 'list');
-});
-
-// Restore view preference
-const savedView = localStorage.getItem('projectsView');
-if (savedView === 'list' && viewList) {
-    viewList.click();
+// Counter Animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.counter');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                const target = parseInt(counter.getAttribute('data-target')) || 0;
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                updateCounter();
+                observer.unobserve(counter);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    counters.forEach(counter => observer.observe(counter));
 }
 
-// Like functionality
-document.querySelectorAll('.like-btn').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+animateCounters();
+
+// Filter Functionality
+const filterButtons = document.querySelectorAll('.filter-btn');
+const projectCards = document.querySelectorAll('.project-card');
+
+filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        const filter = this.dataset.filter;
         
-        const url = this.dataset.url;
-        const icon = this.querySelector('i');
-        const count = this.querySelector('.like-count');
+        // Update active state
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
         
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': window.csrfToken,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                count.textContent = data.likes;
-                
-                if (data.action === 'liked') {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    this.classList.add('text-red-500');
-                } else {
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                    this.classList.remove('text-red-500');
-                }
-                
-                // Animate
-                icon.classList.add('animate-pulse');
-                setTimeout(() => icon.classList.remove('animate-pulse'), 1000);
+        // Filter projects
+        projectCards.forEach(card => {
+            const category = card.dataset.category;
+            if (filter === 'all' || category === filter) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.display = 'none';
+                }, 300);
             }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        });
     });
 });
 
-// Smooth scroll to top when changing pages
-if (window.location.search.includes('page=')) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+// View Toggle
+const gridView = document.getElementById('grid-view');
+const listView = document.getElementById('list-view');
+const container = document.getElementById('projects-container');
+
+if (gridView && listView) {
+    gridView.addEventListener('click', function() {
+        container.classList.remove('grid-cols-1');
+        container.classList.add('md:grid-cols-2', 'lg:grid-cols-3');
+        gridView.classList.add('bg-blue-600', 'text-white');
+        gridView.classList.remove('hover:bg-gray-200', 'dark:hover:bg-gray-700');
+        listView.classList.remove('bg-blue-600', 'text-white');
+        listView.classList.add('hover:bg-gray-200', 'dark:hover:bg-gray-700');
+    });
+    
+    listView.addEventListener('click', function() {
+        container.classList.add('grid-cols-1');
+        container.classList.remove('md:grid-cols-2', 'lg:grid-cols-3');
+        listView.classList.add('bg-blue-600', 'text-white');
+        listView.classList.remove('hover:bg-gray-200', 'dark:hover:bg-gray-700');
+        gridView.classList.remove('bg-blue-600', 'text-white');
+        gridView.classList.add('hover:bg-gray-200', 'dark:hover:bg-gray-700');
+    });
+}
+
+// Search Enhancement
+const searchInput = document.querySelector('input[name="search"]');
+if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            this.form.submit();
+        }, 500);
+    });
 }
 </script>
 {% endblock %}

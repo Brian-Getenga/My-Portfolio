@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Unsubscribe - {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Manage your newsletter subscription preferences.{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(5deg); }
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+        50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8), 0 0 60px rgba(59, 130, 246, 0.4); }
+    }
+    
+    @keyframes slide-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes confetti-fall {
+        0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    
+    .animate-slide-in-up {
+        animation: slide-in-up 0.6s ease-out forwards;
+    }
+    
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: #f43f5e;
+        animation: confetti-fall 3s linear forwards;
+    }
+    
+    .gradient-border {
+        position: relative;
+        background: white;
+        border-radius: 2rem;
+    }
+    
+    .gradient-border::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 2rem;
+        padding: 2px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .dark .gradient-border {
+        background: #1f2937;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section with Animated Background -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900">
+    <!-- Animated Background Blobs -->
+    <div class="absolute inset-0 opacity-30">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl" style="animation: float 8s ease-in-out infinite;"></div>
+        <div class="absolute top-1/2 right-1/4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl" style="animation: float 10s ease-in-out infinite reverse;"></div>
+        <div class="absolute bottom-1/4 left-1/2 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl" style="animation: float 12s ease-in-out infinite;"></div>
+    </div>
+    
+    <!-- Grid Pattern Overlay -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+    
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
+        <div class="max-w-2xl mx-auto">
+            {% if success %}
+            <!-- Success State -->
+            <div class="text-center animate-slide-in-up">
+                <!-- Animated Success Icon -->
+                <div class="relative inline-block mb-8">
+                    <div class="w-32 h-32 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-check text-white text-6xl"></i>
+                    </div>
+                    <!-- Pulse Ring Animation -->
+                    <div class="absolute inset-0 bg-green-400 rounded-full opacity-75 animate-ping"></div>
+                </div>
+                
+                <!-- Success Message Card -->
+                <div class="gradient-border p-8 sm:p-12 mb-8 shadow-2xl">
+                    <h1 class="text-4xl sm:text-5xl font-display font-bold mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        Successfully Unsubscribed
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                        We're sorry to see you go! You've been removed from our newsletter list and won't receive any more emails from us.
+                    </p>
+                    
+                    <!-- Stats -->
+                    <div class="grid grid-cols-2 gap-6 mb-8 max-w-md mx-auto">
+                        <div class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl border border-blue-200 dark:border-blue-700">
+                            <div class="text-sm text-blue-600 dark:text-blue-400 mb-1">Time Subscribed</div>
+                            <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">{{ days_subscribed|default:"Several" }} days</div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl border border-purple-200 dark:border-purple-700">
+                            <div class="text-sm text-purple-600 dark:text-purple-400 mb-1">Emails Received</div>
+                            <div class="text-2xl font-bold text-purple-900 dark:text-purple-100">{{ emails_sent|default:"0" }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feedback Section -->
+                    <div class="p-6 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900 dark:to-amber-900 rounded-2xl border border-orange-200 dark:border-orange-700 mb-8">
+                        <h3 class="font-bold text-lg mb-3 text-orange-900 dark:text-orange-100">
+                            <i class="fas fa-comment-dots mr-2"></i>
+                            Quick Feedback (Optional)
+                        </h3>
+                        <p class="text-sm text-orange-800 dark:text-orange-200 mb-4">
+                            Help us improve! What was the main reason for unsubscribing?
+                        </p>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            <button class="feedback-btn px-4 py-3 bg-white dark:bg-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-orange-800 transition-all hover:scale-105 border border-orange-200 dark:border-orange-700">
+                                <i class="fas fa-inbox mr-2"></i>Too many emails
+                            </button>
+                            <button class="feedback-btn px-4 py-3 bg-white dark:bg-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-orange-800 transition-all hover:scale-105 border border-orange-200 dark:border-orange-700">
+                                <i class="fas fa-times-circle mr-2"></i>Not relevant
+                            </button>
+                            <button class="feedback-btn px-4 py-3 bg-white dark:bg-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-orange-800 transition-all hover:scale-105 border border-orange-200 dark:border-orange-700">
+                                <i class="fas fa-user-times mr-2"></i>Didn't sign up
+                            </button>
+                            <button class="feedback-btn px-4 py-3 bg-white dark:bg-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-orange-800 transition-all hover:scale-105 border border-orange-200 dark:border-orange-700">
+                                <i class="fas fa-question-circle mr-2"></i>Other
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alternative Actions -->
+                <div class="grid sm:grid-cols-2 gap-4 mb-8">
+                    <a href="{% url 'contact' %}" 
+                       class="group px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contact Us Instead</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <a href="{% url 'home' %}" 
+                       class="px-6 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 rounded-xl font-semibold hover:border-blue-500 dark:hover:border-blue-400 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                        <i class="fas fa-home"></i>
+                        <span>Back to Homepage</span>
+                    </a>
+                </div>
+                
+                <!-- Maybe Later Section -->
+                <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg">
+                    <h4 class="font-bold mb-2 text-gray-900 dark:text-white">Changed Your Mind?</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        You can resubscribe anytime. We'd love to have you back!
+                    </p>
+                    <a href="{% url 'home' %}#newsletter" 
+                       class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold hover:gap-3 transition-all">
+                        <i class="fas fa-undo"></i>
+                        Resubscribe to Newsletter
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            {% else %}
+            <!-- Error State -->
+            <div class="text-center animate-slide-in-up">
+                <!-- Animated Error Icon -->
+                <div class="relative inline-block mb-8">
+                    <div class="w-32 h-32 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform duration-300">
+                        <i class="fas fa-exclamation-triangle text-white text-6xl"></i>
+                    </div>
+                    <!-- Pulse Ring Animation -->
+                    <div class="absolute inset-0 bg-red-400 rounded-full opacity-75 animate-ping"></div>
+                </div>
+                
+                <!-- Error Message Card -->
+                <div class="gradient-border p-8 sm:p-12 mb-8 shadow-2xl">
+                    <h1 class="text-4xl sm:text-5xl font-display font-bold mb-4 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
+                        Oops! Something Went Wrong
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+                        We couldn't process your unsubscribe request. The link may be invalid or expired.
+                    </p>
+                    
+                    <!-- Common Issues -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900 dark:to-amber-900 rounded-2xl p-6 mb-8 border border-yellow-200 dark:border-yellow-700 text-left">
+                        <h3 class="font-bold text-lg mb-4 text-yellow-900 dark:text-yellow-100">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Common Issues:
+                        </h3>
+                        <ul class="space-y-3 text-sm text-yellow-800 dark:text-yellow-200">
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check-circle mt-1 text-yellow-600"></i>
+                                <span>The unsubscribe link may have expired</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check-circle mt-1 text-yellow-600"></i>
+                                <span>You may have already unsubscribed</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-check-circle mt-1 text-yellow-600"></i>
+                                <span>The link may be incomplete (check if it wrapped in your email)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Help Actions -->
+                <div class="grid sm:grid-cols-2 gap-4 mb-8">
+                    <a href="{% url 'contact' %}" 
+                       class="group px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                        <i class="fas fa-headset"></i>
+                        <span>Contact Support</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <a href="{% url 'home' %}" 
+                       class="px-6 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 rounded-xl font-semibold hover:border-blue-500 dark:hover:border-blue-400 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                        <i class="fas fa-home"></i>
+                        <span>Back to Homepage</span>
+                    </a>
+                </div>
+                
+                <!-- Manual Unsubscribe Info -->
+                <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-2xl border border-blue-200 dark:border-blue-700 shadow-lg">
+                    <h4 class="font-bold mb-3 text-blue-900 dark:text-blue-100">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Need Help Unsubscribing?
+                    </h4>
+                    <p class="text-sm text-blue-800 dark:text-blue-200 mb-4">
+                        Contact us directly and we'll remove you from our list right away:
+                    </p>
+                    <a href="mailto:{{ site_settings.email }}" 
+                       class="inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-gray-800 rounded-xl font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 transition-all border border-blue-300 dark:border-blue-600">
+                        <i class="fas fa-envelope"></i>
+                        {{ site_settings.email }}
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator (only show on long content) -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden lg:block">
+        <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 text-2xl"></i>
+    </div>
+</section>
+
+<!-- Additional Information Section -->
+<section class="py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Privacy Assurance -->
+            <div class="text-center mb-16" data-aos="fade-up">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full mb-6 shadow-lg">
+                    <i class="fas fa-shield-alt text-white text-3xl"></i>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-display font-bold mb-4">
+                    Your Privacy Matters
+                </h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    We respect your decision and your data. Your email has been securely removed from our systems.
+                </p>
+            </div>
+            
+            <!-- What Happens Next -->
+            <div class="grid md:grid-cols-3 gap-6 mb-16" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-2xl border border-blue-200 dark:border-blue-700">
+                    <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-user-times text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-blue-900 dark:text-blue-100">Immediate Removal</h3>
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                        Your email is removed from our active mailing list immediately.
+                    </p>
+                </div>
+                
+                <div class="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-2xl border border-purple-200 dark:border-purple-700">
+                    <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-clock text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-purple-900 dark:text-purple-100">24-48 Hours</h3>
+                    <p class="text-sm text-purple-800 dark:text-purple-200">
+                        Processing time for complete removal from all systems.
+                    </p>
+                </div>
+                
+                <div class="p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 rounded-2xl border border-green-200 dark:border-green-700">
+                    <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-check-double text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-green-900 dark:text-green-100">All Set</h3>
+                    <p class="text-sm text-green-800 dark:text-green-200">
+                        No further action needed. You won't receive any more newsletters.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Alternative Ways to Stay Connected -->
+            <div class="p-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-xl" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-2xl font-bold mb-6 text-center">
+                    <i class="fas fa-heart text-red-500 mr-2"></i>
+                    Other Ways to Stay Connected
+                </h3>
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all hover:-translate-y-1">
+                        <i class="fas fa-rss text-orange-500 text-3xl mb-4"></i>
+                        <h4 class="font-bold mb-2">RSS Feed</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            Subscribe to our RSS feed to get updates on your own schedule.
+                        </p>
+                        <a href="{% url 'home' %}/feed" class="text-orange-600 hover:text-orange-700 font-semibold text-sm">
+                            Subscribe to RSS →
+                        </a>
+                    </div>
+                    
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all hover:-translate-y-1">
+                        <i class="fas fa-share-alt text-blue-500 text-3xl mb-4"></i>
+                        <h4 class="font-bold mb-2">Social Media</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            Follow us on social media for updates and insights.
+                        </p>
+                        <div class="flex gap-3">
+                            {% if site_settings.twitter_url %}
+                            <a href="{{ site_settings.twitter_url }}" target="_blank" 
+                               class="w-10 h-10 bg-sky-500 hover:bg-sky-600 text-white rounded-lg flex items-center justify-center transition-colors">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            {% endif %}
+                            {% if site_settings.linkedin_url %}
+                            <a href="{{ site_settings.linkedin_url }}" target="_blank" 
+                               class="w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center transition-colors">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            {% endif %}
+                            {% if site_settings.github_url %}
+                            <a href="{{ site_settings.github_url }}" target="_blank" 
+                               class="w-10 h-10 bg-gray-800 hover:bg-gray-900 text-white rounded-lg flex items-center justify-center transition-colors">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize AOS
+AOS.init({
+    duration: 800,
+    once: true,
+    offset: 100
+});
+
+// Feedback button handler
+document.querySelectorAll('.feedback-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const reason = this.textContent.trim();
+        
+        // Visual feedback
+        this.innerHTML = '<i class="fas fa-check mr-2"></i>Thank you!';
+        this.classList.add('bg-green-500', 'text-white');
+        this.disabled = true;
+        
+        // Send feedback asynchronously
+        try {
+            await fetch('{% url "newsletter_feedback" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ reason: reason })
+            });
+        } catch (error) {
+            console.error('Error sending feedback:', error);
+        }
+        
+        // Create confetti effect
+        createConfetti();
+    });
+});
+
+// Confetti animation
+function createConfetti() {
+    const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
+    
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }, i * 50);
+    }
+}
+
+// Add smooth scroll behavior
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// Add hover effect to gradient border
+const gradientBorders = document.querySelectorAll('.gradient-border');
+gradientBorders.forEach(el => {
+    el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        el.style.setProperty('--mouse-x', x + 'px');
+        el.style.setProperty('--mouse-y', y + 'px');
+    });
+});
+</script>
+{% endblock %}

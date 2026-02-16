@@ -569,35 +569,65 @@ class Achievement(TimeStampedModel):
     def __str__(self):
         return self.title
 
-
 class Service(TimeStampedModel):
     """Services offered"""
+
     title = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
     short_description = models.TextField(max_length=200)
     description = RichTextUploadingField()
     icon = models.CharField(max_length=100, help_text="FontAwesome icon class")
     image = models.ImageField(upload_to='services/', null=True, blank=True)
-    starting_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
-                                        help_text="Starting price in USD")
+    starting_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Starting price in USD"
+    )
     deliverables = models.TextField(blank=True, help_text="One per line")
     process_steps = models.TextField(blank=True, help_text="One per line")
     order = models.IntegerField(default=0, db_index=True)
     is_active = models.BooleanField(default=True, db_index=True)
     featured = models.BooleanField(default=False)
-    
+
     class Meta:
         ordering = ['order', 'title']
         verbose_name = "Service"
         verbose_name_plural = "Services"
-    
+
     def __str__(self):
         return self.title
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+    @property
+    def deliverables_list(self):
+        """Split deliverables into list"""
+        if self.deliverables:
+            return [d.strip() for d in self.deliverables.split('\n') if d.strip()]
+        return []
+
+    @property
+    def process_steps_list(self):
+        """Split process steps into list"""
+        if self.process_steps:
+            return [s.strip() for s in self.process_steps.split('\n') if s.strip()]
+        return []
+
+    @property
+    def tech_list(self):
+        """Split technologies into list if you have a technologies field"""
+        if hasattr(self, 'technologies') and self.technologies:
+            return [t.strip() for t in self.technologies.split(',')]
+        return []
+
+    def get_absolute_url(self):
+        return reverse('service_detail', kwargs={'slug': self.slug})
+
 
 
 class FAQ(TimeStampedModel):

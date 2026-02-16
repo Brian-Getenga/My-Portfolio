@@ -2,137 +2,229 @@
 {% load static %}
 {% load math_filters %}
 
-
 {% block title %}About - {{ site_settings.site_name }}{% endblock %}
 {% block meta_description %}Learn more about {{ site_settings.site_name }}, my experience, skills, and journey as a Full Stack Developer.{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes gradient-flow {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    
+    .gradient-flow-bg {
+        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+        background-size: 400% 400%;
+        animation: gradient-flow 15s ease infinite;
+    }
+    
+    .skill-progress {
+        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, #3b82f6, #8b5cf6, #ec4899);
+    }
+    
+    .hover-glow:hover {
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+    }
+    
+    .text-shimmer {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 3s linear infinite;
+    }
+    
+    @keyframes shimmer {
+        to { background-position: 200% center; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
 <!-- Hero Section -->
-<section class="pt-32 pb-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+<section class="relative pt-32 pb-20 gradient-flow-bg text-white overflow-hidden">
+    <!-- Animated Background Elements -->
     <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-10 left-10 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div class="absolute top-40 right-10 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute -bottom-8 left-40 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div class="absolute top-10 left-10 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div class="absolute top-40 right-10 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute -bottom-8 left-40 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
     </div>
     
-    <div class="container mx-auto px-4 relative z-10">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down">
-                <span class="text-sm font-semibold">👋 Get to know me</span>
+            <!-- Breadcrumb -->
+            <nav class="mb-8" data-aos="fade-down">
+                <ol class="flex items-center justify-center flex-wrap gap-2 text-sm opacity-90">
+                    <li><a href="{% url 'home' %}" class="hover:text-yellow-300 transition-colors">Home</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-yellow-300">About</li>
+                </ol>
+            </nav>
+            
+            <!-- Badge -->
+            <div class="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down" data-aos-delay="100">
+                <i class="fas fa-user-circle mr-2 text-xl"></i>
+                <span class="font-semibold">Get to Know Me</span>
             </div>
-            <h1 class="text-5xl md:text-7xl font-display font-bold mb-6" data-aos="fade-up">
+            
+            <!-- Main Heading -->
+            <h1 class="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight" data-aos="fade-up" data-aos-delay="200">
                 About <span class="text-yellow-300">Me</span>
             </h1>
-            <p class="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+            
+            <!-- Description -->
+            <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="300">
                 {{ site_settings.tagline|default:site_settings.site_description }}
             </p>
         </div>
     </div>
 </section>
 
-<!-- Profile & Biography -->
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
+<!-- Profile & Biography Section -->
+<section class="py-20 lg:py-32 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-6xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                <!-- Profile Image -->
+                <!-- Profile Image with Advanced Effects -->
                 <div class="order-2 lg:order-1" data-aos="fade-right">
                     <div class="relative">
                         {% if site_settings.profile_image %}
-                        <img src="{{ site_settings.profile_image.url }}" 
-                             alt="{{ site_settings.site_name }}"
-                             class="w-full max-w-lg mx-auto rounded-3xl shadow-2xl">
+                        <div class="relative overflow-hidden rounded-3xl shadow-2xl group">
+                            <img src="{{ site_settings.profile_image.url }}" 
+                                 alt="{{ site_settings.site_name }}"
+                                 class="w-full max-w-lg mx-auto transform transition-transform duration-500 group-hover:scale-105">
+                            <!-- Gradient Overlay on Hover -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-blue-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
                         {% else %}
-                        <div class="w-full max-w-lg mx-auto aspect-square bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center">
-                            <i class="fas fa-user text-white text-9xl"></i>
+                        <div class="w-full max-w-lg mx-auto aspect-square bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                            <i class="fas fa-user text-white text-9xl opacity-50"></i>
                         </div>
                         {% endif %}
                         
                         <!-- Decorative Elements -->
-                        <div class="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400 rounded-full opacity-20 animate-pulse"></div>
-                        <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-pink-400 rounded-full opacity-20 animate-pulse animation-delay-2000"></div>
+                        <div class="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400/30 rounded-full blur-2xl animate-pulse"></div>
+                        <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-pink-400/30 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s;"></div>
                     </div>
                     
-                    <!-- Quick Stats -->
+                    <!-- Quick Stats Grid -->
                     <div class="grid grid-cols-2 gap-4 mt-8 max-w-lg mx-auto">
-                        <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow text-center">
-                            <div class="text-3xl font-bold gradient-text">{{ site_settings.years_experience }}+</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Years Exp.</div>
+                        <div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-2xl shadow-lg hover-glow transition-all cursor-pointer group">
+                            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-briefcase text-white text-xl"></i>
+                            </div>
+                            <div class="text-3xl font-bold text-blue-600 dark:text-blue-300 counter" data-target="{{ site_settings.years_experience|default:5 }}">0</div>
+                            <div class="text-sm text-gray-700 dark:text-gray-300 mt-1">Years Experience</div>
                         </div>
-                        <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow text-center">
-                            <div class="text-3xl font-bold gradient-text">{{ site_settings.projects_completed }}+</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Projects</div>
+                        
+                        <div class="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-2xl shadow-lg hover-glow transition-all cursor-pointer group">
+                            <div class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-project-diagram text-white text-xl"></i>
+                            </div>
+                            <div class="text-3xl font-bold text-purple-600 dark:text-purple-300 counter" data-target="{{ stats.total_projects|default:100 }}">0</div>
+                            <div class="text-sm text-gray-700 dark:text-gray-300 mt-1">Projects Done</div>
                         </div>
-                        <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow text-center">
-                            <div class="text-3xl font-bold gradient-text">{{ site_settings.happy_clients }}+</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Clients</div>
+                        
+                        <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-2xl shadow-lg hover-glow transition-all cursor-pointer group">
+                            <div class="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-smile text-white text-xl"></i>
+                            </div>
+                            <div class="text-3xl font-bold text-green-600 dark:text-green-300 counter" data-target="{{ site_settings.happy_clients|default:50 }}">0</div>
+                            <div class="text-sm text-gray-700 dark:text-gray-300 mt-1">Happy Clients</div>
                         </div>
-                        <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow text-center">
-                            <div class="text-3xl font-bold gradient-text">{{ site_settings.coffee_consumed }}+</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Coffees</div>
+                        
+                        <div class="p-6 bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900 dark:to-pink-800 rounded-2xl shadow-lg hover-glow transition-all cursor-pointer group">
+                            <div class="w-12 h-12 bg-pink-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-coffee text-white text-xl"></i>
+                            </div>
+                            <div class="text-3xl font-bold text-pink-600 dark:text-pink-300 counter" data-target="{{ site_settings.coffee_consumed|default:1000 }}">0</div>
+                            <div class="text-sm text-gray-700 dark:text-gray-300 mt-1">Cups of Coffee</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Biography Content -->
                 <div class="order-1 lg:order-2" data-aos="fade-left">
+                    <span class="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-sm font-semibold mb-6">
+                        <i class="fas fa-book-open mr-2"></i>My Story
+                    </span>
+                    
                     <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
-                        My <span class="gradient-text">Story</span>
+                        My <span class="text-shimmer">Journey</span>
                     </h2>
                     
-                    <div class="prose dark:prose-invert prose-lg max-w-none mb-8">
+                    <div class="prose dark:prose-invert prose-lg max-w-none mb-8 leading-relaxed">
                         {{ site_settings.about_me|safe }}
                     </div>
                     
-                    <!-- Contact Info -->
+                    <!-- Contact Info Cards -->
                     <div class="space-y-4 mb-8">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-envelope text-blue-600 dark:text-blue-400"></i>
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:shadow-lg transition-all group">
+                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-envelope text-white text-xl"></i>
                             </div>
-                            <div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400">Email</div>
-                                <a href="mailto:{{ site_settings.email }}" class="font-semibold text-blue-600 hover:text-blue-700">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Email</div>
+                                <a href="mailto:{{ site_settings.email }}" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline break-all">
                                     {{ site_settings.email }}
                                 </a>
                             </div>
                         </div>
                         
                         {% if site_settings.phone %}
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-phone text-green-600 dark:text-green-400"></i>
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:shadow-lg transition-all group">
+                            <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-phone text-white text-xl"></i>
                             </div>
-                            <div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400">Phone</div>
-                                <a href="tel:{{ site_settings.phone }}" class="font-semibold">
+                            <div class="flex-1">
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Phone</div>
+                                <a href="tel:{{ site_settings.phone }}" class="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     {{ site_settings.phone }}
                                 </a>
                             </div>
                         </div>
                         {% endif %}
                         
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-map-marker-alt text-purple-600 dark:text-purple-400"></i>
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:shadow-lg transition-all group">
+                            <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-map-marker-alt text-white text-xl"></i>
                             </div>
-                            <div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400">Location</div>
-                                <div class="font-semibold">{{ site_settings.location }}</div>
+                            <div class="flex-1">
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Location</div>
+                                <div class="font-semibold text-gray-900 dark:text-white">{{ site_settings.location }}</div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- CTA Buttons -->
                     <div class="flex flex-wrap gap-4">
-                        <a href="{% url 'contact' %}" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 inline-flex items-center">
-                            <i class="fas fa-envelope mr-2"></i>
+                        <a href="{% url 'contact' %}" 
+                           class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-2xl hover:scale-105 transition-all">
+                            <i class="fas fa-envelope"></i>
                             Hire Me
                         </a>
                         {% if site_settings.resume_file %}
-                        <a href="{% url 'download_resume' %}" class="px-8 py-4 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 inline-flex items-center">
-                            <i class="fas fa-download mr-2"></i>
+                        <a href="{% url 'download_resume' %}" 
+                           class="inline-flex items-center gap-2 px-8 py-4 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl font-bold hover:shadow-lg hover:scale-105 transition-all">
+                            <i class="fas fa-download"></i>
                             Download CV
                         </a>
                         {% endif %}
@@ -145,48 +237,54 @@
 
 <!-- Skills Section -->
 <section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Technical <span class="gradient-text">Skills</span>
+            <span class="inline-block px-4 py-2 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 rounded-full text-sm font-semibold mb-4">
+                <i class="fas fa-code mr-2"></i>Technical Expertise
+            </span>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
+                Technical <span class="text-shimmer">Skills</span>
             </h2>
             <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Technologies and tools I work with
+                Technologies and tools I master
             </p>
         </div>
         
         {% regroup skills by category as skills_by_category %}
         <div class="max-w-6xl mx-auto space-y-12">
             {% for category in skills_by_category %}
-            <div data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+            <div data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
                 <h3 class="text-2xl font-bold mb-6 flex items-center">
                     <span class="w-2 h-8 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-3"></span>
                     {{ category.grouper|capfirst }}
                 </h3>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid md:grid-cols-2 gap-6">
                     {% for skill in category.list %}
-                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 group">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-3">
+                            <div class="flex items-center gap-3">
                                 {% if skill.icon_class %}
-                                <i class="{{ skill.icon_class }} text-2xl text-primary-600"></i>
+                                <i class="{{ skill.icon_class }} text-3xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
                                 {% endif %}
-                                <span class="font-semibold text-lg">{{ skill.name }}</span>
+                                <div>
+                                    <span class="font-bold text-lg text-gray-900 dark:text-white">{{ skill.name }}</span>
+                                    {% if skill.years_experience %}
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ skill.years_experience }} years</div>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <span class="text-sm font-bold text-primary-600">{{ skill.proficiency }}%</span>
+                            <span class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ skill.proficiency }}%</span>
                         </div>
+                        
                         {% if skill.description %}
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ skill.description }}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ skill.description }}</p>
                         {% endif %}
-                        <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all duration-1000"
-                                 style="width: {{ skill.proficiency }}%"></div>
+                        
+                        <div class="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 skill-progress"
+                                 data-width="{{ skill.proficiency }}" 
+                                 style="width: 0%"></div>
                         </div>
-                        {% if skill.years_experience %}
-                        <div class="mt-2 text-xs text-gray-500">
-                            <i class="fas fa-clock mr-1"></i>{{ skill.years_experience }} years experience
-                        </div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -197,63 +295,84 @@
 </section>
 
 <!-- Experience Timeline -->
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
+<section class="py-20 lg:py-32 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Work <span class="gradient-text">Experience</span>
+            <span class="inline-block px-4 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 rounded-full text-sm font-semibold mb-4">
+                <i class="fas fa-briefcase mr-2"></i>Career Journey
+            </span>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
+                Work <span class="text-shimmer">Experience</span>
             </h2>
             <p class="text-xl text-gray-600 dark:text-gray-400">
-                My professional journey
+                My professional journey and achievements
             </p>
         </div>
         
         <div class="max-w-5xl mx-auto">
             <div class="relative">
                 <!-- Timeline Line -->
-                <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-600 via-purple-600 to-pink-600 transform -translate-x-1/2"></div>
+                <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 transform -translate-x-1/2">
+                    <div class="h-full bg-gradient-to-b from-blue-600 via-purple-600 to-pink-600 rounded-full"></div>
+                </div>
                 
                 {% for exp in experiences %}
                 <div class="relative mb-12 {% cycle 'md:pr-1/2' 'md:pl-1/2 md:ml-auto' %}" 
                      data-aos="fade-{% cycle 'right' 'left' %}">
                     <!-- Timeline Dot -->
-                    <div class="hidden md:block absolute left-1/2 top-8 w-6 h-6 bg-white dark:bg-gray-900 rounded-full border-4 border-primary-600 transform -translate-x-1/2 {% if exp.is_current %}animate-pulse ring-4 ring-primary-200 dark:ring-primary-800{% endif %}"></div>
+                    <div class="hidden md:block absolute left-1/2 top-8 w-6 h-6 bg-white dark:bg-gray-950 rounded-full border-4 border-blue-600 transform -translate-x-1/2 z-10 {% if exp.is_current %}shadow-lg{% endif %}" 
+                         style="{% if exp.is_current %}animation: pulse-ring 2s infinite;{% endif %}"></div>
                     
                     <!-- Content Card -->
-                    <div class="{% cycle 'md:mr-12' 'md:ml-12' %} p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                    <div class="{% cycle 'md:mr-12' 'md:ml-12' %} p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 group">
                         <!-- Company Logo -->
                         {% if exp.company_logo %}
-                        <div class="mb-4">
-                            <img src="{{ exp.company_logo.url }}" alt="{{ exp.company }}" 
-                                 class="w-20 h-20 object-contain rounded-lg">
+                        <div class="mb-4 inline-block">
+                            <img src="{{ exp.company_logo.url }}" 
+                                 alt="{{ exp.company }}" 
+                                 class="w-20 h-20 object-contain rounded-xl group-hover:scale-110 transition-transform">
                         </div>
                         {% endif %}
                         
                         <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold mb-1">{{ exp.title }}</h3>
-                                <p class="text-xl text-primary-600 font-semibold mb-2">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ exp.title }}</h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <p class="text-xl text-blue-600 dark:text-blue-400 font-semibold">{{ exp.company }}</p>
                                     {% if exp.company_url %}
-                                    <a href="{{ exp.company_url }}" target="_blank" class="hover:text-primary-700">
-                                        {{ exp.company }} <i class="fas fa-external-link-alt text-sm"></i>
+                                    <a href="{{ exp.company_url }}" target="_blank" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        <i class="fas fa-external-link-alt text-sm"></i>
                                     </a>
-                                    {% else %}
-                                    {{ exp.company }}
                                     {% endif %}
-                                </p>
+                                </div>
                             </div>
                             {% if exp.is_current %}
-                            <span class="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-sm font-bold rounded-full">
-                                <i class="fas fa-circle mr-1 text-xs animate-pulse"></i>Current
+                            <span class="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-sm font-bold rounded-full whitespace-nowrap flex items-center gap-2">
+                                <span class="relative flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                </span>
+                                Current Position
                             </span>
                             {% endif %}
                         </div>
                         
                         <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
-                            <span><i class="fas fa-calendar mr-2"></i>{{ exp.start_date|date:"M Y" }} - {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}</span>
-                            <span><i class="fas fa-clock mr-2"></i>{{ exp.duration }}</span>
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-calendar"></i>
+                                {{ exp.start_date|date:"M Y" }} - {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}
+                            </span>
+                            {% if exp.duration %}
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-clock"></i>
+                                {{ exp.duration }}
+                            </span>
+                            {% endif %}
                             {% if exp.location %}
-                            <span><i class="fas fa-map-marker-alt mr-2"></i>{{ exp.location }}</span>
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ exp.location }}
+                            </span>
                             {% endif %}
                             <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
                                 {{ exp.get_employment_type_display }}
@@ -266,14 +385,14 @@
                         
                         {% if exp.achievements %}
                         <div class="mb-6">
-                            <h4 class="font-semibold mb-3 flex items-center">
-                                <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                            <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                                <i class="fas fa-trophy text-yellow-500"></i>
                                 Key Achievements
                             </h4>
                             <ul class="space-y-2">
                                 {% for achievement in exp.achievements.splitlines %}
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                                <li class="flex items-start gap-3">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
                                     <span class="text-gray-700 dark:text-gray-300">{{ achievement }}</span>
                                 </li>
                                 {% endfor %}
@@ -283,10 +402,10 @@
                         
                         {% if exp.technologies %}
                         <div>
-                            <h4 class="font-semibold mb-3">Technologies Used</h4>
+                            <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">Technologies Used</h4>
                             <div class="flex flex-wrap gap-2">
                                 {% for tech in exp.tech_list %}
-                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-300 transition-colors cursor-pointer">
                                     {{ tech }}
                                 </span>
                                 {% endfor %}
@@ -304,47 +423,62 @@
 <!-- Education Section -->
 {% if education %}
 <section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                <span class="gradient-text">Education</span>
+            <span class="inline-block px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm font-semibold mb-4">
+                <i class="fas fa-graduation-cap mr-2"></i>Academic Background
+            </span>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
+                <span class="text-shimmer">Education</span>
             </h2>
             <p class="text-xl text-gray-600 dark:text-gray-400">
-                My academic background
+                My academic journey and qualifications
             </p>
         </div>
         
         <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
             {% for edu in education %}
-            <div class="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2" 
-                 data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+            <div class="group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2" 
+                 data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|mul:100 }}">
                 {% if edu.institution_logo %}
-                <img src="{{ edu.institution_logo.url }}" alt="{{ edu.institution }}" 
-                     class="w-16 h-16 object-contain mb-4 rounded">
+                <div class="mb-6">
+                    <img src="{{ edu.institution_logo.url }}" 
+                         alt="{{ edu.institution }}" 
+                         class="w-16 h-16 object-contain rounded-lg group-hover:scale-110 transition-transform">
+                </div>
                 {% endif %}
                 
-                <h3 class="text-xl font-bold mb-2">{{ edu.degree }}</h3>
-                <p class="text-lg text-primary-600 font-semibold mb-2">{{ edu.field_of_study }}</p>
-                <p class="text-gray-900 dark:text-white font-medium mb-2">
-                    {% if edu.institution_url %}
-                    <a href="{{ edu.institution_url }}" target="_blank" class="hover:text-primary-600">
-                        {{ edu.institution }} <i class="fas fa-external-link-alt text-xs"></i>
-                    </a>
-                    {% else %}
-                    {{ edu.institution }}
+                <div class="mb-4">
+                    <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {{ edu.degree }}
+                    </h3>
+                    <p class="text-lg text-blue-600 dark:text-blue-400 font-semibold mb-2">{{ edu.field_of_study }}</p>
+                    <p class="font-medium text-gray-900 dark:text-white mb-2">
+                        {% if edu.institution_url %}
+                        <a href="{{ edu.institution_url }}" target="_blank" class="hover:underline flex items-center gap-2">
+                            {{ edu.institution }}
+                            <i class="fas fa-external-link-alt text-xs"></i>
+                        </a>
+                        {% else %}
+                        {{ edu.institution }}
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-calendar"></i>
+                        {{ edu.start_date|date:"Y" }} - {% if edu.is_current %}Present{% else %}{{ edu.end_date|date:"Y" }}{% endif %}
+                    </span>
+                    {% if edu.grade %}
+                    <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-semibold">
+                        Grade: {{ edu.grade }}
+                    </span>
                     {% endif %}
-                </p>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    <i class="fas fa-calendar mr-2"></i>
-                    {{ edu.start_date|date:"Y" }} - {% if edu.is_current %}Present{% else %}{{ edu.end_date|date:"Y" }}{% endif %}
-                </p>
-                {% if edu.grade %}
-                <p class="text-sm mb-4">
-                    <span class="font-semibold">Grade:</span> {{ edu.grade }}
-                </p>
-                {% endif %}
+                </div>
+                
                 {% if edu.description %}
-                <p class="text-gray-700 dark:text-gray-300 text-sm">{{ edu.description }}</p>
+                <p class="text-gray-700 dark:text-gray-300">{{ edu.description }}</p>
                 {% endif %}
             </div>
             {% endfor %}
@@ -355,11 +489,14 @@
 
 <!-- Certifications -->
 {% if certifications %}
-<section class="py-20 lg:py-32">
-    <div class="container mx-auto px-4">
+<section class="py-20 lg:py-32 bg-white dark:bg-gray-950">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Certifications & <span class="gradient-text">Achievements</span>
+            <span class="inline-block px-4 py-2 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full text-sm font-semibold mb-4">
+                <i class="fas fa-certificate mr-2"></i>Professional Credentials
+            </span>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
+                Certifications & <span class="text-shimmer">Achievements</span>
             </h2>
             <p class="text-xl text-gray-600 dark:text-gray-400">
                 Professional credentials and accomplishments
@@ -368,42 +505,50 @@
         
         <div class="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for cert in certifications %}
-            <div class="group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2" 
-                 data-aos="flip-up" data-aos-delay="{{ forloop.counter0|add:1|mul:50 }}">
+            <div class="group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2" 
+                 data-aos="flip-up" data-aos-delay="{{ forloop.counter0|mul:50 }}">
                 {% if cert.certificate_image %}
-                <div class="mb-4 overflow-hidden rounded-lg">
-                    <img src="{{ cert.certificate_image.url }}" alt="{{ cert.name }}" 
-                         class="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300">
+                <div class="mb-4 overflow-hidden rounded-xl">
+                    <img src="{{ cert.certificate_image.url }}" 
+                         alt="{{ cert.name }}" 
+                         class="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500">
                 </div>
                 {% endif %}
                 
-                <h3 class="text-lg font-bold mb-2 group-hover:text-primary-600 transition-colors">
+                <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {{ cert.name }}
                 </h3>
-                <p class="text-primary-600 font-semibold mb-2">{{ cert.issuing_organization }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    <i class="fas fa-calendar mr-1"></i>
-                    Issued {{ cert.issue_date|date:"M Y" }}
+                <p class="text-blue-600 dark:text-blue-400 font-semibold mb-2">{{ cert.issuing_organization }}</p>
+                
+                <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fas fa-calendar"></i>
+                        Issued {{ cert.issue_date|date:"M Y" }}
+                    </div>
                     {% if cert.expiry_date %}
-                    {% if not cert.is_expired %}
-                    <br><span class="text-green-600">Valid until {{ cert.expiry_date|date:"M Y" }}</span>
-                    {% else %}
-                    <br><span class="text-red-600">Expired {{ cert.expiry_date|date:"M Y" }}</span>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-clock"></i>
+                        {% if not cert.is_expired %}
+                        <span class="text-green-600 dark:text-green-400">Valid until {{ cert.expiry_date|date:"M Y" }}</span>
+                        {% else %}
+                        <span class="text-red-600 dark:text-red-400">Expired {{ cert.expiry_date|date:"M Y" }}</span>
+                        {% endif %}
+                    </div>
                     {% endif %}
-                    {% endif %}
-                </p>
+                </div>
                 
                 {% if cert.credential_id %}
-                <p class="text-xs text-gray-500 mb-3">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 font-mono">
                     ID: {{ cert.credential_id }}
                 </p>
                 {% endif %}
                 
                 {% if cert.credential_url %}
                 <a href="{{ cert.credential_url }}" target="_blank" 
-                   class="inline-flex items-center text-sm text-primary-600 hover:text-primary-700 font-semibold">
-                    <i class="fas fa-certificate mr-2"></i>
+                   class="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold group-hover:gap-3 transition-all">
+                    <i class="fas fa-certificate"></i>
                     View Certificate
+                    <i class="fas fa-external-link-alt text-xs"></i>
                 </a>
                 {% endif %}
             </div>
@@ -416,23 +561,29 @@
 <!-- Achievements -->
 {% if achievements %}
 <section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Awards & <span class="gradient-text">Recognition</span>
+            <span class="inline-block px-4 py-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 rounded-full text-sm font-semibold mb-4">
+                <i class="fas fa-trophy mr-2"></i>Milestones
+            </span>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
+                Awards & <span class="text-shimmer">Recognition</span>
             </h2>
         </div>
         
         <div class="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for achievement in achievements %}
-            <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition" 
-                 data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:50 }}">
-                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mb-4">
-                    <i class="{{ achievement.icon }} text-yellow-600 dark:text-yellow-400 text-xl"></i>
+            <div class="group p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1" 
+                 data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:50 }}">
+                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="{{ achievement.icon }} text-white text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold mb-2">{{ achievement.title }}</h3>
+                <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {{ achievement.title }}
+                </h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ achievement.description }}</p>
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <i class="fas fa-building"></i>
                     {{ achievement.issuer }} • {{ achievement.date_achieved|date:"M Y" }}
                 </p>
             </div>
@@ -443,24 +594,27 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section class="py-20 lg:py-32 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white">
-    <div class="container mx-auto px-4">
+<section class="py-20 lg:py-32 gradient-flow-bg text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
+            <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-8">
+                <i class="fas fa-rocket text-4xl"></i>
+            </div>
             <h2 class="text-4xl lg:text-5xl font-display font-bold mb-6">
                 Interested in Working Together?
             </h2>
-            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
+            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto leading-relaxed">
                 I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{% url 'contact' %}" 
-                   class="px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center justify-center">
-                    <i class="fas fa-envelope mr-2"></i>
+                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all">
+                    <i class="fas fa-envelope"></i>
                     Get In Touch
                 </a>
                 <a href="{% url 'projects' %}" 
-                   class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all duration-300 inline-flex items-center justify-center">
-                    <i class="fas fa-folder-open mr-2"></i>
+                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all">
+                    <i class="fas fa-folder"></i>
                     View My Work
                 </a>
             </div>
@@ -468,4 +622,81 @@
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+// Initialize AOS
+AOS.init({
+    duration: 1000,
+    once: true,
+    offset: 100
+});
+
+// Counter Animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.counter');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                const target = parseInt(counter.getAttribute('data-target')) || 0;
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                updateCounter();
+                observer.unobserve(counter);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    counters.forEach(counter => observer.observe(counter));
+}
+
+animateCounters();
+
+// Skill Progress Bars
+const skillObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const bar = entry.target;
+            const width = bar.getAttribute('data-width') || 90;
+            setTimeout(() => {
+                bar.style.width = width + '%';
+            }, 200);
+            skillObserver.unobserve(bar);
+        }
+    });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.skill-progress').forEach(bar => {
+    skillObserver.observe(bar);
+});
+
+// Smooth Scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const offset = 80;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+    });
+});
+</script>
 {% endblock %}
