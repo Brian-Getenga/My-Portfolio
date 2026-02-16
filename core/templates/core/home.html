@@ -1103,26 +1103,16 @@ if (document.querySelector('.testimonials-swiper')) {
     });
 }
 
+
 // Particles.js Configuration
 if (document.getElementById('particles-js')) {
     particlesJS('particles-js', {
         particles: {
-            number: { 
-                value: 80, 
-                density: { enable: true, value_area: 800 } 
-            },
+            number: { value: 80, density: { enable: true, value_area: 800 } },
             color: { value: '#ffffff' },
             shape: { type: 'circle' },
-            opacity: { 
-                value: 0.5, 
-                random: false,
-                anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
-            },
-            size: { 
-                value: 3, 
-                random: true,
-                anim: { enable: true, speed: 2, size_min: 0.1, sync: false }
-            },
+            opacity: { value: 0.5, random: false },
+            size: { value: 3, random: true },
             line_linked: {
                 enable: true,
                 distance: 150,
@@ -1151,45 +1141,6 @@ if (document.getElementById('particles-js')) {
         retina_detect: true
     });
 }
-
-// Smooth Scrolling for Anchor Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (href === '#') return;
-        
-        e.preventDefault();
-        const target = document.querySelector(href);
-        if (target) {
-            const offset = 80;
-            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
-            window.scrollTo({ 
-                top: targetPosition, 
-                behavior: 'smooth' 
-            });
-        }
-    });
-});
-
-// Parallax Effect on Scroll
-let ticking = false;
-window.addEventListener('scroll', function() {
-    if (!ticking) {
-        window.requestAnimationFrame(function() {
-            const scrolled = window.pageYOffset;
-            const parallaxElements = document.querySelectorAll('.parallax');
-            
-            parallaxElements.forEach(el => {
-                const speed = el.dataset.speed || 0.5;
-                el.style.transform = `translateY(${scrolled * speed}px)`;
-            });
-            
-            ticking = false;
-        });
-        ticking = true;
-    }
-});
-
 // Lazy Loading Images
 if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries, observer) => {

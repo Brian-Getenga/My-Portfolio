@@ -571,7 +571,7 @@
                 <!-- Logo -->
                 <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
                     <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute inset-0 Z rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
                         <div class="relative text-2xl lg:text-3xl font-display font-bold group-hover:scale-105 transition-transform">
                             {% if site_settings.site_logo %}
                             <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.site_name }}" class="h-8 lg:h-10">
@@ -694,7 +694,7 @@
     </div>
     
     <!-- Main Content -->
-    <main id="main-content" class="min-h-screen pt-16 lg:pt-20">
+    <main id="main-content" class="min-h-screen pt-16 lg:pt-2">
         {% if messages %}
         <div id="toast-container" class="fixed top-24 right-4 z-[60] space-y-3 max-w-md">
             {% for message in messages %}
