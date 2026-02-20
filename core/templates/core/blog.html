@@ -1,470 +1,349 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load math_filters %}
 
-{% block title %}Blog - {{ site_settings.site_name }}{% endblock %}
-{% block meta_description %}Read articles, tutorials, and insights about web development, programming, and technology.{% endblock %}
+{% block title %}Blog — {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Articles, tutorials, and insights on web development, programming, and technology.{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <style>
-    .animated-gradient {
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
+    .blog-hero { background: #0a0f2e; position: relative; overflow: hidden; }
+    .blog-hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(201,147,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,147,42,0.04) 1px, transparent 1px); background-size: 80px 80px; }
+    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; }
+    .breadcrumb a { color: rgba(255,255,255,0.4); transition: color 0.2s; }
+    .breadcrumb a:hover { color: #fbbf24; }
+    .breadcrumb .sep { color: rgba(255,255,255,0.2); }
+    .breadcrumb .current { color: #fbbf24; }
+
+    /* Search bar */
+    .search-bar {
+        position: relative; max-width: 520px;
     }
-    
-    @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+    .search-bar input {
+        width: 100%; padding: 0.875rem 1rem 0.875rem 3rem;
+        background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
+        color: white; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
+        transition: all 0.25s ease; outline: none;
     }
-    
-    .blog-card {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .blog-card:hover {
-        transform: translateY(-12px) scale(1.02);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    }
-    
+    .search-bar input::placeholder { color: rgba(255,255,255,0.35); }
+    .search-bar input:focus { border-color: rgba(201,147,42,0.5); background: rgba(255,255,255,0.1); }
+    .search-bar .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.35); font-size: 0.8rem; }
+    .search-bar button { position: absolute; right: 0.375rem; top: 50%; transform: translateY(-50%); padding: 0.5rem 1.25rem; background: linear-gradient(135deg, #c9932a, #fbbf24); color: #0a0f2e; font-size: 0.8rem; font-weight: 700; border-radius: 2px; transition: all 0.2s; }
+    .search-bar button:hover { filter: brightness(1.1); }
+
+    /* Filter chips */
     .filter-chip {
-        transition: all 0.3s ease;
+        padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+        border: 1px solid rgba(0,0,0,0.08); background: white; color: #64748b;
+        cursor: pointer; transition: all 0.25s ease; white-space: nowrap;
     }
-    
-    .filter-chip:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    .dark .filter-chip { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: #94a3b8; }
+    .filter-chip:hover { border-color: rgba(201,147,42,0.4); color: #c9932a; }
+    .filter-chip.active { background: #0a0f2e; color: #fbbf24; border-color: #0a0f2e; }
+    .dark .filter-chip.active { background: rgba(201,147,42,0.15); color: #fbbf24; border-color: rgba(201,147,42,0.4); }
+
+    /* Featured post */
+    .featured-post { position: relative; border-radius: 4px; overflow: hidden; aspect-ratio: 16/8; }
+    .featured-post img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+    .featured-post:hover img { transform: scale(1.04); }
+    .featured-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,15,46,0.97) 0%, rgba(10,15,46,0.5) 50%, transparent 100%); }
+    .featured-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 2.5rem; }
+
+    /* Blog card */
+    .blog-card {
+        background: white; border: 1px solid rgba(0,0,0,0.06); border-radius: 4px;
+        overflow: hidden; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
     }
-    
-    .search-glow:focus {
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-    }
-    
-    .skeleton-loader {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-    }
-    
-    @keyframes loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-    }
-    
-    .tag-cloud-item {
-        transition: all 0.3s ease;
-    }
-    
-    .tag-cloud-item:hover {
-        transform: scale(1.1) rotate(-2deg);
-    }
+    .dark .blog-card { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); }
+    .blog-card:hover { transform: translateY(-5px); box-shadow: 0 24px 64px rgba(0,0,0,0.12); border-color: rgba(201,147,42,0.2); }
+    .dark .blog-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+    .blog-card-img { overflow: hidden; aspect-ratio: 16/9; }
+    .blog-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .blog-card:hover .blog-card-img img { transform: scale(1.07); }
+
+    /* Sidebar widget */
+    .sidebar-widget { padding: 1.5rem; border: 1px solid rgba(0,0,0,0.06); border-radius: 4px; background: white; }
+    .dark .sidebar-widget { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); }
+    .widget-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #c9932a; margin-bottom: 1rem; }
+
+    /* Tag cloud */
+    .tag-item { padding: 0.3rem 0.75rem; border-radius: 100px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(0,0,0,0.08); background: white; color: #64748b; cursor: pointer; transition: all 0.2s; display: inline-block; }
+    .dark .tag-item { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: #94a3b8; }
+    .tag-item:hover { border-color: rgba(201,147,42,0.5); color: #c9932a; transform: translateY(-1px); }
+
+    /* Sticky sidebar */
+    @media (min-width: 1024px) { .sidebar-sticky { position: sticky; top: 6rem; } }
+
+    /* Popular post item */
+    .pop-post-item { display: flex; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+    .dark .pop-post-item { border-color: rgba(255,255,255,0.04); }
+    .pop-post-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .pop-post-thumb { width: 4rem; height: 4rem; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+    .pop-post-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .pop-post-item:hover .pop-post-thumb img { transform: scale(1.1); }
+
+    /* Pagination */
+    .page-link { padding: 0.5rem 0.875rem; background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 4px; font-size: 0.8rem; font-weight: 600; color: #64748b; transition: all 0.2s; }
+    .dark .page-link { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: #94a3b8; }
+    .page-link:hover { border-color: rgba(201,147,42,0.4); color: #c9932a; }
+    .page-link.active { background: #0a0f2e; color: #fbbf24; border-color: #0a0f2e; }
+    .dark .page-link.active { background: rgba(201,147,42,0.15); border-color: rgba(201,147,42,0.4); }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative pt-32 pb-20 animated-gradient text-white overflow-hidden">
-    <!-- Animated Background Blobs -->
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
-    </div>
+<!-- ==================== HERO ==================== -->
+<section class="blog-hero pt-28 pb-20">
+    <div class="blog-hero-grid"></div>
+    <div class="absolute top-16 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent 5%, rgba(201,147,42,0.3) 50%, transparent 95%);"></div>
     
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <!-- Badge -->
-            <div class="inline-flex items-center px-5 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6 animate__animated animate__fadeInDown">
-                <i class="fas fa-blog mr-2"></i>
-                <span class="text-sm font-semibold">Thoughts & Tutorials</span>
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+        <nav class="breadcrumb mb-12" data-aos="fade-down">
+            <a href="{% url 'home' %}">Home</a>
+            <span class="sep">/</span>
+            <span class="current">Blog</span>
+        </nav>
+        
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div class="max-w-2xl">
+                <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem;border:1px solid rgba(201,147,42,0.3);background:rgba(201,147,42,0.06);border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fbbf24;" class="mb-8" data-aos="fade-up">
+                    <i class="fas fa-pen-nib"></i> Insights & Tutorials
+                </div>
+                <h1 class="font-display text-5xl lg:text-7xl font-bold text-white mb-4 leading-tight" data-aos="fade-up" data-aos-delay="80">
+                    The <span class="italic" style="color:transparent;-webkit-text-stroke:1px rgba(201,147,42,0.6);">Blog</span>
+                </h1>
+                <p class="text-slate-400 text-lg" data-aos="fade-up" data-aos-delay="140">Articles on web development, programming, and technology</p>
             </div>
             
-            <!-- Main Heading -->
-            <h1 class="text-5xl sm:text-6xl lg:text-7xl font-display font-bold mb-6 animate__animated animate__fadeInUp">
-                <span class="inline-block hover:scale-110 transition-transform">Blog</span>
-            </h1>
-            
-            <!-- Description -->
-            <p class="text-xl sm:text-2xl opacity-90 mb-8 animate__animated animate__fadeInUp leading-relaxed" style="animation-delay: 0.1s;">
-                Articles, tutorials, and insights on web development, programming, and technology
-            </p>
-            
-            <!-- Search Bar -->
-            <form method="get" class="max-w-2xl mx-auto animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400 text-xl"></i>
-                    </div>
-                    <input type="text" 
-                           name="search" 
-                           value="{{ request.GET.search }}" 
-                           placeholder="Search articles..." 
-                           class="w-full pl-16 pr-40 py-5 text-gray-900 rounded-full focus:outline-none search-glow transition-all text-lg shadow-xl">
-                    <button type="submit" 
-                            class="absolute right-2 top-1/2 -translate-y-1/2 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all">
-                        Search
-                    </button>
-                </div>
-            </form>
+            <!-- Search -->
+            <div data-aos="fade-up" data-aos-delay="180">
+                <form method="get" class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search articles…">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Filter Bar -->
-<section class="sticky top-20 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg backdrop-blur-sm bg-opacity-95">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <!-- Category Tags -->
-            <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <a href="{% url 'blog' %}" 
-                   class="filter-chip px-5 py-2 rounded-full font-semibold transition-all {% if not current_tag %}bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg{% else %}bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700{% endif %}">
-                    <i class="fas fa-home mr-2"></i>All Posts
-                </a>
-                {% for tag in tags|slice:":8" %}
-                <a href="?tag={{ tag }}" 
-                   class="filter-chip px-5 py-2 rounded-full font-semibold transition-all {% if current_tag == tag %}bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg{% else %}bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700{% endif %}">
-                    #{{ tag }}
-                </a>
+<!-- ==================== FILTER BAR ==================== -->
+<div class="sticky top-16 z-40 bg-white/95 dark:bg-navy-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-white/5 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <a href="{% url 'blog' %}" class="filter-chip {% if not current_tag %}active{% endif %}">All Posts</a>
+                {% for tag in tags|slice:":10" %}
+                <a href="?tag={{ tag }}" class="filter-chip {% if current_tag == tag %}active{% endif %}">#{{ tag }}</a>
                 {% endfor %}
             </div>
-            
-            <!-- Sort Dropdown -->
-            <form method="get" class="flex items-center gap-3">
+            <form method="get" class="flex items-center gap-2 flex-shrink-0">
                 {% if current_tag %}<input type="hidden" name="tag" value="{{ current_tag }}">{% endif %}
                 {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}">{% endif %}
-                
-                <label class="text-sm font-semibold text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                    <i class="fas fa-sort mr-2"></i>Sort:
-                </label>
-                <select name="sort" 
-                        onchange="this.form.submit()" 
-                        class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 transition-all outline-none cursor-pointer">
-                    <option value="-published_date" {% if current_sort == '-published_date' %}selected{% endif %}>Latest First</option>
-                    <option value="-views" {% if current_sort == '-views' %}selected{% endif %}>Most Viewed</option>
-                    <option value="-likes" {% if current_sort == '-likes' %}selected{% endif %}>Most Liked</option>
-                    <option value="title" {% if current_sort == 'title' %}selected{% endif %}>A-Z</option>
+                <select name="sort" onchange="this.form.submit()" class="text-xs font-semibold px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-sm text-slate-600 dark:text-slate-400 cursor-pointer outline-none">
+                    <option value="-published_date" {% if current_sort == '-published_date' %}selected{% endif %}>Latest</option>
+                    <option value="-views" {% if current_sort == '-views' %}selected{% endif %}>Popular</option>
+                    <option value="title" {% if current_sort == 'title' %}selected{% endif %}>A–Z</option>
                 </select>
             </form>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Main Content -->
-<section class="py-16 lg:py-24 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid lg:grid-cols-3 gap-12">
-            <!-- Blog Posts -->
+<!-- ==================== MAIN CONTENT ==================== -->
+<section class="py-20 bg-slate-50 dark:bg-navy-900/30">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid lg:grid-cols-3 gap-10">
+            
+            <!-- Posts -->
             <div class="lg:col-span-2">
-                {% if featured_post and not request.GET.search and not current_tag %}
+                
                 <!-- Featured Post -->
-                <article class="mb-12 group" data-aos="fade-up">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 blog-card">
-                        <div class="relative h-96 overflow-hidden">
-                            <img src="{{ featured_post.featured_image.url }}" 
-                                 alt="{{ featured_post.title }}" 
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                 loading="eager">
-                            <div class="absolute top-6 left-6">
-                                <span class="px-5 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold rounded-full shadow-2xl flex items-center gap-2">
-                                    <i class="fas fa-star animate-pulse"></i>Featured
-                                </span>
+                {% if featured_post and not request.GET.search and not current_tag %}
+                <article class="mb-8" data-aos="fade-up">
+                    <a href="{{ featured_post.get_absolute_url }}" class="block featured-post group">
+                        {% if featured_post.featured_image %}
+                        <img src="{{ featured_post.featured_image.url }}" alt="{{ featured_post.title }}" loading="eager">
+                        {% else %}
+                        <div class="w-full h-full bg-navy-900"></div>
+                        {% endif %}
+                        <div class="featured-overlay"></div>
+                        <div class="featured-content">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="text-xs font-bold uppercase tracking-widest px-2.5 py-1 bg-gold-500 text-navy-900 rounded-sm">Featured</span>
+                                <span class="text-xs text-white/50 font-mono">{{ featured_post.published_date|date:"M d, Y" }} · {{ featured_post.reading_time }} min</span>
                             </div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                            <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-                                <div class="flex items-center gap-4 mb-4 text-sm">
-                                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                                        <i class="fas fa-calendar"></i>{{ featured_post.published_date|date:"M d, Y" }}
-                                    </span>
-                                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                                        <i class="fas fa-clock"></i>{{ featured_post.reading_time }} min
-                                    </span>
-                                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                                        <i class="fas fa-eye"></i>{{ featured_post.views }}
-                                    </span>
-                                </div>
-                                <h2 class="text-4xl font-bold mb-4 group-hover:text-yellow-300 transition-colors line-clamp-2">
-                                    {{ featured_post.title }}
-                                </h2>
-                                <p class="text-lg opacity-90 mb-6 line-clamp-2">{{ featured_post.excerpt }}</p>
-                                <a href="{{ featured_post.get_absolute_url }}" 
-                                   class="inline-flex items-center gap-2 px-8 py-3 bg-white text-gray-900 rounded-full font-bold hover:bg-yellow-300 transition-all hover:scale-105">
-                                    Read Article <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
+                            <h2 class="font-display text-2xl lg:text-3xl font-bold text-white mb-3 group-hover:text-gold-300 transition-colors leading-tight line-clamp-2">{{ featured_post.title }}</h2>
+                            <p class="text-slate-400 text-sm line-clamp-2 mb-5">{{ featured_post.excerpt }}</p>
+                            <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold-400 group-hover:gap-3 transition-all">
+                                Read Article <i class="fas fa-arrow-right"></i>
+                            </span>
                         </div>
-                    </div>
+                    </a>
                 </article>
                 {% endif %}
                 
-                <!-- Regular Posts Grid -->
+                <!-- Grid posts -->
                 {% if posts %}
-                <div class="space-y-8">
+                <div class="space-y-6">
                     {% for post in posts %}
-                    <article class="group blog-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter|mul:50 }}">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all">
-                            <div class="lg:flex">
-                                <!-- Image -->
-                                <div class="lg:w-2/5 relative h-64 lg:h-auto overflow-hidden">
-                                    <img src="{{ post.featured_image.url }}" 
-                                         alt="{{ post.title }}" 
-                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                         loading="lazy">
-                                    {% if post.featured %}
-                                    <span class="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                        <i class="fas fa-star"></i> Featured
-                                    </span>
-                                    {% endif %}
+                    <article class="blog-card group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+                        <a href="{{ post.get_absolute_url }}" class="lg:flex">
+                            <!-- Image -->
+                            <div class="blog-card-img lg:w-72 lg:flex-shrink-0 h-52 lg:h-auto">
+                                {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
+                                {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-navy-800 to-navy-900 flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-4xl text-white/20"></i>
                                 </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="p-6 flex-1 min-w-0 flex flex-col">
+                                <div class="flex items-center gap-4 font-mono text-xs text-slate-400 mb-3">
+                                    <span>{{ post.published_date|date:"M d, Y" }}</span>
+                                    <span>{{ post.reading_time }} min</span>
+                                    <span><i class="fas fa-eye mr-1"></i>{{ post.views }}</span>
+                                </div>
+                                <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors line-clamp-2">{{ post.title }}</h3>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">{{ post.excerpt }}</p>
                                 
-                                <!-- Content -->
-                                <div class="lg:w-3/5 p-8">
-                                    <!-- Meta -->
-                                    <div class="flex flex-wrap items-center gap-4 mb-4 text-sm text-gray-600 dark:text-gray-400">
-                                        <span class="flex items-center gap-2">
-                                            <i class="fas fa-calendar text-blue-500"></i>
-                                            {{ post.published_date|date:"M d, Y" }}
-                                        </span>
-                                        <span class="flex items-center gap-2">
-                                            <i class="fas fa-clock text-green-500"></i>
-                                            {{ post.reading_time }} min
-                                        </span>
-                                        <span class="flex items-center gap-2">
-                                            <i class="fas fa-eye text-purple-500"></i>
-                                            {{ post.views }}
-                                        </span>
-                                    </div>
-                                    
-                                    <!-- Title -->
-                                    <h3 class="text-2xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-                                    </h3>
-                                    
-                                    <!-- Excerpt -->
-                                    <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 leading-relaxed">
-                                        {{ post.excerpt }}
-                                    </p>
-                                    
-                                    <!-- Tags -->
-                                    <div class="flex flex-wrap gap-2 mb-4">
-                                        {% for tag in post.tags.all|slice:":3" %}
-                                        <a href="?tag={{ tag.name }}" 
-                                           class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors font-medium">
-                                            #{{ tag.name }}
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                    
-                                    <!-- Author & CTA -->
-                                    <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                                        <div class="flex items-center gap-3">
-                                            {% if post.author.profile.avatar %}
-                                            <img src="{{ post.author.profile.avatar.url }}" 
-                                                 alt="{{ post.author.get_full_name }}"
-                                                 class="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500">
-                                            {% else %}
-                                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                                {{ post.author.first_name.0 }}{{ post.author.last_name.0 }}
-                                            </div>
-                                            {% endif %}
-                                            <div>
-                                                <div class="font-semibold text-sm text-gray-900 dark:text-white">{{ post.author.get_full_name }}</div>
-                                            </div>
+                                {% if post.tags.all %}
+                                <div class="flex flex-wrap gap-1.5 mb-4">
+                                    {% for tag in post.tags.all|slice:":3" %}
+                                    <span class="text-xs px-2 py-0.5 font-mono bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-sm">#{{ tag.name }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center text-xs font-bold text-gold-600">
+                                            {{ post.author.first_name|first }}
                                         </div>
-                                        
-                                        <a href="{{ post.get_absolute_url }}" 
-                                           class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold group-hover:gap-3 transition-all">
-                                            Read More <i class="fas fa-arrow-right"></i>
-                                        </a>
+                                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ post.author.get_full_name }}</span>
                                     </div>
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
+                                        Read <i class="fas fa-arrow-right"></i>
+                                    </span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </article>
                     {% endfor %}
                 </div>
                 
                 <!-- Pagination -->
                 {% if is_paginated %}
-                <div class="flex justify-center mt-12" data-aos="fade-up">
-                    <nav class="flex items-center gap-2">
-                        {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
-                           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        {% endif %}
-                        
-                        {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg">{{ num }}</span>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
-                           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
-                            {{ num }}
-                        </a>
-                        {% endif %}
-                        {% endfor %}
-                        
-                        {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_tag %}&tag={{ current_tag }}{% endif %}" 
-                           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                        {% endif %}
-                    </nav>
+                <div class="flex justify-center gap-2 mt-12" data-aos="fade-up">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_tag %}&tag={{ current_tag }}{% endif %}" class="page-link">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_tag %}&tag={{ current_tag }}{% endif %}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_tag %}&tag={{ current_tag }}{% endif %}" class="page-link">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
                 </div>
                 {% endif %}
                 
                 {% else %}
-                <!-- Empty State -->
-                <div class="text-center py-20" data-aos="zoom-in">
-                    <div class="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center">
-                        <i class="fas fa-blog text-6xl text-blue-600 dark:text-blue-400"></i>
+                <!-- Empty -->
+                <div class="text-center py-24" data-aos="zoom-in">
+                    <div class="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-search text-2xl text-slate-400"></i>
                     </div>
-                    <h3 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">No Posts Found</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                        {% if request.GET.search %}
-                        No articles match "{{ request.GET.search }}". Try different keywords.
-                        {% else %}
-                        No articles available yet. Check back soon!
-                        {% endif %}
-                    </p>
-                    <a href="{% url 'blog' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-refresh"></i>View All Posts
-                    </a>
+                    <h3 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-3">
+                        {% if request.GET.search %}No results for "{{ request.GET.search }}"{% else %}No Articles Yet{% endif %}
+                    </h3>
+                    <p class="text-slate-500 text-sm mb-6">{% if request.GET.search %}Try different keywords or browse all articles.{% else %}Check back soon — content is coming.{% endif %}</p>
+                    <a href="{% url 'blog' %}" class="btn-primary mx-auto"><span>View All Posts</span></a>
                 </div>
                 {% endif %}
             </div>
             
             <!-- Sidebar -->
-            <aside class="space-y-8">
-                <!-- Search Widget -->
-                <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg" data-aos="fade-left">
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-search text-white"></i>
-                        </div>
-                        Search Articles
-                    </h3>
-                    <form method="get">
-                        <div class="relative">
-                            <input type="text" 
-                                   name="search" 
-                                   value="{{ request.GET.search }}"
-                                   placeholder="Search..." 
-                                   class="w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:outline-none dark:bg-gray-900 transition-all">
-                            <button type="submit" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors">
-                                <i class="fas fa-search text-xl"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <aside class="sidebar-sticky space-y-6" data-aos="fade-left">
                 
                 <!-- Popular Posts -->
                 {% if popular_posts %}
-                <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg" data-aos="fade-left" data-aos-delay="100">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-fire text-white"></i>
+                <div class="sidebar-widget">
+                    <div class="widget-title">Popular</div>
+                    {% for post in popular_posts %}
+                    <div class="pop-post-item">
+                        <div class="pop-post-thumb">
+                            <a href="{{ post.get_absolute_url }}">
+                                {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
+                                {% else %}
+                                <div class="w-full h-full bg-navy-800"></div>
+                                {% endif %}
+                            </a>
                         </div>
-                        Popular Posts
-                    </h3>
-                    <div class="space-y-4">
-                        {% for post in popular_posts %}
-                        <a href="{{ post.get_absolute_url }}" class="flex gap-4 group">
-                            <div class="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
-                                <img src="{{ post.featured_image.url }}" 
-                                     alt="{{ post.title }}" 
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                     loading="lazy">
+                        <div class="flex-1 min-w-0">
+                            <a href="{{ post.get_absolute_url }}" class="text-xs font-semibold text-slate-800 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors leading-snug line-clamp-2 block mb-1">{{ post.title }}</a>
+                            <div class="text-xs font-mono text-slate-400 flex gap-3">
+                                <span><i class="fas fa-eye mr-1"></i>{{ post.views }}</span>
+                                <span><i class="fas fa-heart mr-1"></i>{{ post.likes }}</span>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-semibold mb-1 line-clamp-2 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {{ post.title }}
-                                </h4>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3">
-                                    <span><i class="fas fa-eye mr-1"></i>{{ post.views }}</span>
-                                    <span><i class="fas fa-heart mr-1"></i>{{ post.likes }}</span>
-                                </div>
-                            </div>
-                        </a>
-                        {% if not forloop.last %}
-                        <hr class="border-gray-200 dark:border-gray-700">
-                        {% endif %}
-                        {% endfor %}
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
                 
-                <!-- Tags Cloud -->
+                <!-- Tags -->
                 {% if tags %}
-                <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg" data-aos="fade-left" data-aos-delay="200">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-tags text-white"></i>
-                        </div>
-                        Popular Tags
-                    </h3>
+                <div class="sidebar-widget">
+                    <div class="widget-title">Topics</div>
                     <div class="flex flex-wrap gap-2">
                         {% for tag in tags %}
-                        <a href="?tag={{ tag }}" 
-                           class="tag-cloud-item px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 hover:from-blue-500 hover:to-purple-600 hover:text-white rounded-full text-sm font-medium transition-all shadow-sm hover:shadow-lg">
-                            #{{ tag }}
-                        </a>
+                        <a href="?tag={{ tag }}" class="tag-item">#{{ tag }}</a>
                         {% endfor %}
                     </div>
                 </div>
                 {% endif %}
                 
                 <!-- Newsletter -->
-                <div class="p-6 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg" data-aos="fade-left" data-aos-delay="300">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 mx-auto mb-4 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                            <i class="fas fa-envelope text-3xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">📧 Newsletter</h3>
-                        <p class="text-sm opacity-90">Get the latest articles in your inbox.</p>
+                <div class="p-5 bg-navy-900 rounded-sm border border-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(201,147,42,0.5) 50%, transparent);"></div>
+                    <div class="w-8 h-8 bg-gold-500/15 border border-gold-500/30 rounded-sm flex items-center justify-center text-gold-400 text-sm mb-3">
+                        <i class="fas fa-paper-plane"></i>
                     </div>
+                    <h4 class="font-semibold text-white text-sm mb-1">Newsletter</h4>
+                    <p class="text-slate-500 text-xs mb-4 leading-relaxed">Get new articles delivered to your inbox.</p>
                     <form id="sidebar-newsletter-form">
                         {% csrf_token %}
-                        <input type="email" 
-                               name="email" 
-                               placeholder="your@email.com" 
-                               required
-                               class="w-full px-4 py-3 rounded-xl mb-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-white">
-                        <button type="submit" 
-                                class="w-full px-6 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl hover:scale-105">
-                            Subscribe Now
+                        <input type="email" name="email" placeholder="you@email.com" required
+                               class="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-sm text-white placeholder-slate-600 text-sm mb-2 focus:border-gold-500/50 focus:outline-none transition-all">
+                        <button type="submit" class="w-full py-2.5 bg-gold-500/20 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-navy-900 text-xs font-bold rounded-sm transition-all">
+                            Subscribe
                         </button>
                     </form>
-                    <div id="sidebar-newsletter-message" class="mt-3 text-sm hidden"></div>
                 </div>
                 
                 <!-- Recent Posts -->
                 {% if recent_posts %}
-                <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg" data-aos="fade-left" data-aos-delay="400">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-clock text-white"></i>
-                        </div>
-                        Recent Posts
-                    </h3>
-                    <div class="space-y-4">
+                <div class="sidebar-widget">
+                    <div class="widget-title">Recent</div>
+                    <div class="space-y-3">
                         {% for post in recent_posts|slice:":5" %}
-                        <a href="{{ post.get_absolute_url }}" class="block group">
-                            <h4 class="font-semibold mb-1 line-clamp-2 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                {{ post.title }}
-                            </h4>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                <i class="fas fa-calendar mr-1"></i>{{ post.published_date|date:"M d, Y" }}
-                            </div>
-                        </a>
-                        {% if not forloop.last %}
-                        <hr class="border-gray-200 dark:border-gray-700">
-                        {% endif %}
+                        <div class="{% if not forloop.last %}pb-3 border-b border-slate-100 dark:border-white/5{% endif %}">
+                            <a href="{{ post.get_absolute_url }}" class="text-sm font-semibold text-slate-800 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors leading-snug line-clamp-2 block mb-1">{{ post.title }}</a>
+                            <span class="text-xs font-mono text-slate-400">{{ post.published_date|date:"M d, Y" }}</span>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -474,88 +353,27 @@
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-24 bg-gradient-to-br from-gray-900 to-blue-900 text-white">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
-            <div class="w-20 h-20 mx-auto mb-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <i class="fas fa-bell text-4xl"></i>
-            </div>
-            <h2 class="text-4xl sm:text-5xl font-display font-bold mb-6">
-                Stay <span class="text-yellow-300">Updated</span>
-            </h2>
-            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Subscribe to get notified about new articles, tutorials, and insights
-            </p>
-            <div class="max-w-md mx-auto">
-                <form class="flex gap-3">
-                    <input type="email" placeholder="your@email.com" class="flex-1 px-6 py-4 rounded-full text-gray-900 focus:outline-none focus:ring-4 focus:ring-white/30">
-                    <button type="submit" class="px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 rounded-full font-bold transition-all hover:scale-105 shadow-xl whitespace-nowrap">
-                        Subscribe
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
-
 {% endblock %}
 
 {% block extra_js %}
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
 <script>
-// Initialize AOS
-AOS.init({
-    duration: 800,
-    once: true,
-    offset: 100
-});
-
-// Newsletter form handler
-const sidebarForm = document.getElementById('sidebar-newsletter-form');
-if (sidebarForm) {
-    sidebarForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(sidebarForm);
-        const messageDiv = document.getElementById('sidebar-newsletter-message');
-        
-        try {
-            const response = await fetch('{% url "newsletter_subscribe" %}', {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
-            });
-            const data = await response.json();
-            
-            messageDiv.className = 'mt-3 text-sm ' + (data.success ? 'text-green-200' : 'text-red-200');
-            messageDiv.textContent = data.message || 'Subscription successful!';
-            messageDiv.classList.remove('hidden');
-            
-            if (data.success) {
-                sidebarForm.reset();
-                setTimeout(() => messageDiv.classList.add('hidden'), 5000);
-            }
-        } catch (error) {
-            messageDiv.className = 'mt-3 text-sm text-red-200';
-            messageDiv.textContent = 'An error occurred. Please try again.';
-            messageDiv.classList.remove('hidden');
-        }
-    });
-}
-
-// Smooth scroll for newsletter CTA
-document.querySelectorAll('a[href="#sidebar-newsletter-form"]').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const form = document.getElementById('sidebar-newsletter-form');
-        if (form) {
-            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            form.querySelector('input[type="email"]').focus();
-        }
-    });
+// Newsletter
+const snForm = document.getElementById('sidebar-newsletter-form');
+snForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(snForm);
+    const btn = snForm.querySelector('button');
+    btn.textContent = 'Subscribing…'; btn.disabled = true;
+    try {
+        const res = await fetch('{% url "newsletter_subscribe" %}', {
+            method: 'POST', body: fd,
+            headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') }
+        });
+        const data = await res.json();
+        btn.textContent = data.success ? '✓ Subscribed!' : 'Error — try again';
+        if (data.success) { snForm.reset(); setTimeout(() => { btn.textContent = 'Subscribe'; btn.disabled = false; }, 3000); }
+        else { btn.disabled = false; }
+    } catch { btn.textContent = 'Error — try again'; btn.disabled = false; }
 });
 </script>
 {% endblock %}

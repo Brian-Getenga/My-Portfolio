@@ -1,411 +1,311 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load math_filters %}
 
-{% block title %}Contact - {{ site_settings.site_name }}{% endblock %}
-{% block meta_description %}Get in touch with {{ site_settings.site_name }}. Let's discuss your project ideas and create something amazing together.{% endblock %}
+{% block title %}Contact — {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Get in touch with {{ site_settings.site_name }}. Let's discuss your project.{% endblock %}
 
 {% block extra_css %}
 <style>
-    .gradient-animate {
-        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
+    .contact-hero {
+        background: #0a0f2e; position: relative; overflow: hidden;
     }
-    
-    @keyframes gradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
+    .contact-hero-grid {
+        position: absolute; inset: 0;
+        background-image: linear-gradient(rgba(201,147,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,147,42,0.04) 1px, transparent 1px);
+        background-size: 80px 80px;
     }
-    
-    .input-focus:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; }
+    .breadcrumb a { color: rgba(255,255,255,0.4); transition: color 0.2s; }
+    .breadcrumb a:hover { color: #fbbf24; }
+    .breadcrumb .sep { color: rgba(255,255,255,0.2); }
+    .breadcrumb .current { color: #fbbf24; }
+
+    /* Form */
+    .form-field { position: relative; }
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(0,0,0,0.02);
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-family: 'DM Sans', sans-serif;
+        color: #0f172a;
+        transition: all 0.25s ease;
+        outline: none;
     }
-    
-    .contact-card {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    .dark .form-input {
+        background: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.1);
+        color: #f1f5f9;
     }
-    
-    .contact-card:hover {
-        transform: translateY(-8px) scale(1.02);
-    }
-    
-    .form-group {
-        position: relative;
-    }
-    
+    .form-input::placeholder { color: #94a3b8; }
+    .form-input:focus { border-color: #c9932a; box-shadow: 0 0 0 3px rgba(201,147,42,0.08); }
     .form-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+    .dark .form-label { color: #94a3b8; }
+    textarea.form-input { resize: vertical; min-height: 140px; }
+    select.form-input { appearance: none; cursor: pointer; }
+
+    /* Contact info card */
+    .ci-card {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 4px;
         transition: all 0.3s ease;
     }
-    
-    .char-counter {
-        transition: color 0.3s ease;
-    }
-    
-    .char-counter.warning {
-        color: #f59e0b;
-    }
-    
-    .char-counter.danger {
-        color: #ef4444;
-    }
-    
-    .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s ease-out;
-    }
-    
-    .faq-answer.active {
-        max-height: 500px;
-    }
-    
-    .map-overlay {
-        transition: opacity 0.3s ease;
-    }
+    .ci-card:hover { border-color: rgba(201,147,42,0.3); background: rgba(201,147,42,0.04); }
+    .ci-icon { width: 2.5rem; height: 2.5rem; background: linear-gradient(135deg, #c9932a, #fbbf24); display: flex; align-items: center; justify-content: center; color: #0a0f2e; border-radius: 4px; flex-shrink: 0; font-size: 0.875rem; }
+
+    /* FAQ */
+    .faq-item { border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .dark .faq-item { border-color: rgba(255,255,255,0.05); }
+    .faq-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0; text-align: left; cursor: pointer; }
+    .faq-btn:focus-visible { outline: 2px solid #c9932a; outline-offset: 2px; }
+    .faq-answer { overflow: hidden; max-height: 0; transition: max-height 0.4s ease; }
+    .faq-answer.open { max-height: 400px; }
+    .faq-answer-inner { padding-bottom: 1.25rem; }
+    .faq-icon { width: 1.5rem; height: 1.5rem; border: 1px solid rgba(201,147,42,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
+    .faq-icon i { font-size: 0.6rem; color: #c9932a; transition: transform 0.3s ease; }
+    .faq-btn[aria-expanded="true"] .faq-icon { background: #c9932a; border-color: #c9932a; }
+    .faq-btn[aria-expanded="true"] .faq-icon i { color: #0a0f2e; transform: rotate(45deg); }
+
+    /* Submit button states */
+    #submit-btn { transition: all 0.3s ease; }
+    #submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none !important; }
+
+    /* Char counter */
+    .char-count { font-size: 0.7rem; font-family: 'DM Mono', monospace; color: #94a3b8; text-align: right; margin-top: 0.375rem; }
+    .char-count.warning { color: #f59e0b; }
+    .char-count.danger { color: #ef4444; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative pt-32 pb-20 gradient-animate text-white overflow-hidden">
-    <!-- Animated Background -->
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
-    </div>
+<!-- ==================== HERO ==================== -->
+<section class="contact-hero pt-28 pb-20">
+    <div class="contact-hero-grid"></div>
+    <div class="absolute top-16 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent 5%, rgba(201,147,42,0.3) 50%, transparent 95%);"></div>
     
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <!-- Badge -->
-            <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down">
-                <span class="text-sm font-semibold">💬 Let's Connect</span>
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+        <nav class="breadcrumb mb-12" data-aos="fade-down">
+            <a href="{% url 'home' %}">Home</a>
+            <span class="sep">/</span>
+            <span class="current">Contact</span>
+        </nav>
+        
+        <div class="max-w-3xl">
+            <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem;border:1px solid rgba(201,147,42,0.3);background:rgba(201,147,42,0.06);border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fbbf24;" class="mb-8" data-aos="fade-up">
+                <i class="fas fa-comment-dots"></i> Let's Connect
             </div>
-            
-            <!-- Main Heading -->
-            <h1 class="text-5xl md:text-7xl font-display font-bold mb-6" data-aos="fade-up">
-                Get in <span class="text-yellow-300">Touch</span>
+            <h1 class="font-display text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight" data-aos="fade-up" data-aos-delay="80">
+                Get in <span class="italic" style="color:transparent;-webkit-text-stroke:1px rgba(201,147,42,0.6);">Touch</span>
             </h1>
-            
-            <!-- Description -->
-            <p class="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="100">
-                Have a project in mind? Let's discuss how we can work together to bring your vision to life
+            <p class="text-slate-400 text-xl leading-relaxed" data-aos="fade-up" data-aos-delay="160">
+                Have a project in mind? Let's discuss how we can create something remarkable together.
             </p>
         </div>
     </div>
 </section>
 
-<!-- Main Content -->
-<section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid lg:grid-cols-2 gap-12">
-                <!-- Contact Form -->
-                <div data-aos="fade-right">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700">
-                        <div class="mb-8">
-                            <h2 class="text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">Send Me a Message</h2>
-                            <p class="text-gray-600 dark:text-gray-400">Fill out the form below and I'll get back to you within 24 hours.</p>
+<!-- ==================== MAIN CONTENT ==================== -->
+<section class="py-28 lg:py-36 bg-white dark:bg-navy-950">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid lg:grid-cols-5 gap-16">
+            
+            <!-- ===== FORM (3 cols) ===== -->
+            <div class="lg:col-span-3" data-aos="fade-right">
+                <div class="mb-8">
+                    <div class="section-label mb-4">Project Inquiry</div>
+                    <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white">Send a Message</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2">I typically respond within 24 hours on business days.</p>
+                </div>
+                
+                <form id="contact-form" method="post" class="space-y-5" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="grid sm:grid-cols-2 gap-5">
+                        <div>
+                            <label for="id_name" class="form-label">Full Name <span class="text-gold-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-user text-xs"></i></div>
+                                <input type="text" id="id_name" name="name" required placeholder="John Doe" class="form-input pl-9">
+                            </div>
                         </div>
-                        
-                        <form method="post" id="contact-form" class="space-y-6">
-                            {% csrf_token %}
-                            
-                            <!-- Name & Email Row -->
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="form-group">
-                                    <label for="id_name" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Full Name <span class="text-red-500">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-user text-gray-400"></i>
-                                        </div>
-                                        <input type="text" id="id_name" name="name" required
-                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
-                                               placeholder="John Doe">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="id_email" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Email Address <span class="text-red-500">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-envelope text-gray-400"></i>
-                                        </div>
-                                        <input type="email" id="id_email" name="email" required
-                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
-                                               placeholder="john@example.com">
-                                    </div>
-                                </div>
+                        <div>
+                            <label for="id_email" class="form-label">Email Address <span class="text-gold-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-envelope text-xs"></i></div>
+                                <input type="email" id="id_email" name="email" required placeholder="you@example.com" class="form-input pl-9">
                             </div>
-                            
-                            <!-- Phone & Subject Row -->
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="form-group">
-                                    <label for="id_phone" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Phone Number <span class="text-gray-400 text-xs">(Optional)</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-phone text-gray-400"></i>
-                                        </div>
-                                        <input type="tel" id="id_phone" name="phone"
-                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
-                                               placeholder="+1 (555) 123-4567">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="id_subject" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Subject <span class="text-red-500">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-tag text-gray-400"></i>
-                                        </div>
-                                        <input type="text" id="id_subject" name="subject" required
-                                               class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all"
-                                               placeholder="Project Inquiry">
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid sm:grid-cols-2 gap-5">
+                        <div>
+                            <label for="id_phone" class="form-label">Phone <span class="text-slate-400 normal-case" style="letter-spacing:0">(optional)</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-phone text-xs"></i></div>
+                                <input type="tel" id="id_phone" name="phone" placeholder="+1 555 000 0000" class="form-input pl-9">
                             </div>
-                            
-                            <!-- Budget & Timeline Row -->
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="form-group">
-                                    <label for="id_budget" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Project Budget
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-dollar-sign text-gray-400"></i>
-                                        </div>
-                                        <select id="id_budget" name="budget"
-                                                class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all appearance-none cursor-pointer">
-                                            <option value="">Select budget range</option>
-                                            <option value="under_5k">Under $5,000</option>
-                                            <option value="5k_10k">$5,000 - $10,000</option>
-                                            <option value="10k_25k">$10,000 - $25,000</option>
-                                            <option value="25k_50k">$25,000 - $50,000</option>
-                                            <option value="over_50k">Over $50,000</option>
-                                        </select>
-                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-chevron-down text-gray-400"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="id_timeline" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Expected Timeline
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-calendar text-gray-400"></i>
-                                        </div>
-                                        <select id="id_timeline" name="timeline"
-                                                class="input-focus w-full pl-12 px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all appearance-none cursor-pointer">
-                                            <option value="">Select timeline</option>
-                                            <option value="asap">ASAP (Within 1 week)</option>
-                                            <option value="1_2_weeks">1-2 weeks</option>
-                                            <option value="2_4_weeks">2-4 weeks</option>
-                                            <option value="1_3_months">1-3 months</option>
-                                            <option value="3_6_months">3-6 months</option>
-                                            <option value="flexible">Flexible</option>
-                                        </select>
-                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                            <i class="fas fa-chevron-down text-gray-400"></i>
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div>
+                            <label for="id_subject" class="form-label">Subject <span class="text-gold-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-tag text-xs"></i></div>
+                                <input type="text" id="id_subject" name="subject" required placeholder="Project Inquiry" class="form-input pl-9">
                             </div>
-                            
-                            <!-- Message -->
-                            <div class="form-group">
-                                <label for="id_message" class="form-label block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                    Your Message <span class="text-red-500">*</span>
-                                </label>
-                                <textarea id="id_message" name="message" rows="6" required maxlength="1000"
-                                          class="input-focus w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none dark:bg-gray-900 dark:text-white transition-all resize-none"
-                                          placeholder="Tell me about your project, goals, and any specific requirements..."></textarea>
-                                <div class="flex justify-between text-xs mt-2">
-                                    <span id="char-count" class="char-counter text-gray-500">0 / 1000 characters</span>
-                                    <span class="text-gray-400">Minimum 10 characters</span>
-                                </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid sm:grid-cols-2 gap-5">
+                        <div>
+                            <label for="id_budget" class="form-label">Budget Range</label>
+                            <div class="relative">
+                                <select id="id_budget" name="budget" class="form-input pr-8">
+                                    <option value="">Select range…</option>
+                                    <option value="under_5k">Under $5,000</option>
+                                    <option value="5k_10k">$5,000 — $10,000</option>
+                                    <option value="10k_25k">$10,000 — $25,000</option>
+                                    <option value="25k_50k">$25,000 — $50,000</option>
+                                    <option value="over_50k">Over $50,000</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400"><i class="fas fa-chevron-down text-xs"></i></div>
                             </div>
-                            
-                            <!-- Honeypot -->
-                            <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-                            
-                            <!-- Submit Button -->
-                            <button type="submit" id="submit-btn"
-                                    class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                                <span id="submit-text" class="flex items-center justify-center gap-2">
-                                    <i class="fas fa-paper-plane"></i>
-                                    Send Message
-                                </span>
-                                <span id="submit-loading" class="hidden flex items-center justify-center gap-2">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                    Sending...
-                                </span>
-                            </button>
-                            
-                            <p class="text-xs text-gray-500 text-center">
-                                <i class="fas fa-lock mr-1"></i>
-                                By submitting this form, you agree to our privacy policy. We'll never share your information.
-                            </p>
-                        </form>
+                        </div>
+                        <div>
+                            <label for="id_timeline" class="form-label">Timeline</label>
+                            <div class="relative">
+                                <select id="id_timeline" name="timeline" class="form-input pr-8">
+                                    <option value="">Select timeline…</option>
+                                    <option value="asap">ASAP</option>
+                                    <option value="1_2_weeks">1–2 weeks</option>
+                                    <option value="1_3_months">1–3 months</option>
+                                    <option value="3_6_months">3–6 months</option>
+                                    <option value="flexible">Flexible</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400"><i class="fas fa-chevron-down text-xs"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="id_message" class="form-label">Message <span class="text-gold-500">*</span></label>
+                        <textarea id="id_message" name="message" required maxlength="1000" placeholder="Tell me about your project, goals, and requirements…" class="form-input" rows="6"></textarea>
+                        <div id="char-count" class="char-count">0 / 1000</div>
+                    </div>
+                    
+                    <!-- Honeypot -->
+                    <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+                    
+                    <button type="submit" id="submit-btn" class="group w-full inline-flex items-center justify-center gap-3 px-8 py-4 bg-navy-900 dark:bg-gold-500 text-white dark:text-navy-900 font-bold rounded-sm transition-all hover:bg-gold-500 hover:text-navy-900 dark:hover:bg-gold-400 hover:shadow-gold">
+                        <span id="submit-text" class="flex items-center gap-3">
+                            <i class="fas fa-paper-plane text-sm"></i>
+                            Send Message
+                        </span>
+                        <span id="submit-loading" class="hidden items-center gap-3">
+                            <i class="fas fa-spinner fa-spin text-sm"></i>
+                            Sending…
+                        </span>
+                    </button>
+                    
+                    <p class="text-xs text-slate-400 text-center"><i class="fas fa-lock mr-1.5"></i>Your information is secure and will never be shared.</p>
+                </form>
+            </div>
+            
+            <!-- ===== SIDEBAR (2 cols) ===== -->
+            <div class="lg:col-span-2 space-y-8" data-aos="fade-left">
+                
+                <!-- Contact Info -->
+                <div>
+                    <div class="section-label mb-5">Contact</div>
+                    <div class="space-y-3">
+                        <div class="ci-card">
+                            <div class="ci-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-500 uppercase tracking-widest mb-0.5">Email</div>
+                                <a href="mailto:{{ site_settings.email }}" class="text-sm font-semibold text-slate-900 dark:text-white hover:text-gold-500 dark:hover:text-gold-400 transition-colors break-all">{{ site_settings.email }}</a>
+                            </div>
+                        </div>
+                        {% if site_settings.phone %}
+                        <div class="ci-card">
+                            <div class="ci-icon"><i class="fas fa-phone"></i></div>
+                            <div>
+                                <div class="text-xs text-slate-500 uppercase tracking-widest mb-0.5">Phone</div>
+                                <a href="tel:{{ site_settings.phone }}" class="text-sm font-semibold text-slate-900 dark:text-white hover:text-gold-500 dark:hover:text-gold-400 transition-colors">{{ site_settings.phone }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="ci-card">
+                            <div class="ci-icon"><i class="fas fa-location-dot"></i></div>
+                            <div>
+                                <div class="text-xs text-slate-500 uppercase tracking-widest mb-0.5">Location</div>
+                                <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ site_settings.location }}</span>
+                                <div class="text-xs text-slate-400 mt-0.5">Available remotely worldwide</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Contact Info & Map -->
-                <div class="space-y-8" data-aos="fade-left">
-                    <!-- Contact Info Cards -->
-                    <div class="space-y-4">
-                        <!-- Email -->
-                        <div class="contact-card p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-l-4 border-blue-500">
-                            <div class="flex items-start space-x-4">
-                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                                    <i class="fas fa-envelope text-white text-2xl"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg mb-1 text-gray-900 dark:text-white">Email Me</h3>
-                                    <a href="mailto:{{ site_settings.email }}" 
-                                       class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 break-all text-lg font-semibold">
-                                        {{ site_settings.email }}
-                                    </a>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
-                                        <i class="fas fa-clock"></i>Response time: Within 24 hours
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Phone -->
-                        {% if site_settings.phone %}
-                        <div class="contact-card p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-l-4 border-green-500">
-                            <div class="flex items-start space-x-4">
-                                <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                                    <i class="fas fa-phone text-white text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="font-bold text-lg mb-1 text-gray-900 dark:text-white">Call Me</h3>
-                                    <a href="tel:{{ site_settings.phone }}" 
-                                       class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-lg font-semibold">
-                                        {{ site_settings.phone }}
-                                    </a>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
-                                        <i class="fas fa-clock"></i>Mon-Fri, 9am-6pm EST
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Location -->
-                        <div class="contact-card p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-l-4 border-purple-500">
-                            <div class="flex items-start space-x-4">
-                                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                                    <i class="fas fa-map-marker-alt text-white text-2xl"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="font-bold text-lg mb-1 text-gray-900 dark:text-white">Visit Me</h3>
-                                    <p class="text-gray-900 dark:text-white mb-2 font-semibold">{{ site_settings.location }}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                        <i class="fas fa-globe"></i>Open to remote work worldwide
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Google Maps -->
-                    <div class="rounded-2xl overflow-hidden shadow-2xl">
-                        <div class="bg-white dark:bg-gray-800 p-4">
-                            <h3 class="font-bold text-lg mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
-                                <i class="fas fa-location-dot text-blue-600"></i>
-                                Location Map
-                            </h3>
-                        </div>
-                        <div class="relative h-80">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255282.35823184754!2d36.70730158674246!3d-1.3031976327445654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1707758400000!5m2!1sen!2sus"
-                                    width="100%" 
-                                    height="100%" 
-                                    style="border:0;" 
-                                    allowfullscreen="" 
-                                    loading="lazy" 
-                                    referrerpolicy="no-referrer-when-downgrade"
-                                    class="w-full h-full"></iframe>
-                        </div>
-                    </div>
-                    
-                    <!-- Availability Status -->
-                    <div class="p-8 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-lg">
-                        <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-                            <i class="fas fa-calendar-check"></i>
-                            Current Availability
-                        </h3>
+                <!-- Availability -->
+                <div class="p-6 bg-navy-900 rounded-sm border border-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(201,147,42,0.5) 50%, transparent);"></div>
+                    <div class="flex items-start gap-3 mb-4">
                         {% if site_settings.available_for_work %}
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="relative flex h-4 w-4">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-4 w-4 bg-green-400"></span>
-                            </div>
-                            <span class="font-semibold text-lg">Available for new projects</span>
+                        <div class="flex items-center gap-2">
+                            <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
+                            <span class="text-sm font-semibold text-emerald-400">Available for Projects</span>
                         </div>
-                        <p class="opacity-90 leading-relaxed">
-                            I'm currently accepting new projects and collaborations. Let's discuss your requirements and create something amazing together!
-                        </p>
                         {% else %}
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-4 h-4 bg-orange-400 rounded-full"></div>
-                            <span class="font-semibold text-lg">Limited availability</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-amber-400 rounded-full"></span>
+                            <span class="text-sm font-semibold text-amber-400">Limited Availability</span>
                         </div>
-                        <p class="opacity-90 leading-relaxed">
-                            Currently at capacity, but feel free to reach out for future projects or join the waitlist.
-                        </p>
                         {% endif %}
                     </div>
-                    
-                    <!-- Social Media -->
-                    <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
-                        <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">Connect on Social Media</h3>
-                        <div class="grid grid-cols-4 gap-3">
-                            {% if site_settings.github_url %}
-                            <a href="{{ site_settings.github_url }}" target="_blank" 
-                               class="aspect-square bg-gray-900 hover:bg-gray-800 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
-                               title="GitHub">
-                                <i class="fab fa-github text-2xl"></i>
-                            </a>
-                            {% endif %}
-                            {% if site_settings.linkedin_url %}
-                            <a href="{{ site_settings.linkedin_url }}" target="_blank" 
-                               class="aspect-square bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
-                               title="LinkedIn">
-                                <i class="fab fa-linkedin text-2xl"></i>
-                            </a>
-                            {% endif %}
-                            {% if site_settings.twitter_url %}
-                            <a href="{{ site_settings.twitter_url }}" target="_blank" 
-                               class="aspect-square bg-sky-500 hover:bg-sky-600 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
-                               title="Twitter">
-                                <i class="fab fa-twitter text-2xl"></i>
-                            </a>
-                            {% endif %}
-                            {% if site_settings.youtube_url %}
-                            <a href="{{ site_settings.youtube_url }}" target="_blank" 
-                               class="aspect-square bg-red-600 hover:bg-red-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
-                               title="YouTube">
-                                <i class="fab fa-youtube text-2xl"></i>
-                            </a>
-                            {% endif %}
-                        </div>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        {% if site_settings.available_for_work %}
+                        Accepting new projects and collaborations. Let's discuss your requirements.
+                        {% else %}
+                        Currently at capacity, but reach out for future projects or the waitlist.
+                        {% endif %}
+                    </p>
+                    <div class="mt-4 pt-4 border-t border-white/5">
+                        <div class="text-xs text-slate-500 flex items-center gap-2"><i class="fas fa-clock text-gold-500"></i> Response within 24 hours</div>
+                    </div>
+                </div>
+                
+                <!-- Map -->
+                <div class="rounded-sm overflow-hidden border border-slate-100 dark:border-white/5">
+                    <div class="h-52">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255282.35823184754!2d36.70730158674246!3d-1.3031976327445654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1707758400000!5m2!1sen!2sus" width="100%" height="100%" style="border:0; filter:grayscale(0.8);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+                
+                <!-- Social -->
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-4">Find Me Online</div>
+                    <div class="flex gap-3">
+                        {% if site_settings.github_url %}
+                        <a href="{{ site_settings.github_url }}" target="_blank" class="flex-1 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-gold-500/40 hover:text-gold-600 dark:hover:text-gold-400 transition-all text-sm" title="GitHub">
+                            <i class="fab fa-github mr-2"></i> GitHub
+                        </a>
+                        {% endif %}
+                        {% if site_settings.linkedin_url %}
+                        <a href="{{ site_settings.linkedin_url }}" target="_blank" class="flex-1 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-gold-500/40 hover:text-gold-600 dark:hover:text-gold-400 transition-all text-sm" title="LinkedIn">
+                            <i class="fab fa-linkedin-in mr-2"></i> LinkedIn
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -413,225 +313,108 @@
     </div>
 </section>
 
-<!-- FAQ Section -->
+<!-- ==================== FAQ ==================== -->
 {% if faqs %}
-<section class="py-20 bg-white dark:bg-gray-950">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12" data-aos="fade-up">
-                <span class="inline-block px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm font-semibold mb-4">
-                    <i class="fas fa-question-circle mr-2"></i>FAQ
-                </span>
-                <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Frequently Asked Questions
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-400">
-                    Quick answers to common questions about working with me
-                </p>
-            </div>
-            
-            <div class="space-y-4">
-                {% for faq in faqs %}
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700" 
-                     data-aos="fade-up" 
-                     data-aos-delay="{{ forloop.counter0|mul:50 }}">
-                    <button class="faq-question w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
-                            onclick="toggleFaq(this)">
-                        <span class="font-semibold text-lg pr-8 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            {{ faq.question }}
-                        </span>
-                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors">
-                            <i class="fas fa-chevron-down text-blue-600 dark:text-blue-400 group-hover:text-white transition-all duration-300"></i>
-                        </div>
-                    </button>
-                    <div class="faq-answer px-8 py-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ faq.answer }}</p>
-                    </div>
+<section class="py-28 bg-slate-50 dark:bg-navy-900/40">
+    <div class="max-w-3xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-14" data-aos="fade-up">
+            <div class="section-label mb-5">FAQ</div>
+            <h2 class="font-display text-4xl font-bold text-slate-900 dark:text-white">Frequently Asked <span class="text-gold">Questions</span></h2>
+        </div>
+        
+        <div data-aos="fade-up">
+            {% for faq in faqs %}
+            <div class="faq-item">
+                <button class="faq-btn" aria-expanded="false" onclick="toggleFaq(this)">
+                    <span class="font-semibold text-slate-900 dark:text-white text-sm pr-8">{{ faq.question }}</span>
+                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-inner text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ faq.answer }}</div>
                 </div>
-                {% endfor %}
             </div>
-            
-            <div class="mt-12 text-center" data-aos="fade-up">
-                <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    Still have questions?
-                </p>
-                <a href="#contact-form" 
-                   class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl hover:scale-105">
-                    <i class="fas fa-envelope"></i>
-                    Send Me a Message
-                </a>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 {% endif %}
 
-<!-- CTA Section -->
-<section class="py-20 lg:py-32 gradient-animate">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-5xl mx-auto">
-            <div class="relative p-12 lg:p-20 bg-white/10 backdrop-blur-md rounded-3xl text-white text-center overflow-hidden shadow-2xl border border-white/20" 
-                 data-aos="zoom-in">
-                
-                <div class="relative z-10">
-                    <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
-                        <i class="fas fa-rocket text-5xl"></i>
-                    </div>
-                    <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6 leading-tight">
-                        Ready to Start Your <span class="text-yellow-300">Project?</span>
-                    </h2>
-                    <p class="text-xl lg:text-2xl opacity-90 mb-10 max-w-3xl mx-auto leading-relaxed">
-                        Let's transform your ideas into reality. Get in touch today for a free consultation and quote.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="#contact-form" 
-                           class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-paper-plane"></i>
-                            Send a Message
-                        </a>
-                        <a href="{% url 'projects' %}" 
-                           class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                            <i class="fas fa-folder"></i>
-                            View Portfolio
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 {% endblock %}
 
 {% block extra_js %}
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
 <script>
-// Initialize AOS
-AOS.init({ duration: 1000, once: true, offset: 100 });
-
-// Character counter
-const messageField = document.getElementById('id_message');
+// Char counter
+const msgField = document.getElementById('id_message');
 const charCount = document.getElementById('char-count');
-
-messageField?.addEventListener('input', function() {
-    const count = this.value.length;
-    charCount.textContent = `${count} / 1000 characters`;
-    
-    charCount.classList.remove('warning', 'danger');
-    if (count > 900) {
-        charCount.classList.add('danger');
-    } else if (count > 800) {
-        charCount.classList.add('warning');
-    }
+msgField?.addEventListener('input', function() {
+    const n = this.value.length;
+    charCount.textContent = n + ' / 1000';
+    charCount.classList.toggle('warning', n > 800 && n <= 900);
+    charCount.classList.toggle('danger', n > 900);
 });
 
-// Form submission
-const contactForm = document.getElementById('contact-form');
+// Form submit
+const form = document.getElementById('contact-form');
 const submitBtn = document.getElementById('submit-btn');
 const submitText = document.getElementById('submit-text');
 const submitLoading = document.getElementById('submit-loading');
 
-contactForm?.addEventListener('submit', async function(e) {
+form?.addEventListener('submit', async function(e) {
     e.preventDefault();
-    
-    const message = messageField.value.trim();
-    if (message.length < 10) {
-        showToast('Please write a message of at least 10 characters.', 'error');
-        messageField.focus();
+    if (msgField.value.trim().length < 10) {
+        msgField.focus();
+        msgField.style.borderColor = '#ef4444';
+        setTimeout(() => msgField.style.borderColor = '', 2000);
         return;
     }
-    
     submitBtn.disabled = true;
     submitText.classList.add('hidden');
     submitLoading.classList.remove('hidden');
+    submitLoading.style.display = 'flex';
     
-    const formData = new FormData(contactForm);
-    
+    const fd = new FormData(form);
     try {
-        const response = await fetch('{% url "contact" %}', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+        const res = await fetch('{% url "contact" %}', {
+            method: 'POST', body: fd,
+            headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') }
         });
-        
-        if (response.ok) {
-            contactForm.reset();
-            charCount.textContent = '0 / 1000 characters';
-            showToast('✅ Message sent successfully! I\'ll respond within 24 hours.', 'success');
-        } else {
-            throw new Error('Submission failed');
-        }
-    } catch (error) {
-        showToast('❌ An error occurred. Please try again or email me directly.', 'error');
+        if (res.ok) {
+            form.reset();
+            charCount.textContent = '0 / 1000';
+            showNotification('Message sent! I\'ll respond within 24 hours.', 'success');
+        } else { throw new Error(); }
+    } catch {
+        showNotification('Something went wrong. Please email me directly.', 'error');
     } finally {
         submitBtn.disabled = false;
         submitText.classList.remove('hidden');
         submitLoading.classList.add('hidden');
+        submitLoading.style.display = '';
     }
 });
 
-// FAQ Toggle
-function toggleFaq(button) {
-    const answer = button.nextElementSibling;
-    const icon = button.querySelector('i');
-    const isOpen = answer.classList.contains('active');
-    
-    // Close all other FAQs
-    document.querySelectorAll('.faq-answer').forEach(a => {
-        if (a !== answer && a.classList.contains('active')) {
-            a.classList.remove('active');
-            a.previousElementSibling.querySelector('i').classList.remove('rotate-180');
-        }
-    });
-    
-    // Toggle current FAQ
-    answer.classList.toggle('active');
-    icon.classList.toggle('rotate-180');
+function showNotification(msg, type) {
+    const el = document.createElement('div');
+    const color = type === 'success' ? 'bg-emerald-600' : 'bg-red-600';
+    el.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 ${color} text-white text-sm font-semibold rounded-sm shadow-xl flex items-center gap-2`;
+    el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'}"></i> ${msg}`;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.4s'; setTimeout(() => el.remove(), 400); }, 5000);
 }
 
-// Toast notification
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-    toast.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl z-50 animate__animated animate__fadeInUp`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('animate__fadeOut');
-        setTimeout(() => toast.remove(), 500);
-    }, 5000);
+// FAQ toggle
+function toggleFaq(btn) {
+    const isOpen = btn.getAttribute('aria-expanded') === 'true';
+    // Close all
+    document.querySelectorAll('.faq-btn[aria-expanded="true"]').forEach(b => {
+        b.setAttribute('aria-expanded', 'false');
+        b.nextElementSibling.classList.remove('open');
+    });
+    // Open this
+    if (!isOpen) {
+        btn.setAttribute('aria-expanded', 'true');
+        btn.nextElementSibling.classList.add('open');
+    }
 }
-
-// Smooth scroll to form
-document.querySelectorAll('a[href="#contact-form"]').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const form = document.getElementById('contact-form');
-        if (form) {
-            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            form.querySelector('input').focus();
-        }
-    });
-});
-
-// Input validation feedback
-const inputs = document.querySelectorAll('input[required], textarea[required]');
-inputs.forEach(input => {
-    input.addEventListener('blur', function() {
-        if (this.value.trim()) {
-            this.classList.add('border-green-500');
-            this.classList.remove('border-red-500');
-        }
-    });
-    
-    input.addEventListener('input', function() {
-        if (this.classList.contains('border-red-500')) {
-            this.classList.remove('border-red-500');
-        }
-    });
-});
 </script>
 {% endblock %}

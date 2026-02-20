@@ -1,734 +1,727 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ site_settings.site_name }} - {{ site_settings.tagline }}{% endblock %}
+{% block title %}{{ site_settings.site_name }} — {{ site_settings.tagline }}{% endblock %}
 {% block meta_description %}{{ site_settings.meta_description }}{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <style>
-    /* Custom animations */
-    @keyframes gradient-shift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
+    /* ===================== HERO ===================== */
+    .hero-section {
+        background: #0a0f2e;
+        position: relative;
+        overflow: hidden;
     }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(5deg); }
+
+    /* Geometric grid background */
+    .hero-grid {
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(201,147,42,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(201,147,42,0.04) 1px, transparent 1px);
+        background-size: 80px 80px;
     }
-    
-    @keyframes slide-up {
-        from { transform: translateY(30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+
+    /* Radial spotlight */
+    .hero-spotlight {
+        position: absolute;
+        width: 900px; height: 900px;
+        top: -200px; right: -200px;
+        background: radial-gradient(circle, rgba(201,147,42,0.08) 0%, transparent 65%);
+        pointer-events: none;
     }
-    
-    @keyframes pulse-glow {
-        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-        50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+    .hero-spotlight-2 {
+        position: absolute;
+        width: 600px; height: 600px;
+        bottom: -100px; left: -100px;
+        background: radial-gradient(circle, rgba(63,72,202,0.12) 0%, transparent 65%);
+        pointer-events: none;
     }
-    
-    .gradient-bg {
-        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
-        background-size: 400% 400%;
-        animation: gradient-shift 15s ease infinite;
+
+    /* Hero floating badge */
+    .hero-badge {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border: 1px solid rgba(201,147,42,0.3);
+        background: rgba(201,147,42,0.06);
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #fbbf24;
     }
-    
-    .animate-float {
-        animation: float 6s ease-in-out infinite;
+
+    /* Hero headline */
+    .hero-headline {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(3rem, 7vw, 6.5rem);
+        font-weight: 800;
+        line-height: 1.0;
+        letter-spacing: -0.03em;
+        color: white;
     }
-    
-    .animate-slide-up {
-        animation: slide-up 0.6s ease-out forwards;
+    .hero-headline em {
+        font-style: italic;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(201,147,42,0.6);
     }
-    
-    .hover-lift {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* Typing cursor */
+    .typed-cursor {
+        display: inline-block;
+        width: 3px; height: 1em;
+        background: #c9932a;
+        margin-left: 2px;
+        vertical-align: middle;
+        animation: blink 1s infinite;
+        border-radius: 1px;
     }
-    
-    .hover-lift:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+
+    /* Profile image ring */
+    .profile-ring {
+        position: relative;
     }
-    
-    .text-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    .profile-ring::before {
+        content: '';
+        position: absolute; inset: -8px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #c9932a, #fbbf24, transparent 60%, transparent 90%, #c9932a);
+        animation: spin-slow 8s linear infinite;
     }
-    
-    .skill-bar {
-        transition: width 1.5s ease-out;
+    .profile-ring::after {
+        content: '';
+        position: absolute; inset: -4px;
+        border-radius: 50%;
+        background: #0a0f2e;
     }
-    
-    /* Glassmorphism effects */
-    .glass {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+
+    /* Floating stat cards */
+    .stat-float {
+        position: absolute;
+        animation: floatCard 6s ease-in-out infinite;
     }
-    
-    /* Parallax scrolling effect */
-    .parallax {
-        transform: translateZ(0);
-        will-change: transform;
+    @keyframes floatCard {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
     }
-    
-    /* Loading skeleton */
-    .skeleton {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
+
+    /* Scroll indicator */
+    .scroll-indicator {
+        width: 1.5px; height: 60px;
+        background: linear-gradient(to bottom, rgba(201,147,42,0.8), transparent);
+        margin: 0 auto;
+        animation: scrollPulse 2s ease-in-out infinite;
     }
-    
-    @keyframes loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+    @keyframes scrollPulse {
+        0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+        50% { opacity: 1; }
+        100% { opacity: 0; transform: scaleY(1); transform-origin: top; }
     }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 12px;
+
+    /* ===================== MARQUEE ===================== */
+    .marquee-track {
+        display: flex; gap: 3rem; width: max-content;
+        animation: marquee 30s linear infinite;
     }
-    
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee-track:hover { animation-play-state: paused; }
+
+    /* ===================== SECTIONS ===================== */
+    .section-number {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(201,147,42,0.5);
+        letter-spacing: 0.1em;
     }
-    
-    ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #667eea, #764ba2);
-        border-radius: 6px;
+
+    /* ===================== SERVICE CARD ===================== */
+    .service-card {
+        padding: 2rem;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 4px;
+        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
     }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #764ba2, #667eea);
+    .dark .service-card {
+        background: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.07);
     }
-    
-    /* Dark mode scrollbar */
-    .dark ::-webkit-scrollbar-track {
-        background: #1f2937;
+    .service-card::after {
+        content: '';
+        position: absolute; inset: 0;
+        background: linear-gradient(135deg, rgba(201,147,42,0.06), rgba(63,72,202,0.04));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 24px 64px rgba(0,0,0,0.1); }
+    .dark .service-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+    .service-card:hover::after { opacity: 1; }
+    .service-icon {
+        width: 3rem; height: 3rem;
+        background: linear-gradient(135deg, #c9932a, #fbbf24);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.125rem; color: #0a0f2e;
+        border-radius: 4px;
+        margin-bottom: 1.25rem;
+        transition: transform 0.3s ease;
+    }
+    .service-card:hover .service-icon { transform: scale(1.1) rotate(-3deg); }
+
+    /* ===================== PROJECT CARD ===================== */
+    .project-card {
+        border-radius: 4px; overflow: hidden;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.06);
+        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .dark .project-card {
+        background: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.07);
+    }
+    .project-card:hover { transform: translateY(-6px); box-shadow: 0 24px 64px rgba(0,0,0,0.12); }
+    .dark .project-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+    .project-image { overflow: hidden; aspect-ratio: 16/10; position: relative; }
+    .project-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.4,0,0.2,1); }
+    .project-card:hover .project-image img { transform: scale(1.08); }
+    .project-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(10,15,46,0.95) 0%, rgba(10,15,46,0.4) 50%, transparent 100%);
+        opacity: 0; transition: opacity 0.4s ease;
+        display: flex; align-items: flex-end; padding: 1.5rem;
+    }
+    .project-card:hover .project-overlay { opacity: 1; }
+
+    /* ===================== SKILL BAR ===================== */
+    .skill-bar-bg {
+        height: 3px;
+        background: rgba(0,0,0,0.06);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    .dark .skill-bar-bg { background: rgba(255,255,255,0.06); }
+    .skill-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #c9932a, #fbbf24);
+        border-radius: 2px;
+        width: 0%;
+        transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ===================== TESTIMONIAL ===================== */
+    .testimonial-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 4px;
+        padding: 2.5rem;
+    }
+    .quote-mark {
+        font-family: 'Playfair Display', serif;
+        font-size: 5rem;
+        line-height: 1;
+        color: rgba(201,147,42,0.2);
+        margin-bottom: -1rem;
+        display: block;
+    }
+
+    /* ===================== CTA SECTION ===================== */
+    .cta-section {
+        background: #0a0f2e;
+        position: relative; overflow: hidden;
+    }
+    .cta-glow {
+        position: absolute;
+        width: 600px; height: 400px;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(ellipse, rgba(201,147,42,0.12) 0%, transparent 65%);
+    }
+
+    /* ===================== EXPERIENCE TIMELINE ===================== */
+    .timeline-line {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, #c9932a 20%, #c9932a 80%, transparent);
+    }
+    .timeline-dot {
+        width: 10px; height: 10px;
+        background: #c9932a; border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 0 4px rgba(201,147,42,0.15);
+        position: absolute; left: -5px; top: 6px;
+    }
+    .dark .timeline-dot { border-color: #0a0f2e; }
+
+    /* ===================== COUNTER ===================== */
+    .stat-value {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        line-height: 1;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section with Advanced Animations -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden gradient-bg pt-20">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 overflow-hidden opacity-30">
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-white/20 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
-        <div class="absolute bottom-1/4 left-1/2 w-96 h-96 bg-blue-300/20 rounded-full blur-3xl animate-float" style="animation-delay: 4s;"></div>
-    </div>
+<!-- ==================== HERO ==================== -->
+<section class="hero-section min-h-screen flex flex-col justify-center pt-16 relative">
+    <div class="hero-grid"></div>
+    <div class="hero-spotlight"></div>
+    <div class="hero-spotlight-2"></div>
     
-    <!-- Particles Background -->
-    <div id="particles-js" class="absolute inset-0"></div>
-    
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 w-full">
+        <div class="grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-5rem)] py-20">
+            
             <!-- Hero Content -->
-            <div class="flex-1 text-white text-center lg:text-left space-y-6 animate-slide-up">
-                <!-- Status Badge -->
-                <div class="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-sm font-semibold">
-                    <span class="relative flex h-3 w-3">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                    </span>
-                    <span>Available for Freelance</span>
+            <div class="order-2 lg:order-1 space-y-8">
+                <!-- Badge -->
+                <div class="hero-badge" data-aos="fade-up" data-aos-delay="0">
+                    {% if site_settings.available_for_work %}
+                    <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                    Available for Projects
+                    {% else %}
+                    <span class="w-1.5 h-1.5 bg-gold-400 rounded-full"></span>
+                    Full Stack Developer
+                    {% endif %}
                 </div>
                 
-                <!-- Main Heading with Typing Effect -->
-                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight">
-                    Hi, I'm <span class="text-yellow-300 inline-block hover:scale-110 transition-transform">{{ site_settings.site_name|truncatewords:2 }}</span>
-                </h1>
-                
-                <!-- Dynamic Typed Text -->
-                <div class="text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 font-light">
-                    <span id="typed-text" class="font-mono text-yellow-300"></span>
-                    <span class="animate-pulse text-yellow-300">|</span>
+                <!-- Headline -->
+                <div data-aos="fade-up" data-aos-delay="80">
+                    <h1 class="hero-headline">
+                        Hi, I'm<br>
+                        <em>{{ site_settings.site_name|truncatewords:2 }}</em>
+                    </h1>
+                </div>
+
+                <!-- Typed role -->
+                <div class="flex items-center gap-3" data-aos="fade-up" data-aos-delay="160">
+                    <div class="w-8 h-px bg-gold-500"></div>
+                    <p class="text-slate-400 font-mono text-sm">
+                        <span id="typed-text"></span><span class="typed-cursor"></span>
+                    </p>
                 </div>
                 
                 <!-- Description -->
-                <p class="text-lg sm:text-xl md:text-2xl opacity-90 max-w-2xl leading-relaxed">
+                <p class="text-slate-400 text-lg leading-relaxed max-w-lg" data-aos="fade-up" data-aos-delay="200">
                     {{ site_settings.tagline|default:site_settings.site_description }}
                 </p>
                 
-                <!-- Animated Stats Counter -->
-                <div class="grid grid-cols-3 gap-6 max-w-2xl py-8">
-                    <div class="text-center group cursor-pointer">
-                        <div class="text-4xl sm:text-5xl font-bold counter mb-2 group-hover:scale-110 transition-transform" data-target="{{ site_settings.years_experience|default:5 }}">0</div>
-                        <div class="text-sm sm:text-base opacity-80">Years Experience</div>
+                <!-- Stats row -->
+                <div class="flex gap-10 py-4 border-y border-white/5" data-aos="fade-up" data-aos-delay="240">
+                    <div>
+                        <div class="stat-value text-3xl text-white counter" data-target="{{ site_settings.years_experience|default:5 }}">0</div>
+                        <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">Years Exp</div>
                     </div>
-                    <div class="text-center group cursor-pointer">
-                        <div class="text-4xl sm:text-5xl font-bold counter mb-2 group-hover:scale-110 transition-transform" data-target="{{ stats.total_projects|default:100 }}">0</div>
-                        <div class="text-sm sm:text-base opacity-80">Projects Completed</div>
+                    <div class="w-px bg-white/5"></div>
+                    <div>
+                        <div class="stat-value text-3xl text-white counter" data-target="{{ stats.total_projects|default:100 }}">0</div>
+                        <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">Projects</div>
                     </div>
-                    <div class="text-center group cursor-pointer">
-                        <div class="text-4xl sm:text-5xl font-bold counter mb-2 group-hover:scale-110 transition-transform" data-target="{{ site_settings.happy_clients|default:50 }}">0</div>
-                        <div class="text-sm sm:text-base opacity-80">Happy Clients</div>
+                    <div class="w-px bg-white/5"></div>
+                    <div>
+                        <div class="stat-value text-3xl text-white counter" data-target="{{ site_settings.happy_clients|default:50 }}">0</div>
+                        <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">Clients</div>
                     </div>
                 </div>
                 
-                <!-- CTA Buttons with Advanced Hover Effects -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="{% url 'contact' %}" 
-                       class="group relative px-8 py-4 bg-white text-blue-600 rounded-full font-bold overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105">
-                        <span class="relative z-10 flex items-center justify-center gap-2">
-                            <i class="fas fa-envelope group-hover:rotate-12 transition-transform"></i>
-                            Get In Touch
-                        </span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <!-- CTAs -->
+                <div class="flex flex-wrap gap-4" data-aos="fade-up" data-aos-delay="280">
+                    <a href="{% url 'contact' %}" class="group inline-flex items-center gap-2.5 px-7 py-3.5 bg-gold-500 hover:bg-gold-400 text-navy-900 font-semibold text-sm rounded-sm transition-all duration-300 hover:shadow-gold">
+                        Start a Project
+                        <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
                     </a>
-                    
-                    <a href="{% url 'projects' %}" 
-                       class="px-8 py-4 glass text-white rounded-full font-bold border-2 border-white hover:bg-white hover:text-blue-600 transition-all duration-300 inline-flex items-center justify-center gap-2 hover:scale-105">
-                        <i class="fas fa-folder-open"></i>
+                    <a href="{% url 'projects' %}" class="btn-outline text-white border-white/20 hover:bg-white/10 hover:border-white/40">
                         View Portfolio
                     </a>
-                    
                     {% if site_settings.resume_file %}
-                    <a href="{% url 'download_resume' %}" 
-                       class="px-8 py-4 bg-transparent text-white rounded-full font-bold border-2 border-white hover:bg-white hover:text-blue-600 transition-all duration-300 inline-flex items-center justify-center gap-2 hover:scale-105"
-                       download>
-                        <i class="fas fa-download"></i>
-                        Download CV
+                    <a href="{% url 'download_resume' %}" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors" download>
+                        <i class="fas fa-download text-xs"></i> Resume
                     </a>
                     {% endif %}
                 </div>
-                
-                <!-- Social Links with Hover Effects -->
-                <div class="flex gap-4 justify-center lg:justify-start mt-8">
+
+                <!-- Social -->
+                <div class="flex items-center gap-5" data-aos="fade-up" data-aos-delay="320">
                     {% if site_settings.github_url %}
-                    <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" 
-                       class="w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-white hover:text-gray-900 transition-all duration-300 hover:scale-110 hover:rotate-12"
-                       aria-label="GitHub">
-                        <i class="fab fa-github text-xl"></i>
-                    </a>
+                    <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-white transition-colors" aria-label="GitHub"><i class="fab fa-github"></i></a>
                     {% endif %}
-                    
                     {% if site_settings.linkedin_url %}
-                    <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" 
-                       class="w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all duration-300 hover:scale-110 hover:rotate-12"
-                       aria-label="LinkedIn">
-                        <i class="fab fa-linkedin text-xl"></i>
-                    </a>
+                    <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-white transition-colors" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                     {% endif %}
-                    
                     {% if site_settings.twitter_url %}
-                    <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" 
-                       class="w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-white hover:text-sky-500 transition-all duration-300 hover:scale-110 hover:rotate-12"
-                       aria-label="Twitter">
-                        <i class="fab fa-twitter text-xl"></i>
-                    </a>
+                    <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-white transition-colors" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
                     {% endif %}
-                    
-                    <a href="mailto:{{ site_settings.email }}" 
-                       class="w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-white hover:text-red-600 transition-all duration-300 hover:scale-110 hover:rotate-12"
-                       aria-label="Email">
-                        <i class="fas fa-envelope text-xl"></i>
-                    </a>
+                    <a href="mailto:{{ site_settings.email }}" class="text-slate-600 hover:text-white transition-colors" aria-label="Email"><i class="fas fa-envelope"></i></a>
                 </div>
             </div>
             
-            <!-- Hero Image with Advanced Effects -->
-            <div class="flex-1 relative mt-12 lg:mt-0 animate-slide-up" style="animation-delay: 0.3s;">
-                <div class="relative w-full max-w-lg mx-auto">
-                    <!-- Floating Tech Icons -->
-                    <div class="absolute -top-10 -left-10 w-20 h-20 bg-yellow-400/30 rounded-full blur-xl animate-float"></div>
-                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-pink-400/30 rounded-full blur-xl animate-float" style="animation-delay: 2s;"></div>
-                    
-                    <!-- Main Image Container with 3D Effect -->
-                    <div class="relative z-10 group">
-                        {% if site_settings.profile_image %}
-                        <div class="relative overflow-hidden rounded-full border-8 border-white/20 shadow-2xl transform transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
-                            <img src="{{ site_settings.profile_image.url }}" 
-                                 alt="{{ site_settings.site_name }}" 
-                                 class="w-full animate-float"
-                                 loading="eager">
-                            <!-- Overlay gradient on hover -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-purple-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <!-- Hero Visual -->
+            <div class="order-1 lg:order-2 relative flex justify-center items-center" data-aos="fade-left" data-aos-delay="100">
+                <div class="relative w-[340px] h-[340px] lg:w-[420px] lg:h-[420px]">
+                    <!-- Profile Ring -->
+                    <div class="profile-ring w-full h-full">
+                        <div style="position:relative;z-index:1;width:100%;height:100%;border-radius:50%;overflow:hidden;background:#1e2a5e;">
+                            {% if site_settings.profile_image %}
+                            <img src="{{ site_settings.profile_image.url }}" alt="{{ site_settings.site_name }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-7xl text-white/20">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% else %}
-                        <div class="w-full aspect-square rounded-full border-8 border-white/20 glass flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <i class="fas fa-user text-9xl text-white/50"></i>
-                        </div>
-                        {% endif %}
                     </div>
                     
-                    <!-- Floating Tech Stack Badges -->
-                    <div class="absolute top-10 -right-5 px-4 py-2 bg-white rounded-xl shadow-2xl animate-float hidden sm:block hover:scale-110 transition-transform cursor-pointer">
-                        <i class="fab fa-python text-blue-500 text-3xl"></i>
-                    </div>
-                    <div class="absolute bottom-20 -left-5 px-4 py-2 bg-white rounded-xl shadow-2xl animate-float hidden sm:block hover:scale-110 transition-transform cursor-pointer" style="animation-delay: 1s;">
-                        <i class="fab fa-react text-cyan-500 text-3xl"></i>
-                    </div>
-                    <div class="absolute top-1/2 -right-10 px-4 py-2 bg-white rounded-xl shadow-2xl animate-float hidden sm:block hover:scale-110 transition-transform cursor-pointer" style="animation-delay: 2s;">
-                        <i class="fab fa-node text-green-500 text-3xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Scroll Indicator -->
-    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <a href="#about" class="text-white hover:text-yellow-300 transition-colors flex flex-col items-center gap-2">
-            <span class="text-sm font-semibold">Scroll Down</span>
-            <i class="fas fa-chevron-down text-3xl"></i>
-        </a>
-    </div>
-</section>
-
-<!-- Social Proof Metrics -->
-{% if social_proof %}
-<section class="py-12 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
-            {% for proof in social_proof %}
-            <div class="text-center group hover-lift cursor-pointer" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
-                <div class="text-4xl font-bold text-gradient mb-2 counter" data-target="{{ proof.value }}">0</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400">{{ proof.label }}</div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- About Section with Timeline -->
-<section id="about" class="py-32 bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 opacity-5">
-        <div class="absolute inset-0" style="background-image: radial-gradient(circle, #667eea 1px, transparent 1px); background-size: 50px 50px;"></div>
-    </div>
-    
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-6xl mx-auto">
-            <!-- Section Header -->
-            <div class="text-center mb-16" data-aos="fade-up">
-                <span class="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-sm font-semibold mb-4">About Me</span>
-                <h2 class="text-5xl font-display font-bold mb-6">
-                    Get to Know <span class="text-gradient">Me Better</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
-            </div>
-            
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <!-- About Content -->
-                <div data-aos="fade-right" class="space-y-6">
-                    <div class="prose dark:prose-invert prose-lg max-w-none">
-                        {{ site_settings.about_me|safe|truncatewords_html:100 }}
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{% url 'about' %}" 
-                           class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2">
-                            <i class="fas fa-user"></i>
-                            More About Me
-                        </a>
-                        <a href="{% url 'contact' %}" 
-                           class="px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2">
-                            <i class="fas fa-envelope"></i>
-                            Hire Me
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Stats Grid with Advanced Design -->
-                <div class="grid grid-cols-2 gap-6" data-aos="fade-left">
-                    <div class="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-2xl shadow-lg hover-lift group">
-                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-briefcase text-white text-xl"></i>
-                        </div>
-                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-300 mb-1">{{ site_settings.years_experience|default:5 }}+</div>
-                        <div class="text-gray-700 dark:text-gray-300 text-sm">Years Experience</div>
-                    </div>
-                    
-                    <div class="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-2xl shadow-lg hover-lift group">
-                        <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-project-diagram text-white text-xl"></i>
-                        </div>
-                        <div class="text-3xl font-bold text-purple-600 dark:text-purple-300 mb-1">{{ stats.total_projects|default:100 }}+</div>
-                        <div class="text-gray-700 dark:text-gray-300 text-sm">Projects Done</div>
-                    </div>
-                    
-                    <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-2xl shadow-lg hover-lift group">
-                        <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-smile text-white text-xl"></i>
-                        </div>
-                        <div class="text-3xl font-bold text-green-600 dark:text-green-300 mb-1">{{ site_settings.happy_clients|default:50 }}+</div>
-                        <div class="text-gray-700 dark:text-gray-300 text-sm">Happy Clients</div>
-                    </div>
-                    
-                    <div class="p-6 bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900 dark:to-pink-800 rounded-2xl shadow-lg hover-lift group">
-                        <div class="w-12 h-12 bg-pink-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-coffee text-white text-xl"></i>
-                        </div>
-                        <div class="text-3xl font-bold text-pink-600 dark:text-pink-300 mb-1">{{ site_settings.coffee_consumed|default:1000 }}+</div>
-                        <div class="text-gray-700 dark:text-gray-300 text-sm">Cups of Coffee</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Services Section with Cards -->
-{% if featured_services %}
-<section class="py-32 bg-white dark:bg-gray-950 relative overflow-hidden">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Section Header -->
-        <div class="text-center mb-16" data-aos="fade-up">
-            <span class="inline-block px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm font-semibold mb-4">Services</span>
-            <h2 class="text-5xl font-display font-bold mb-6">
-                What I <span class="text-gradient">Offer</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Specialized services to transform your ideas into reality
-            </p>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {% for service in featured_services %}
-            <div class="group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover-lift" 
-                 data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
-                <!-- Service Header with Gradient -->
-                <div class="h-2 bg-gradient-to-r from-blue-600 to-purple-600"></div>
-                
-                <div class="p-8">
-                    <!-- Icon -->
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg">
-                        <i class="{{ service.icon|default:'fas fa-code' }} text-white text-2xl"></i>
-                    </div>
-                    
-                    <!-- Content -->
-                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {{ service.title }}
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6 line-clamp-3">
-                        {{ service.short_description }}
-                    </p>
-                    
-                    {% if service.starting_price %}
-                    <div class="mb-6">
-                        <span class="text-sm text-gray-500">Starting at</span>
-                        <div class="text-3xl font-bold text-gradient">${{ service.starting_price }}</div>
-                    </div>
-                    {% endif %}
-                    
-                    <a href="{% url 'service_detail' service.slug %}" 
-                       class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-4 transition-all">
-                        Learn More 
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                
-                <!-- Decorative Element -->
-                <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
-            </div>
-            {% endfor %}
-        </div>
-        
-        <div class="text-center mt-12" data-aos="fade-up">
-            <a href="{% url 'services' %}" 
-               class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all">
-                View All Services 
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- Featured Projects with Masonry Layout -->
-{% if featured_projects %}
-<section id="projects" class="py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Section Header -->
-        <div class="flex justify-between items-end mb-12" data-aos="fade-up">
-            <div>
-                <span class="inline-block px-4 py-2 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full text-sm font-semibold mb-4">Portfolio</span>
-                <h2 class="text-5xl font-display font-bold mb-4">
-                    Featured <span class="text-gradient">Projects</span>
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-400">
-                    Showcasing my best work and achievements
-                </p>
-            </div>
-            <a href="{% url 'projects' %}" 
-               class="hidden md:inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-lg hover:gap-4 transition-all">
-                View All 
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for project in featured_projects %}
-            <article class="group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover-lift" 
-                     data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
-                <!-- Project Image -->
-                <div class="relative h-64 overflow-hidden bg-gray-200 dark:bg-gray-700">
-                    {% if project.thumbnail or project.featured_image %}
-                    <img src="{% if project.thumbnail %}{{ project.thumbnail.url }}{% else %}{{ project.featured_image.url }}{% endif %}" 
-                         alt="{{ project.title }}" 
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                         loading="lazy">
-                    {% else %}
-                    <div class="w-full h-full flex items-center justify-center">
-                        <i class="fas fa-image text-6xl text-gray-400"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Overlay with Quick Actions -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div class="absolute bottom-0 left-0 right-0 p-6">
-                            <div class="flex gap-3">
-                                {% if project.live_url %}
-                                <a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer"
-                                   class="flex-1 px-4 py-2 bg-white text-black rounded-lg text-sm font-semibold text-center hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
-                                   onclick="event.stopPropagation()">
-                                    <i class="fas fa-external-link-alt"></i>Live
-                                </a>
-                                {% endif %}
-                                {% if project.github_url %}
-                                <a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer"
-                                   class="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold text-center hover:bg-gray-900 transition-colors inline-flex items-center justify-center gap-2"
-                                   onclick="event.stopPropagation()">
-                                    <i class="fab fa-github"></i>Code
-                                </a>
-                                {% endif %}
+                    <!-- Floating tech badges -->
+                    <div class="stat-float absolute -top-6 -right-6 bg-white dark:bg-navy-800 shadow-xl rounded-sm border border-slate-100 dark:border-white/10 px-4 py-3 z-20" style="animation-delay: 0s;">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 bg-blue-500 rounded-sm flex items-center justify-center"><i class="fab fa-python text-white text-sm"></i></div>
+                            <div>
+                                <div class="text-xs font-semibold text-slate-800 dark:text-white">Python</div>
+                                <div class="text-xs text-slate-400">Expert Level</div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Featured Badge -->
-                    <span class="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                        <i class="fas fa-star"></i> Featured
-                    </span>
-                </div>
-                
-                <!-- Project Info -->
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 capitalize">{{ project.get_category_display|default:'Project' }}</span>
-                        <div class="flex items-center gap-3 text-sm text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i class="fas fa-eye"></i>{{ project.views|default:0 }}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i class="fas fa-heart"></i>{{ project.likes|default:0 }}
-                            </span>
+                    <div class="stat-float absolute -bottom-4 -left-6 bg-white dark:bg-navy-800 shadow-xl rounded-sm border border-slate-100 dark:border-white/10 px-4 py-3 z-20" style="animation-delay: 2s;">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 bg-cyan-500 rounded-sm flex items-center justify-center"><i class="fab fa-react text-white text-sm"></i></div>
+                            <div>
+                                <div class="text-xs font-semibold text-slate-800 dark:text-white">React</div>
+                                <div class="text-xs text-slate-400">Advanced</div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <h3 class="text-xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                        {{ project.title }}
-                    </h3>
-                    
-                    <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                        {{ project.description }}
-                    </p>
-                    
-                    <!-- Tech Stack -->
-                    {% if project.technologies %}
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        {% for tech in project.technologies.split|slice:":4" %}
-                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
-                            {{ tech }}
-                        </span>
-                        {% endfor %}
-                        {% if project.technologies.split|length > 4 %}
-                        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">
-                            +{{ project.technologies.split|length|add:"-4" }}
-                        </span>
-                        {% endif %}
+
+                    <div class="stat-float absolute top-1/2 -right-10 bg-white dark:bg-navy-800 shadow-xl rounded-sm border border-slate-100 dark:border-white/10 px-4 py-3 z-20" style="animation-delay: 4s;">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 bg-emerald-500 rounded-sm flex items-center justify-center"><i class="fab fa-django text-white text-sm"></i></div>
+                            <div>
+                                <div class="text-xs font-semibold text-slate-800 dark:text-white">Django</div>
+                                <div class="text-xs text-slate-400">Expert Level</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10">
+        <div class="scroll-indicator"></div>
+        <span class="text-xs text-slate-600 uppercase tracking-widest">Scroll</span>
+    </div>
+</section>
+
+<!-- ==================== SKILLS MARQUEE ==================== -->
+{% if skills %}
+<div class="py-6 border-y border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-navy-900/50 overflow-hidden relative">
+    <div class="absolute inset-y-0 left-0 w-32 z-10 pointer-events-none" style="background: linear-gradient(90deg, white, transparent)"></div>
+    <div class="absolute inset-y-0 right-0 w-32 z-10 pointer-events-none" style="background: linear-gradient(-90deg, white, transparent)"></div>
+    <div class="dark:hidden"></div>
+    <div class="marquee-track">
+        {% for skill in skills %}
+        <div class="flex items-center gap-3 text-slate-500 dark:text-slate-500 whitespace-nowrap">
+            {% if skill.icon_class %}<i class="{{ skill.icon_class }} text-base text-slate-400 dark:text-slate-600"></i>{% endif %}
+            <span class="text-sm font-medium">{{ skill.name }}</span>
+        </div>
+        {% endfor %}
+        {% for skill in skills %}
+        <div class="flex items-center gap-3 text-slate-500 dark:text-slate-500 whitespace-nowrap">
+            {% if skill.icon_class %}<i class="{{ skill.icon_class }} text-base text-slate-400 dark:text-slate-600"></i>{% endif %}
+            <span class="text-sm font-medium">{{ skill.name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ==================== ABOUT SNAPSHOT ==================== -->
+<section id="about" class="py-28 lg:py-36 bg-white dark:bg-navy-950">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-20 items-center">
+            
+            <!-- Left: Text -->
+            <div data-aos="fade-right">
+                <div class="section-label mb-6">About Me</div>
+                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
+                    Crafting digital<br>experiences with<br><span class="text-gold">purpose & precision</span>
+                </h2>
+                <div class="divider mb-8"></div>
+                <div class="text-slate-600 dark:text-slate-400 leading-relaxed space-y-4 text-lg">
+                    {{ site_settings.about_me|safe|truncatewords_html:60 }}
+                </div>
+                <div class="flex gap-4 mt-10">
+                    <a href="{% url 'about' %}" class="btn-primary"><span>More About Me</span> <i class="fas fa-arrow-right text-xs"></i></a>
+                    <a href="{% url 'contact' %}" class="btn-outline">Hire Me</a>
+                </div>
+            </div>
+            
+            <!-- Right: Stats grid -->
+            <div class="grid grid-cols-2 gap-6" data-aos="fade-left">
+                {% for stat in hero_stats %}
+                {% endfor %}
+                <div class="card p-8">
+                    <i class="fas fa-briefcase text-gold-500 text-2xl mb-4"></i>
+                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ site_settings.years_experience|default:5 }}">0</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Years Experience</div>
+                </div>
+                <div class="card p-8">
+                    <i class="fas fa-layer-group text-gold-500 text-2xl mb-4"></i>
+                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ stats.total_projects|default:100 }}">0</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Projects Delivered</div>
+                </div>
+                <div class="card p-8">
+                    <i class="fas fa-face-smile text-gold-500 text-2xl mb-4"></i>
+                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ site_settings.happy_clients|default:50 }}">0</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Happy Clients</div>
+                </div>
+                <div class="card p-8">
+                    <i class="fas fa-mug-hot text-gold-500 text-2xl mb-4"></i>
+                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ site_settings.coffee_consumed|default:1000 }}">0</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Cups of Coffee</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SERVICES ==================== -->
+{% if featured_services %}
+<section class="py-28 lg:py-36 bg-slate-50 dark:bg-navy-900/40 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none" style="background-image: radial-gradient(circle at 1px 1px, rgba(201,147,42,0.04) 1px, transparent 0); background-size: 48px 48px;"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16" data-aos="fade-up">
+            <div>
+                <div class="section-label mb-5">Services</div>
+                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
+                    What I <span class="text-gold">specialize</span> in
+                </h2>
+            </div>
+            <a href="{% url 'services' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-gold-600 dark:hover:text-gold-400 transition-colors group">
+                All Services <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for service in featured_services %}
+            <div class="service-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+                <div class="relative z-10">
+                    <div class="service-icon">
+                        <i class="{{ service.icon|default:'fas fa-code' }}"></i>
+                    </div>
+                    <div class="text-xs font-mono text-gold-500 mb-2">0{{ forloop.counter }}</div>
+                    <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-3">{{ service.title }}</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-5">{{ service.short_description }}</p>
+                    {% if service.starting_price %}
+                    <div class="flex items-baseline gap-1 mb-5">
+                        <span class="text-xs text-slate-400">from</span>
+                        <span class="font-display text-2xl font-bold text-gold-500">${{ service.starting_price }}</span>
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'service_detail' service.slug %}" class="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors">
+                        Learn More <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ==================== FEATURED PROJECTS ==================== -->
+{% if featured_projects %}
+<section id="projects" class="py-28 lg:py-36 bg-white dark:bg-navy-950">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16" data-aos="fade-up">
+            <div>
+                <div class="section-label mb-5">Portfolio</div>
+                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
+                    Selected <span class="text-gold">work</span>
+                </h2>
+            </div>
+            <a href="{% url 'projects' %}" class="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-gold-600 dark:hover:text-gold-400 transition-colors group">
+                All Projects <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for project in featured_projects %}
+            <article class="project-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+                <!-- Image -->
+                <div class="project-image">
+                    {% if project.thumbnail or project.featured_image %}
+                    <img src="{% if project.thumbnail %}{{ project.thumbnail.url }}{% else %}{{ project.featured_image.url }}{% endif %}" alt="{{ project.title }}" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-navy-800 to-navy-900 flex items-center justify-center aspect-video">
+                        <i class="fas fa-image text-4xl text-white/20"></i>
                     </div>
                     {% endif %}
                     
-                    <a href="{% url 'project_detail' project.slug %}" 
-                       class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-4 transition-all">
-                        View Details 
-                        <i class="fas fa-arrow-right"></i>
+                    <!-- Overlay -->
+                    <div class="project-overlay">
+                        <div class="flex gap-3">
+                            {% if project.live_url %}
+                            <a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"
+                               class="flex items-center gap-1.5 px-3.5 py-2 bg-white text-navy-900 rounded-sm text-xs font-semibold hover:bg-gold-400 transition-colors">
+                                <i class="fas fa-external-link-alt"></i> Live
+                            </a>
+                            {% endif %}
+                            {% if project.github_url %}
+                            <a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"
+                               class="flex items-center gap-1.5 px-3.5 py-2 bg-white/10 border border-white/20 text-white rounded-sm text-xs font-semibold hover:bg-white/20 transition-colors">
+                                <i class="fab fa-github"></i> Code
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Category badge -->
+                    <div class="absolute top-4 left-4">
+                        <span class="text-xs font-semibold uppercase tracking-widest px-2.5 py-1 bg-black/60 backdrop-blur-sm text-gold-400 rounded-sm">
+                            {{ project.get_category_display|default:'Project' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Content -->
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
+                            <span><i class="fas fa-eye mr-1"></i>{{ project.views|default:0 }}</span>
+                            <span><i class="fas fa-heart mr-1"></i>{{ project.likes|default:0 }}</span>
+                        </div>
+                        <div class="w-5 h-px bg-gold-500"></div>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug">{{ project.title }}</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ project.description }}</p>
+                    
+                    {% if project.technologies %}
+                    <div class="flex flex-wrap gap-1.5 mb-5">
+                        {% for tech in project.technologies.split|slice:":4" %}
+                        <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-sm font-mono">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'project_detail' project.slug %}" class="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors">
+                        View Details <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
             </article>
             {% endfor %}
         </div>
         
-        <div class="text-center mt-12 md:hidden" data-aos="fade-up">
-            <a href="{% url 'projects' %}" 
-               class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 hover:scale-105 transition-all">
-                View All Projects 
-                <i class="fas fa-arrow-right"></i>
-            </a>
+        <div class="text-center mt-12 md:hidden">
+            <a href="{% url 'projects' %}" class="btn-primary mx-auto"><span>All Projects</span> <i class="fas fa-arrow-right text-xs"></i></a>
         </div>
     </div>
 </section>
 {% endif %}
 
-<!-- Skills Section with Interactive Display -->
-<section id="skills" class="py-32 bg-white dark:bg-gray-950 relative overflow-hidden">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Section Header -->
-        <div class="text-center mb-16" data-aos="fade-up">
-            <span class="inline-block px-4 py-2 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 rounded-full text-sm font-semibold mb-4">Expertise</span>
-            <h2 class="text-5xl font-display font-bold mb-6">
-                Skills & <span class="text-gradient">Technologies</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                My technical expertise and the tools I work with
-            </p>
-        </div>
-        
-        <!-- Featured Skills Grid -->
-        {% if featured_skills %}
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12 max-w-6xl mx-auto">
-            {% for skill in featured_skills %}
-            <div class="group p-6 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 rounded-xl shadow-lg hover-lift border border-gray-200 dark:border-gray-700" 
-                 data-aos="zoom-in" data-aos-delay="{{ forloop.counter|add:"0" }}0">
-                <div class="flex items-center gap-4 mb-4">
-                    {% if skill.icon_image %}
-                    <img src="{{ skill.icon_image.url }}" alt="{{ skill.name }}" class="w-12 h-12 object-contain group-hover:scale-110 transition-transform">
-                    {% elif skill.icon_class %}
-                    <i class="{{ skill.icon_class }} text-4xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
-                    {% else %}
-                    <i class="fas fa-code text-4xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
-                    {% endif %}
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-gray-900 dark:text-white truncate">{{ skill.name }}</div>
-                        <div class="text-sm text-gray-500">{{ skill.proficiency|default:90 }}%</div>
-                    </div>
-                </div>
-                <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full skill-bar transition-all duration-1000" 
-                         data-width="{{ skill.proficiency|default:90 }}" style="width: 0%"></div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        
-        <!-- All Skills Grouped by Category -->
-        <div class="max-w-6xl mx-auto">
-            {% regroup skills by category as skills_by_category %}
-            {% for category in skills_by_category %}
-            <div class="mb-12" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
-                <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-2 h-8 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full mr-3"></span>
-                    {{ category.grouper|default:'Other'|capfirst }}
-                </h3>
-                <div class="flex flex-wrap gap-3">
-                    {% for skill in category.list %}
-                    <div class="group px-5 py-3 bg-white dark:bg-gray-800 rounded-full shadow hover:shadow-lg hover:-translate-y-1 transition-all border border-gray-200 dark:border-gray-700 cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            {% if skill.icon_class %}
-                            <i class="{{ skill.icon_class }} text-blue-600 dark:text-blue-400"></i>
-                            {% endif %}
-                            <span class="font-medium text-gray-900 dark:text-white">{{ skill.name }}</span>
-                            {% if skill.years_experience %}
-                            <span class="text-xs text-gray-500 ml-1">({{ skill.years_experience }}y)</span>
-                            {% endif %}
-                        </div>
-                    </div>
+<!-- ==================== SKILLS ==================== -->
+{% if featured_skills %}
+<section id="skills" class="py-28 lg:py-36 bg-slate-50 dark:bg-navy-900/40">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-20 items-start">
+            
+            <!-- Left: Header -->
+            <div data-aos="fade-right">
+                <div class="section-label mb-5">Expertise</div>
+                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
+                    Skills &<br><span class="text-gold">Technologies</span>
+                </h2>
+                <div class="divider mb-8"></div>
+                <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                    Over {{ site_settings.years_experience|default:5 }}+ years, I've developed expertise in a wide range of technologies and frameworks that enable me to build robust, scalable solutions.
+                </p>
+                
+                <!-- Skill categories summary -->
+                {% regroup skills by category as skills_by_category %}
+                <div class="mt-10 flex flex-wrap gap-2">
+                    {% for category in skills_by_category %}
+                    <span class="px-3 py-1.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-400 text-xs font-semibold rounded-sm">{{ category.grouper|default:'Other' }}</span>
                     {% endfor %}
                 </div>
             </div>
-            {% endfor %}
+            
+            <!-- Right: Skill bars -->
+            <div class="space-y-6" data-aos="fade-left">
+                {% for skill in featured_skills %}
+                <div class="group">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            {% if skill.icon_class %}
+                            <i class="{{ skill.icon_class }} text-sm text-gold-500"></i>
+                            {% endif %}
+                            <span class="text-sm font-semibold text-slate-800 dark:text-white">{{ skill.name }}</span>
+                        </div>
+                        <span class="font-mono text-xs text-gold-500">{{ skill.proficiency|default:90 }}%</span>
+                    </div>
+                    <div class="skill-bar-bg">
+                        <div class="skill-bar-fill" data-width="{{ skill.proficiency|default:90 }}"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </section>
+{% endif %}
 
-<!-- Experience Timeline -->
+<!-- ==================== EXPERIENCE TIMELINE ==================== -->
 {% if experiences %}
-<section id="experience" class="py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Section Header -->
+<section id="experience" class="py-28 lg:py-36 bg-white dark:bg-navy-950">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <div class="text-center mb-16" data-aos="fade-up">
-            <span class="inline-block px-4 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 rounded-full text-sm font-semibold mb-4">Career</span>
-            <h2 class="text-5xl font-display font-bold mb-6">
-                Work <span class="text-gradient">Experience</span>
+            <div class="section-label mb-5">Career</div>
+            <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white">
+                Professional <span class="text-gold">Journey</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-400">
-                My professional journey and milestones
-            </p>
         </div>
         
-        <div class="max-w-5xl mx-auto">
-            <div class="relative">
-                <!-- Timeline Line -->
-                <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-600 via-purple-600 to-pink-600 transform -translate-x-1/2 rounded-full"></div>
+        <div class="max-w-3xl mx-auto">
+            <div class="relative pl-8">
+                <div class="timeline-line"></div>
                 
                 {% for exp in experiences %}
-                <div class="relative mb-12 {% cycle 'md:pr-1/2' 'md:pl-1/2 md:ml-auto' %}" data-aos="fade-{% cycle 'right' 'left' %}">
-                    <!-- Timeline Dot -->
-                    <div class="hidden md:block absolute left-1/2 top-8 w-6 h-6 bg-white dark:bg-gray-900 rounded-full border-4 border-blue-600 transform -translate-x-1/2 {% if exp.is_current %}animate-pulse ring-4 ring-blue-200 dark:ring-blue-800{% endif %} shadow-lg"></div>
+                <div class="relative mb-12 last:mb-0" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+                    <div class="timeline-dot"></div>
                     
-                    <!-- Content Card -->
-                    <div class="{% cycle 'md:mr-12' 'md:ml-12' %} p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover-lift group">
-                        <!-- Company Logo -->
-                        {% if exp.company_logo %}
-                        <img src="{{ exp.company_logo.url }}" alt="{{ exp.company }}" class="w-16 h-16 object-contain mb-4 rounded-lg group-hover:scale-110 transition-transform">
-                        {% endif %}
-                        
+                    <div class="card p-7">
                         <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{ exp.title }}</h3>
-                                <p class="text-lg text-blue-600 dark:text-blue-400 font-semibold">{{ exp.company }}</p>
+                            <div>
+                                <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white">{{ exp.title }}</h3>
+                                <p class="text-gold-600 dark:text-gold-400 font-semibold text-sm mt-0.5">{{ exp.company }}</p>
                             </div>
                             {% if exp.is_current %}
-                            <span class="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-sm font-bold rounded-full whitespace-nowrap flex items-center gap-2">
-                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                Current
+                            <span class="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>Current
                             </span>
                             {% endif %}
                         </div>
                         
-                        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
-                            <span class="flex items-center gap-2">
-                                <i class="fas fa-calendar"></i>
-                                {{ exp.start_date|date:"M Y" }} - {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}
-                            </span>
-                            {% if exp.duration %}
-                            <span class="flex items-center gap-2">
-                                <i class="fas fa-clock"></i>
-                                {{ exp.duration }}
-                            </span>
-                            {% endif %}
-                            {% if exp.location %}
-                            <span class="flex items-center gap-2">
-                                <i class="fas fa-map-marker-alt"></i>
-                                {{ exp.location }}
-                            </span>
-                            {% endif %}
-                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs rounded-full">
-                                {{ exp.get_employment_type_display|default:'Full-time' }}
-                            </span>
+                        <div class="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-500 mb-4 font-mono">
+                            <span>{{ exp.start_date|date:"M Y" }} — {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}</span>
+                            {% if exp.location %}<span>{{ exp.location }}</span>{% endif %}
                         </div>
                         
-                        <div class="prose dark:prose-invert max-w-none mb-6">
-                            {{ exp.description|safe|truncatewords_html:50 }}
-                        </div>
-                        
-                        {% if exp.achievements %}
-                        <ul class="space-y-2 mb-6">
-                            {% for achievement in exp.achievements.splitlines|slice:":3" %}
-                            {% if achievement.strip %}
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-green-500 mt-1 mr-3 flex-shrink-0"></i>
-                                <span class="text-gray-700 dark:text-gray-300">{{ achievement }}</span>
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
+                        <div class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ exp.description|safe|truncatewords_html:40 }}</div>
                         
                         {% if exp.technologies %}
-                        <div class="flex flex-wrap gap-2">
-                            {% for tech in exp.technologies.split|slice:":5" %}
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs">
-                                {{ tech }}
-                            </span>
+                        <div class="flex flex-wrap gap-1.5 mt-4">
+                            {% for tech in exp.tech_list|slice:":6" %}
+                            <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-sm font-mono">{{ tech }}</span>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -741,219 +734,151 @@
 </section>
 {% endif %}
 
-<!-- Testimonials Carousel -->
+<!-- ==================== TESTIMONIALS ==================== -->
 {% if testimonials %}
-<section class="py-32 gradient-bg text-white relative overflow-hidden">
-    <!-- Decorative Elements -->
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-300 rounded-full blur-3xl"></div>
-    </div>
+<section class="py-28 lg:py-36 bg-navy-900 relative overflow-hidden">
+    <!-- Background dots -->
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+    <!-- Gold glow -->
+    <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl"></div>
     
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <!-- Section Header -->
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         <div class="text-center mb-16" data-aos="fade-up">
-            <span class="inline-block px-4 py-2 glass rounded-full text-sm font-semibold mb-4">Testimonials</span>
-            <h2 class="text-5xl font-display font-bold mb-6">
-                Client <span class="text-yellow-300">Testimonials</span>
+            <div class="section-label mb-5" style="color: rgba(201,147,42,0.6);">
+                <span>Testimonials</span>
+            </div>
+            <h2 class="font-display text-4xl lg:text-5xl font-bold text-white">
+                Client <span class="text-gold">Stories</span>
             </h2>
-            <p class="text-xl opacity-90 max-w-2xl mx-auto">
-                What clients say about working with me
-            </p>
         </div>
         
-        <!-- Testimonials Slider -->
-        <div class="max-w-6xl mx-auto">
-            <div class="swiper testimonials-swiper">
-                <div class="swiper-wrapper">
-                    {% for testimonial in testimonials %}
-                    <div class="swiper-slide">
-                        <div class="p-12 glass rounded-2xl border border-white/20 hover:bg-white/20 transition-all" data-aos="zoom-in">
-                            <!-- Rating -->
-                            <div class="flex justify-center mb-6">
-                                {% for i in "12345" %}
-                                <i class="fas fa-star {% if forloop.counter <= testimonial.rating|default:5 %}text-yellow-300{% else %}text-gray-400{% endif %} text-2xl"></i>
-                                {% endfor %}
-                            </div>
-                            
-                            <!-- Quote -->
-                            <blockquote class="text-2xl font-light italic mb-8 leading-relaxed text-center">
-                                "{{ testimonial.content }}"
-                            </blockquote>
-                            
-                            <!-- Author -->
-                            <div class="flex items-center justify-center">
-                                {% if testimonial.image %}
-                                <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" 
-                                     class="w-16 h-16 rounded-full mr-4 object-cover border-2 border-white shadow-lg"
-                                     loading="lazy">
-                                {% else %}
-                                <div class="w-16 h-16 rounded-full mr-4 glass flex items-center justify-center text-2xl font-bold">
-                                    {{ testimonial.name|first }}
-                                </div>
-                                {% endif %}
-                                <div class="text-left">
-                                    <div class="font-bold text-lg">{{ testimonial.name }}</div>
-                                    <div class="opacity-80">
-                                        {{ testimonial.position }}{% if testimonial.company %}, {{ testimonial.company }}{% endif %}
-                                    </div>
-                                </div>
+        <div class="swiper testimonials-swiper">
+            <div class="swiper-wrapper pb-12">
+                {% for testimonial in testimonials %}
+                <div class="swiper-slide">
+                    <div class="testimonial-card" data-aos="fade-up">
+                        <span class="quote-mark">"</span>
+                        <!-- Stars -->
+                        <div class="flex gap-1 mb-5">
+                            {% for i in "12345" %}
+                            <i class="fas fa-star text-xs {% if forloop.counter <= testimonial.rating|default:5 %}text-gold-400{% else %}text-white/20{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="text-slate-300 italic leading-relaxed mb-8 text-lg">{{ testimonial.content }}</p>
+                        <div class="flex items-center gap-4">
+                            {% if testimonial.image %}
+                            <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" class="w-12 h-12 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center text-gold-400 font-bold">{{ testimonial.name|first }}</div>
+                            {% endif %}
+                            <div>
+                                <div class="font-semibold text-white text-sm">{{ testimonial.name }}</div>
+                                <div class="text-slate-500 text-xs">{{ testimonial.position }}{% if testimonial.company %}, {{ testimonial.company }}{% endif %}</div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-                
-                <!-- Navigation -->
-                <div class="swiper-button-next !text-white"></div>
-                <div class="swiper-button-prev !text-white"></div>
-                
-                <!-- Pagination -->
-                <div class="swiper-pagination !bottom-0 mt-12"></div>
+                {% endfor %}
             </div>
+            <div class="swiper-pagination"></div>
         </div>
     </div>
 </section>
 {% endif %}
 
-<!-- Blog Posts Section -->
+<!-- ==================== BLOG POSTS ==================== -->
 {% if recent_posts %}
-<section class="py-32 bg-white dark:bg-gray-950">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Section Header -->
-        <div class="flex justify-between items-end mb-12" data-aos="fade-up">
+<section class="py-28 lg:py-36 bg-white dark:bg-navy-950">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16" data-aos="fade-up">
             <div>
-                <span class="inline-block px-4 py-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-full text-sm font-semibold mb-4">Blog</span>
-                <h2 class="text-5xl font-display font-bold mb-4">
-                    Latest <span class="text-gradient">Articles</span>
+                <div class="section-label mb-5">Insights</div>
+                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white">
+                    Latest <span class="text-gold">Articles</span>
                 </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-400">
-                    Thoughts, tutorials, and insights
-                </p>
             </div>
-            <a href="{% url 'blog' %}" 
-               class="hidden md:inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold text-lg hover:gap-4 transition-all">
-                View All 
-                <i class="fas fa-arrow-right"></i>
+            <a href="{% url 'blog' %}" class="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-gold-600 dark:hover:text-gold-400 transition-colors group">
+                All Articles <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
             </a>
         </div>
         
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for post in recent_posts %}
-            <article class="group" data-aos="fade-up" data-aos-delay="{{ forloop.counter }}00">
-                <a href="{% url 'blog_detail' post.slug %}" class="block">
-                    <div class="rounded-2xl overflow-hidden shadow-lg hover-lift bg-white dark:bg-gray-800">
-                        <!-- Post Image -->
-                        <div class="relative h-56 overflow-hidden bg-gray-200 dark:bg-gray-700">
-                            {% if post.featured_image %}
-                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                 loading="lazy">
-                            {% else %}
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="fas fa-blog text-6xl text-gray-400"></i>
-                            </div>
-                            {% endif %}
-                            {% if post.featured %}
-                            <span class="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                <i class="fas fa-star"></i> Featured
-                            </span>
-                            {% endif %}
+            <article class="project-card group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+                <a href="{% url 'blog_detail' post.slug %}">
+                    <div class="project-image h-52">
+                        {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-navy-800 to-navy-900 flex items-center justify-center">
+                            <i class="fas fa-newspaper text-4xl text-white/20"></i>
                         </div>
-                        
-                        <!-- Post Content -->
-                        <div class="p-6">
-                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3 gap-4">
-                                <span class="flex items-center gap-2">
-                                    <i class="fas fa-calendar"></i>
-                                    {{ post.published_date|date:"M d, Y" }}
-                                </span>
-                                <span class="flex items-center gap-2">
-                                    <i class="fas fa-clock"></i>
-                                    {{ post.reading_time|default:5 }} min
-                                </span>
-                                <span class="flex items-center gap-2">
-                                    <i class="fas fa-eye"></i>
-                                    {{ post.views|default:0 }}
-                                </span>
-                            </div>
-                            
-                            <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                {{ post.title }}
-                            </h3>
-                            
-                            <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                                {{ post.excerpt|default:post.content|striptags|truncatewords:20 }}
-                            </p>
-                            
-                            {% if post.tags.all %}
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                {% for tag in post.tags.all|slice:":3" %}
-                                <span class="text-xs text-blue-600 dark:text-blue-400 font-semibold">
-                                    #{{ tag.name }}
-                                </span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            
-                            <span class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-4 transition-all">
-                                Read More 
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500 font-mono mb-3">
+                            <span>{{ post.published_date|date:"M d, Y" }}</span>
+                            <span>{{ post.reading_time|default:5 }} min</span>
+                            <span>{{ post.views|default:0 }} views</span>
                         </div>
+                        <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors line-clamp-2">{{ post.title }}</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ post.excerpt|default:post.content|striptags|truncatewords:15 }}</p>
+                        <span class="group/link inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors">
+                            Read More <i class="fas fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i>
+                        </span>
                     </div>
                 </a>
             </article>
             {% endfor %}
         </div>
-        
-        <div class="text-center mt-12 md:hidden" data-aos="fade-up">
-            <a href="{% url 'blog' %}" 
-               class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 hover:scale-105 transition-all">
-                View All Articles 
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
     </div>
 </section>
 {% endif %}
 
-<!-- CTA Section -->
-<section class="py-32 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto" data-aos="zoom-in">
-            <div class="relative p-16 gradient-bg rounded-3xl shadow-2xl overflow-hidden">
-                <!-- Background Pattern -->
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
-                </div>
-                
-                <div class="relative z-10 text-center text-white">
-                    <div class="w-20 h-20 glass rounded-full flex items-center justify-center mx-auto mb-8">
-                        <i class="fas fa-rocket text-4xl"></i>
-                    </div>
-                    <h2 class="text-5xl font-display font-bold mb-6">
-                        Let's Work <span class="text-yellow-300">Together</span>
-                    </h2>
-                    <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto leading-relaxed">
-                        Have a project in mind? Let's create something amazing together. I'm available for freelance projects and collaborations.
-                    </p>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="{% url 'contact' %}" 
-                           class="group px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all inline-flex items-center justify-center gap-2">
-                            <i class="fas fa-envelope group-hover:rotate-12 transition-transform"></i>
-                            Start a Project
-                        </a>
-                        <a href="{% url 'services' %}" 
-                           class="px-8 py-4 glass text-white rounded-full font-bold border-2 border-white hover:bg-white hover:text-blue-600 transition-all inline-flex items-center justify-center gap-2">
-                            <i class="fas fa-briefcase"></i>
-                            View Services
-                        </a>
-                    </div>
-                </div>
+<!-- ==================== CTA SECTION ==================== -->
+<section class="cta-section py-28 lg:py-36">
+    <div class="cta-glow"></div>
+    <!-- Geometric lines -->
+    <div class="absolute inset-0" style="background-image: linear-gradient(rgba(201,147,42,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,147,42,0.03) 1px, transparent 1px); background-size: 80px 80px;"></div>
+    
+    <div class="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 text-center" data-aos="fade-up">
+        <div class="section-label mb-8" style="color: rgba(201,147,42,0.5);">Get In Touch</div>
+        <h2 class="font-display text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+            Let's build<br>something <span class="text-gold italic">remarkable</span>
+        </h2>
+        <p class="text-slate-400 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+            Have a project in mind? I'm available for freelance projects, collaborations, and consulting.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="{% url 'contact' %}" class="group inline-flex items-center gap-3 px-10 py-4 bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold rounded-sm transition-all duration-300 hover:shadow-gold-lg">
+                Start Conversation
+                <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
+            </a>
+            <a href="{% url 'services' %}" class="inline-flex items-center gap-3 px-10 py-4 border border-white/20 hover:border-white/40 text-white font-semibold rounded-sm transition-all hover:bg-white/5">
+                View Services
+            </a>
+        </div>
+        
+        <!-- Contact methods -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-8 mt-16 pt-16 border-t border-white/5">
+            <div class="flex items-center gap-3 text-slate-500 text-sm">
+                <i class="fas fa-envelope text-gold-500"></i>
+                <a href="mailto:{{ site_settings.email }}" class="hover:text-white transition-colors">{{ site_settings.email }}</a>
             </div>
+            {% if site_settings.phone %}
+            <div class="w-px h-4 bg-white/10 hidden sm:block"></div>
+            <div class="flex items-center gap-3 text-slate-500 text-sm">
+                <i class="fas fa-phone text-gold-500"></i>
+                <a href="tel:{{ site_settings.phone }}" class="hover:text-white transition-colors">{{ site_settings.phone }}</a>
+            </div>
+            {% endif %}
+            {% if site_settings.location %}
+            <div class="w-px h-4 bg-white/10 hidden sm:block"></div>
+            <div class="flex items-center gap-3 text-slate-500 text-sm">
+                <i class="fas fa-location-dot text-gold-500"></i>
+                <span>{{ site_settings.location }}</span>
+            </div>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -961,209 +886,79 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Swiper JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-<!-- Particles.js -->
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
-<!-- AOS Animation Library -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
 <script>
-// Initialize AOS
-AOS.init({
-    duration: 1000,
-    once: true,
-    offset: 100
-});
-
-// Typing Animation
+// ==================== TYPING ANIMATION ====================
 const roles = [
     'Full Stack Developer',
     'Python & Django Expert',
     'React Developer',
-    'UI/UX Enthusiast',
+    'UI/UX Craftsman',
     'Problem Solver',
-    'Tech Innovator'
 ];
+let rIdx = 0, cIdx = 0, deleting = false;
+const typedEl = document.getElementById('typed-text');
 
-let roleIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-const typedTextElement = document.getElementById('typed-text');
-
-function typeRole() {
-    if (!typedTextElement) return;
-    
-    const currentRole = roles[roleIndex];
-    
-    if (isDeleting) {
-        typedTextElement.textContent = currentRole.substring(0, charIndex - 1);
-        charIndex--;
-    } else {
-        typedTextElement.textContent = currentRole.substring(0, charIndex + 1);
-        charIndex++;
+function type() {
+    if (!typedEl) return;
+    const role = roles[rIdx];
+    typedEl.textContent = deleting ? role.substring(0, cIdx - 1) : role.substring(0, cIdx + 1);
+    deleting ? cIdx-- : cIdx++;
+    if (!deleting && cIdx === role.length) {
+        deleting = true; setTimeout(type, 2200); return;
     }
-
-    if (!isDeleting && charIndex === currentRole.length) {
-        isDeleting = true;
-        setTimeout(typeRole, 2000);
-    } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        roleIndex = (roleIndex + 1) % roles.length;
-        setTimeout(typeRole, 500);
-    } else {
-        setTimeout(typeRole, isDeleting ? 50 : 100);
+    if (deleting && cIdx === 0) {
+        deleting = false; rIdx = (rIdx + 1) % roles.length;
+        setTimeout(type, 400); return;
     }
+    setTimeout(type, deleting ? 45 : 100);
 }
+setTimeout(type, 1000);
 
-setTimeout(typeRole, 1000);
-
-// Animated Counters with Intersection Observer
-function animateCounters() {
-    const counters = document.querySelectorAll('.counter');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                const target = parseInt(counter.getAttribute('data-target')) || 0;
-                const duration = 2000;
-                const increment = target / (duration / 16);
-                let current = 0;
-                
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.textContent = Math.ceil(current) + '+';
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.textContent = target + '+';
-                    }
-                };
-                
-                updateCounter();
-                observer.unobserve(counter);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    counters.forEach(counter => observer.observe(counter));
-}
-
-animateCounters();
-
-// Skill Bar Animations
-const skillObserver = new IntersectionObserver((entries) => {
+// ==================== COUNTER ANIMATION ====================
+const counterObs = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const bar = entry.target;
-            const width = bar.getAttribute('data-width') || 90;
-            setTimeout(() => {
-                bar.style.width = width + '%';
-            }, 100);
-            skillObserver.unobserve(bar);
-        }
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = parseInt(el.dataset.target) || 0;
+        const dur = 1800;
+        const step = target / (dur / 16);
+        let cur = 0;
+        const tick = () => {
+            cur = Math.min(cur + step, target);
+            el.textContent = Math.ceil(cur) + (cur < target ? '' : '+');
+            if (cur < target) requestAnimationFrame(tick);
+        };
+        tick();
+        counterObs.unobserve(el);
     });
 }, { threshold: 0.5 });
+document.querySelectorAll('.counter').forEach(el => counterObs.observe(el));
 
-document.querySelectorAll('.skill-bar').forEach(bar => {
-    skillObserver.observe(bar);
-});
+// ==================== SKILL BARS ====================
+const skillObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const bar = entry.target;
+        setTimeout(() => { bar.style.width = (bar.dataset.width || 90) + '%'; }, 100);
+        skillObs.unobserve(bar);
+    });
+}, { threshold: 0.3 });
+document.querySelectorAll('.skill-bar-fill').forEach(b => skillObs.observe(b));
 
-// Testimonials Swiper
+// ==================== TESTIMONIALS SWIPER ====================
 if (document.querySelector('.testimonials-swiper')) {
     new Swiper('.testimonials-swiper', {
         slidesPerView: 1,
-        spaceBetween: 30,
+        spaceBetween: 24,
         loop: true,
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
+        autoplay: { delay: 5500, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
         breakpoints: {
-            768: {
-                slidesPerView: 2,
-            },
-            1024: {
-                slidesPerView: 3,
-            },
+            768: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 }
         }
     });
 }
-
-
-// Particles.js Configuration
-if (document.getElementById('particles-js')) {
-    particlesJS('particles-js', {
-        particles: {
-            number: { value: 80, density: { enable: true, value_area: 800 } },
-            color: { value: '#ffffff' },
-            shape: { type: 'circle' },
-            opacity: { value: 0.5, random: false },
-            size: { value: 3, random: true },
-            line_linked: {
-                enable: true,
-                distance: 150,
-                color: '#ffffff',
-                opacity: 0.4,
-                width: 1
-            },
-            move: {
-                enable: true,
-                speed: 2,
-                direction: 'none',
-                random: false,
-                straight: false,
-                out_mode: 'out',
-                bounce: false,
-            }
-        },
-        interactivity: {
-            detect_on: 'canvas',
-            events: {
-                onhover: { enable: true, mode: 'repulse' },
-                onclick: { enable: true, mode: 'push' },
-                resize: true
-            },
-        },
-        retina_detect: true
-    });
-}
-// Lazy Loading Images
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                }
-                imageObserver.unobserve(img);
-            }
-        });
-    });
-    
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-    });
-}
-
-// Add loading state management
-window.addEventListener('load', function() {
-    document.body.classList.add('loaded');
-});
 </script>
 {% endblock %}

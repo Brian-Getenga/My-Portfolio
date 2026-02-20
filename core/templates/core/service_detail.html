@@ -7,412 +7,311 @@
 
 {% block extra_css %}
 <style>
-    .gradient-hero {
-        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-    }
-    
-    @keyframes gradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-    
-    .feature-card {
-        transition: all 0.4s ease;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-8px) scale(1.03);
-    }
-    
-    .sticky-sidebar {
-        position: sticky;
-        top: 100px;
-    }
-    
-    .check-item {
-        transition: all 0.3s ease;
-    }
-    
-    .check-item:hover {
-        transform: translateX(4px);
-    }
-    
-    .process-step {
-        position: relative;
-    }
-    
-    .process-step::before {
-        content: '';
-        position: absolute;
-        left: 23px;
-        top: 60px;
-        width: 2px;
-        height: calc(100% - 60px);
-        background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-    }
-    
-    .process-step:last-child::before {
-        display: none;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    :root{--navy:#0a0f2e;--navy-mid:#141b4d;--gold:#c9932a;--gold-light:#e8b84b;--gold-muted:#8a6520;--cream:#f8f4ef;--cream-dark:#ede8e0;--charcoal:#2c2c3e;--muted:#6b6b7f;}
+    *{font-family:'DM Sans',sans-serif;}
+    .font-display{font-family:'Playfair Display',Georgia,serif;}
+    .font-mono{font-family:'DM Mono',monospace;}
+    body{background:var(--cream);color:var(--charcoal);}
+
+    .service-hero{background:var(--navy);position:relative;overflow:hidden;}
+    .service-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+
+    .breadcrumb-item{color:rgba(255,255,255,.45);font-size:.8rem;}
+    .breadcrumb-item a{color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s;}
+    .breadcrumb-item a:hover{color:var(--gold-light);}
+    .breadcrumb-sep{color:rgba(255,255,255,.2);margin:0 .5rem;font-size:.7rem;}
+
+    .service-icon-hero{width:80px;height:80px;background:rgba(255,255,255,.08);border:1px solid rgba(201,147,42,.25);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;}
+    .service-icon-hero i{font-size:2.25rem;color:var(--gold-light);}
+
+    .meta-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:.5rem 1rem;font-size:.8rem;color:rgba(255,255,255,.7);}
+    .meta-pill i{color:var(--gold);font-size:.75rem;}
+
+    /* Content */
+    .content-card{background:#fff;border:1px solid rgba(201,147,42,.1);margin-bottom:1.5rem;}
+    .content-card-body{padding:2.5rem;}
+    .content-h2{font-family:'Playfair Display',serif;font-size:1.625rem;color:var(--navy);display:flex;align-items:center;gap:.875rem;margin-bottom:1.75rem;}
+    .content-icon{width:40px;height:40px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .content-icon i{color:var(--gold);font-size:.9rem;}
+
+    .prose{color:var(--charcoal);line-height:1.8;font-size:.95rem;}
+    .prose h2,.prose h3{font-family:'Playfair Display',serif;color:var(--navy);}
+    .prose p{margin-bottom:1.25rem;}
+
+    .check-item{display:flex;align-items:flex-start;gap:.875rem;padding:.875rem;background:var(--cream);border:1px solid var(--cream-dark);transition:all .2s ease;}
+    .check-item:hover{border-color:rgba(201,147,42,.25);background:#fff;}
+    .check-box{width:28px;height:28px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .check-box i{color:var(--gold);font-size:.6rem;}
+    .check-item span{font-size:.875rem;line-height:1.5;}
+
+    .deliverables-box{background:rgba(201,147,42,.04);border:1px solid rgba(201,147,42,.2);padding:1.5rem;margin-top:1.5rem;}
+    .deliverables-box h3{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-muted);margin-bottom:1rem;}
+    .deliverable-item{display:flex;align-items:flex-start;gap:.625rem;padding:.5rem 0;border-bottom:1px solid rgba(201,147,42,.1);font-size:.875rem;}
+    .deliverable-item:last-child{border-bottom:none;}
+    .deliverable-item i{color:var(--gold);font-size:.75rem;margin-top:3px;}
+
+    /* Process */
+    .process-steps{position:relative;}
+    .process-steps::before{content:'';position:absolute;left:1.375rem;top:3rem;bottom:2rem;width:1px;background:linear-gradient(to bottom,var(--gold),rgba(201,147,42,.1));}
+    .process-step{display:flex;gap:1.5rem;padding-bottom:2.5rem;position:relative;}
+    .step-circle{width:44px;height:44px;background:var(--navy);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Playfair Display',serif;font-size:1.125rem;font-weight:700;color:var(--gold-light);position:relative;z-index:1;}
+    .step-content{padding-top:.375rem;flex:1;}
+    .step-content h3{font-weight:600;color:var(--navy);margin-bottom:.5rem;}
+    .step-content p{font-size:.875rem;line-height:1.6;color:var(--muted);}
+    .step-duration{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted);display:inline-flex;align-items:center;gap:.375rem;margin-top:.625rem;}
+
+    .tech-tag{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.06em;color:var(--navy);background:var(--cream);border:1px solid var(--cream-dark);padding:.4rem .875rem;transition:all .2s ease;cursor:default;}
+    .tech-tag:hover{border-color:var(--gold);background:#fff;}
+
+    /* FAQ */
+    .faq-item{border:1px solid var(--cream-dark);margin-bottom:.5rem;background:#fff;}
+    .faq-btn{width:100%;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:transparent;border:none;text-align:left;gap:1rem;}
+    .faq-btn .faq-q{font-weight:600;font-size:.925rem;color:var(--navy);flex:1;}
+    .faq-icon{width:32px;height:32px;background:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s ease;}
+    .faq-icon i{font-size:.75rem;color:var(--muted);transition:transform .3s ease;}
+    .faq-item.open .faq-icon{background:var(--navy);}
+    .faq-item.open .faq-icon i{color:var(--gold-light);transform:rotate(45deg);}
+    .faq-item.open{border-color:rgba(201,147,42,.25);}
+    .faq-content{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+    .faq-content-inner{padding:0 1.5rem 1.5rem;font-size:.875rem;line-height:1.7;color:var(--muted);}
+
+    /* Sidebar - pricing */
+    .pricing-card{background:#fff;border:1px solid rgba(201,147,42,.2);position:relative;overflow:hidden;}
+    .pricing-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+    .pricing-body{padding:2.25rem;}
+    .price-from{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem;}
+    .price-amount{font-family:'Playfair Display',serif;font-size:3.25rem;font-weight:700;color:var(--navy);line-height:1;}
+    .price-note{font-size:.8rem;color:var(--muted);margin-top:.375rem;}
+    .price-feature{display:flex;align-items:center;gap:.75rem;padding:.625rem 0;border-bottom:1px solid var(--cream-dark);font-size:.875rem;}
+    .price-feature:last-of-type{border-bottom:none;}
+    .price-feature i{font-size:.8rem;}
+    .price-feature i.fa-clock{color:#4f46e5;}
+    .price-feature i.fa-sync{color:#16a34a;}
+    .price-feature i.fa-headset{color:#7c3aed;}
+    .price-feature i.fa-shield-check{color:var(--gold-muted);}
+
+    .btn-cta{display:flex;align-items:center;justify-content:center;gap:.625rem;padding:1rem 1.5rem;background:var(--navy);color:var(--gold-light);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--navy);transition:all .25s;width:100%;}
+    .btn-cta:hover{background:#1e2a6e;border-color:var(--gold);}
+    .btn-consult{display:flex;align-items:center;justify-content:center;gap:.625rem;padding:1rem 1.5rem;background:transparent;color:var(--charcoal);font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--cream-dark);transition:all .25s;width:100%;}
+    .btn-consult:hover{border-color:var(--navy);color:var(--navy);}
+
+    .help-card{background:var(--navy);padding:1.75rem;margin-top:1rem;}
+    .help-card h3{color:#fff;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;}
+    .help-card h3 i{color:var(--gold-light);}
+    .help-card p{color:rgba(255,255,255,.55);font-size:.875rem;margin-bottom:1rem;}
+    .help-email{display:block;text-align:center;padding:.75rem 1rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--gold-light);font-family:'DM Mono',monospace;font-size:.8rem;text-decoration:none;transition:all .2s;}
+    .help-email:hover{background:rgba(255,255,255,.15);}
+
+    .guarantee-card{background:#fff;border:1px solid var(--cream-dark);padding:1.75rem;text-align:center;margin-top:1rem;}
+    .guarantee-icon{width:52px;height:52px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+    .guarantee-icon i{color:#16a34a;font-size:1.25rem;}
+
+    .share-btn{flex:1;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--cream-dark);color:var(--charcoal);font-size:.875rem;cursor:pointer;background:transparent;transition:all .2s;}
+    .share-btn:hover{border-color:var(--gold);color:var(--gold);}
+    .share-btn a{color:inherit;text-decoration:none;display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+
+    /* Related services */
+    .related-service-card{background:#fff;border:1px solid var(--cream-dark);padding:1.75rem;text-decoration:none;color:inherit;display:block;transition:all .3s ease;position:relative;overflow:hidden;}
+    .related-service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+    .related-service-card:hover{transform:translateY(-5px);border-color:rgba(201,147,42,.2);box-shadow:0 12px 40px rgba(10,15,46,.08);}
+    .related-service-card:hover::before{transform:scaleX(1);}
+    .related-icon{width:44px;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;}
+    .related-icon i{color:var(--gold);font-size:.95rem;}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
+    .section-label::before{content:'';width:3rem;height:1px;background:var(--cream-dark);}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+
+    .cta-section{background:var(--navy);position:relative;overflow:hidden;}
+    .cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .btn-white{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:#fff;color:var(--navy);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid #fff;transition:all .25s ease;}
+    .btn-white:hover{background:var(--cream);}
+    .btn-ghost{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:transparent;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.35);transition:all .25s ease;}
+    .btn-ghost:hover{background:rgba(255,255,255,.08);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .7s ease forwards;}
+    .d1{animation-delay:.1s;opacity:0;}.d2{animation-delay:.2s;opacity:0;}.d3{animation-delay:.3s;opacity:0;}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative pt-32 pb-20 gradient-hero text-white overflow-hidden">
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-    </div>
-    
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto">
-            <!-- Breadcrumb -->
-            <nav class="mb-8" data-aos="fade-down">
-                <ol class="flex items-center flex-wrap gap-2 text-sm opacity-90">
-                    <li><a href="{% url 'home' %}" class="hover:text-yellow-300 transition-colors">Home</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'services' %}" class="hover:text-yellow-300 transition-colors">Services</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-yellow-300">{{ service.title }}</li>
-                </ol>
-            </nav>
-            
-            <div class="text-center">
-                <!-- Icon Badge -->
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/20 backdrop-blur-md rounded-3xl mb-8 shadow-2xl" data-aos="zoom-in">
-                    <i class="{{ service.icon_class|default:'fas fa-code' }} text-6xl"></i>
-                </div>
-                
-                <!-- Title -->
-                <h1 class="text-4xl md:text-6xl font-display font-bold mb-6" data-aos="fade-up">
-                    {{ service.title }}
-                </h1>
-                
-                <!-- Short Description -->
-                <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="100">
-                    {{ service.short_description|default:service.description|truncatewords:30 }}
-                </p>
-                
-                <!-- Quick Stats -->
-                <div class="flex flex-wrap justify-center gap-6 text-base" data-aos="fade-up" data-aos-delay="200">
-                    {% if service.delivery_time %}
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-clock"></i>{{ service.delivery_time }}
-                    </span>
-                    {% endif %}
-                    {% if service.price %}
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-dollar-sign"></i>Starting at ${{ service.price }}
-                    </span>
-                    {% endif %}
-                    {% if service.projects_completed %}
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-check-circle"></i>{{ service.projects_completed }}+ Projects
-                    </span>
-                    {% endif %}
-                </div>
+<!-- Hero -->
+<section class="service-hero pt-40 pb-20">
+    <div class="blob w-[500px] h-[500px] opacity-10" style="background:radial-gradient(circle,#4f46e5,transparent);top:-150px;left:-100px;"></div>
+    <div class="blob w-[400px] h-[400px] opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);bottom:-100px;right:0;"></div>
+    <div class="container mx-auto px-6 lg:px-8 max-w-5xl relative z-10">
+        <nav class="mb-10 fade-up"><ol class="flex flex-wrap items-center gap-1">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li><li class="breadcrumb-sep">›</li>
+            <li class="breadcrumb-item"><a href="{% url 'services' %}">Services</a></li><li class="breadcrumb-sep">›</li>
+            <li class="font-mono text-xs text-amber-300">{{ service.title }}</li>
+        </ol></nav>
+        <div class="max-w-3xl">
+            <div class="service-icon-hero fade-up d1"><i class="{{ service.icon_class|default:'fas fa-code' }}"></i></div>
+            <h1 class="font-display text-5xl lg:text-6xl text-white mb-5 leading-tight fade-up d1">{{ service.title }}</h1>
+            <p class="text-slate-300 text-lg leading-relaxed mb-10 fade-up d2">{{ service.short_description|default:service.description|truncatewords:30 }}</p>
+            <div class="flex flex-wrap gap-3 fade-up d3">
+                {% if service.delivery_time %}<span class="meta-pill"><i class="fas fa-clock"></i>{{ service.delivery_time }}</span>{% endif %}
+                {% if service.price %}<span class="meta-pill"><i class="fas fa-tag"></i>From ${{ service.price }}</span>{% endif %}
+                {% if service.projects_completed %}<span class="meta-pill"><i class="fas fa-check-circle"></i>{{ service.projects_completed }}+ Projects</span>{% endif %}
             </div>
         </div>
     </div>
 </section>
 
 <!-- Main Content -->
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid lg:grid-cols-3 gap-12">
-                <!-- Main Content -->
-                <div class="lg:col-span-2 space-y-12">
-                    <!-- Overview -->
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700" data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-info-circle text-white text-xl"></i>
-                            </div>
-                            Overview
-                        </h2>
-                        <div class="prose dark:prose-invert prose-lg max-w-none">
-                            {{ service.description|safe }}
-                        </div>
+<section class="py-20" style="background:var(--cream)">
+    <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+        <div class="grid lg:grid-cols-3 gap-12">
+            <!-- Content -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Overview -->
+                <div class="content-card" data-aos="fade-up">
+                    <div class="content-card-body">
+                        <div class="content-h2"><div class="content-icon"><i class="fas fa-align-left"></i></div>Overview</div>
+                        <div class="prose">{{ service.description|safe }}</div>
                     </div>
-                    
-                    <!-- What's Included -->
-                    {% if service.features or service.deliverables %}
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700" data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-check-double text-white text-xl"></i>
-                            </div>
-                            What's Included
-                        </h2>
-                        
-                        <div class="grid md:grid-cols-2 gap-6">
-                            {% if service.features %}
+                </div>
+
+                <!-- What's Included -->
+                {% if service.features or service.deliverables %}
+                <div class="content-card" data-aos="fade-up">
+                    <div class="content-card-body">
+                        <div class="content-h2"><div class="content-icon"><i class="fas fa-check"></i></div>What's Included</div>
+                        {% if service.features %}
+                        <div class="grid md:grid-cols-2 gap-2 mb-4">
                             {% for feature in service.feature_list %}
-                            <div class="check-item flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
-                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-check text-green-600 dark:text-green-400"></i>
-                                </div>
-                                <span class="text-gray-700 dark:text-gray-300 font-medium">{{ feature }}</span>
-                            </div>
+                            <div class="check-item"><div class="check-box"><i class="fas fa-check"></i></div><span>{{ feature }}</span></div>
                             {% endfor %}
-                            {% endif %}
                         </div>
-                        
+                        {% endif %}
                         {% if service.deliverables %}
-                        <div class="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
-                            <h3 class="font-bold text-xl mb-4 flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                                <i class="fas fa-box"></i>Deliverables
-                            </h3>
-                            <ul class="space-y-3">
-                                {% for deliverable in service.deliverable_list %}
-                                <li class="flex items-start gap-3">
-                                    <i class="fas fa-angle-right text-blue-600 mt-1"></i>
-                                    <span class="text-gray-700 dark:text-gray-300">{{ deliverable }}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
+                        <div class="deliverables-box">
+                            <h3>Deliverables</h3>
+                            {% for d in service.deliverable_list %}<div class="deliverable-item"><i class="fas fa-angle-right"></i><span>{{ d }}</span></div>{% endfor %}
                         </div>
                         {% endif %}
                     </div>
-                    {% endif %}
-                    
-                    <!-- Process -->
-                    {% if service.process_steps %}
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700" data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-tasks text-white text-xl"></i>
-                            </div>
-                            How It Works
-                        </h2>
-                        
-                        <div class="space-y-8">
-                            {% for step in service.process_step_list %}
-                            <div class="process-step flex gap-6">
-                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xl font-bold shadow-lg z-10">
-                                    {{ forloop.counter }}
-                                </div>
-                                <div class="flex-1 pb-8">
-                                    <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-                                        {{ step.title }}
-                                    </h3>
-                                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                        {{ step.description }}
-                                    </p>
-                                    {% if step.duration %}
-                                    <div class="mt-3 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                        <i class="fas fa-clock"></i>{{ step.duration }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Technologies/Tools -->
-                    {% if service.technologies %}
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700" data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-toolbox text-white text-xl"></i>
-                            </div>
-                            Technologies & Tools
-                        </h2>
-                        
-                        <div class="flex flex-wrap gap-3">
-                            {% for tech in service.tech_list %}
-                            <span class="px-5 py-3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-xl font-semibold hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-lg hover:scale-105">
-                                {{ tech }}
-                            </span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Case Studies / Portfolio -->
-                    {% if service.related_projects %}
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700" data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-folder text-white text-xl"></i>
-                            </div>
-                            Related Projects
-                        </h2>
-                        
-                        <div class="grid md:grid-cols-2 gap-6">
-                            {% for project in service.related_projects %}
-                            <a href="{{ project.get_absolute_url }}" class="group block">
-                                <div class="bg-gray-50 dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2">
-                                    {% if project.featured_image %}
-                                    <div class="h-48 overflow-hidden">
-                                        <img src="{{ project.featured_image.url }}" 
-                                             alt="{{ project.title }}" 
-                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                    {% endif %}
-                                    <div class="p-6">
-                                        <h3 class="font-bold text-lg mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                            {{ project.title }}
-                                        </h3>
-                                        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
-                                            {{ project.short_description }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- FAQ -->
-                    {% if service.faqs %}
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 lg:p-12 border border-gray-100 dark:border-gray-700" data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-question-circle text-white text-xl"></i>
-                            </div>
-                            Frequently Asked Questions
-                        </h2>
-                        
-                        <div class="space-y-4">
-                            {% for faq in service.faq_list %}
-                            <div class="border-2 border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
-                                <button class="faq-btn w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                                        onclick="toggleFaq(this)">
-                                    <span class="font-semibold text-gray-900 dark:text-white pr-4">{{ faq.question }}</span>
-                                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-chevron-down text-blue-600 dark:text-blue-400 transition-transform"></i>
-                                    </div>
-                                </button>
-                                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                                    <div class="px-6 py-5 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-                                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ faq.answer }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
-                
-                <!-- Sidebar -->
-                <div class="lg:col-span-1">
-                    <div class="sticky-sidebar space-y-6" data-aos="fade-left">
-                        <!-- Pricing Card -->
-                        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border-2 border-gray-100 dark:border-gray-700 overflow-hidden relative">
-                            <!-- Decorative gradient -->
-                            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-600 to-purple-600"></div>
-                            
-                            <div class="text-center mb-8">
-                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Starting at</div>
-                                {% if service.price %}
-                                <div class="text-5xl font-bold text-gray-900 dark:text-white mb-2">
-                                    ${{ service.price }}
-                                </div>
-                                {% if service.price_note %}
-                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ service.price_note }}</div>
-                                {% endif %}
-                                {% else %}
-                                <div class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                                    Custom Quote
-                                </div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">Based on project scope</div>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Key Features -->
-                            <div class="space-y-3 mb-8">
-                                {% if service.delivery_time %}
-                                <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                    <i class="fas fa-clock text-blue-600 dark:text-blue-400"></i>
-                                    <span>{{ service.delivery_time }} delivery</span>
-                                </div>
-                                {% endif %}
-                                <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                    <i class="fas fa-sync text-green-600 dark:text-green-400"></i>
-                                    <span>{% if service.revisions %}{{ service.revisions }}{% else %}Unlimited{% endif %} revisions</span>
-                                </div>
-                                <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                    <i class="fas fa-headset text-purple-600 dark:text-purple-400"></i>
-                                    <span>24/7 support</span>
-                                </div>
-                                <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                    <i class="fas fa-shield-check text-orange-600 dark:text-orange-400"></i>
-                                    <span>Quality guarantee</span>
+                {% endif %}
+
+                <!-- Process -->
+                {% if service.process_steps %}
+                <div class="content-card" data-aos="fade-up">
+                    <div class="content-card-body">
+                        <div class="content-h2"><div class="content-icon"><i class="fas fa-tasks"></i></div>How It Works</div>
+                        <div class="process-steps">
+                            {% for step in service.process_step_list %}
+                            <div class="process-step">
+                                <div class="step-circle">{{ forloop.counter }}</div>
+                                <div class="step-content">
+                                    <h3>{{ step.title }}</h3>
+                                    <p>{{ step.description }}</p>
+                                    {% if step.duration %}<span class="step-duration"><i class="fas fa-clock"></i>{{ step.duration }}</span>{% endif %}
                                 </div>
                             </div>
-                            
-                            <!-- CTA Buttons -->
-                            <div class="space-y-3">
-                                <a href="{% url 'contact' %}?service={{ service.slug }}" 
-                                   class="block text-center px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                                    <i class="fas fa-paper-plane mr-2"></i>Get Started
-                                </a>
-                                <a href="{% url 'contact' %}?service={{ service.slug }}&type=consultation" 
-                                   class="block text-center px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                                    <i class="fas fa-comments mr-2"></i>Free Consultation
-                                </a>
-                            </div>
-                            
-                            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
-                                <i class="fas fa-lock mr-1"></i>
-                                Secure payment • Money-back guarantee
-                            </div>
+                            {% endfor %}
                         </div>
-                        
-                        <!-- Contact Info -->
-                        <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl p-6">
-                            <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-                                <i class="fas fa-phone-volume"></i>Need Help?
-                            </h3>
-                            <p class="opacity-90 mb-4 leading-relaxed">
-                                Have questions about this service? I'm here to help!
-                            </p>
-                            <a href="mailto:{{ site_settings.email }}" 
-                               class="block text-center px-6 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl">
-                                {{ site_settings.email }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Technologies -->
+                {% if service.technologies %}
+                <div class="content-card" data-aos="fade-up">
+                    <div class="content-card-body">
+                        <div class="content-h2"><div class="content-icon"><i class="fas fa-tools"></i></div>Technologies &amp; Tools</div>
+                        <div class="flex flex-wrap gap-2">{% for tech in service.tech_list %}<span class="tech-tag">{{ tech }}</span>{% endfor %}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Related Projects -->
+                {% if service.related_projects %}
+                <div class="content-card" data-aos="fade-up">
+                    <div class="content-card-body">
+                        <div class="content-h2"><div class="content-icon"><i class="fas fa-folder"></i></div>Related Projects</div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            {% for p in service.related_projects %}
+                            <a href="{{ p.get_absolute_url }}" class="related-service-card" style="padding:0;overflow:hidden">
+                                {% if p.featured_image %}<img src="{{ p.featured_image.url }}" alt="{{ p.title }}" style="width:100%;height:160px;object-fit:cover;display:block">{% endif %}
+                                <div style="padding:1.25rem"><h3 class="font-semibold mb-1" style="color:var(--navy);font-size:.95rem">{{ p.title }}</h3><p class="text-sm line-clamp-2" style="color:var(--muted)">{{ p.short_description }}</p></div>
                             </a>
+                            {% endfor %}
                         </div>
-                        
-                        <!-- Guarantee Badge -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 text-center">
-                            <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-shield-check text-green-600 dark:text-green-400 text-3xl"></i>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">100% Satisfaction</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                Money-back guarantee if you're not completely satisfied
-                            </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- FAQ -->
+                {% if service.faqs %}
+                <div class="content-card" data-aos="fade-up">
+                    <div class="content-card-body">
+                        <div class="content-h2"><div class="content-icon"><i class="fas fa-question"></i></div>Frequently Asked Questions</div>
+                        {% for faq in service.faq_list %}
+                        <div class="faq-item">
+                            <button class="faq-btn" onclick="toggleFaq(this)">
+                                <span class="faq-q">{{ faq.question }}</span>
+                                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+                            </button>
+                            <div class="faq-content"><div class="faq-content-inner">{{ faq.answer }}</div></div>
                         </div>
-                        
-                        <!-- Social Share -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                            <h3 class="font-semibold mb-4 text-gray-900 dark:text-white">Share This Service</h3>
-                            <div class="flex gap-3">
-                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ service.title|urlencode }}" 
-                                   target="_blank"
-                                   class="flex-1 aspect-square bg-blue-500 hover:bg-blue-600 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                                    <i class="fab fa-twitter text-xl"></i>
-                                </a>
-                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
-                                   target="_blank"
-                                   class="flex-1 aspect-square bg-blue-700 hover:bg-blue-800 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                                    <i class="fab fa-linkedin-in text-xl"></i>
-                                </a>
-                                <button onclick="copyLink()" 
-                                        class="flex-1 aspect-square bg-gray-600 hover:bg-gray-700 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                                    <i class="fas fa-link text-xl"></i>
-                                </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div data-aos="fade-left">
+                <div class="sticky top-28 space-y-4">
+                    <!-- Pricing -->
+                    <div class="pricing-card">
+                        <div class="pricing-body">
+                            <span class="price-from">Starting at</span>
+                            {% if service.price %}<div class="price-amount">${{ service.price }}</div>{% if service.price_note %}<div class="price-note">{{ service.price_note }}</div>{% endif %}
+                            {% else %}<div class="font-display text-2xl font-bold" style="color:var(--navy)">Custom Quote</div><div class="price-note">Based on project scope</div>{% endif %}
+
+                            <div class="mt-6 mb-6 space-y-0" style="border-top:1px solid var(--cream-dark);padding-top:1.5rem">
+                                {% if service.delivery_time %}<div class="price-feature"><i class="fas fa-clock"></i><span>{{ service.delivery_time }} delivery</span></div>{% endif %}
+                                <div class="price-feature"><i class="fas fa-sync"></i><span>{% if service.revisions %}{{ service.revisions }}{% else %}Unlimited{% endif %} revisions</span></div>
+                                <div class="price-feature"><i class="fas fa-headset"></i><span>24/7 support</span></div>
+                                <div class="price-feature"><i class="fas fa-shield-check"></i><span>Quality guarantee</span></div>
                             </div>
+
+                            <div class="flex flex-col gap-2">
+                                <a href="{% url 'contact' %}?service={{ service.slug }}" class="btn-cta"><i class="fas fa-paper-plane text-xs"></i>Get Started</a>
+                                <a href="{% url 'contact' %}?service={{ service.slug }}&type=consultation" class="btn-consult"><i class="fas fa-comments text-xs"></i>Free Consultation</a>
+                            </div>
+                            <p class="text-center text-xs mt-4" style="color:var(--muted)"><i class="fas fa-lock mr-1"></i>Secure · Money-back guarantee</p>
+                        </div>
+                    </div>
+
+                    <!-- Help card -->
+                    <div class="help-card">
+                        <h3><i class="fas fa-phone-volume"></i>Have Questions?</h3>
+                        <p>Happy to discuss your project and answer any questions.</p>
+                        <a href="mailto:{{ site_settings.email }}" class="help-email"><i class="fas fa-at mr-2"></i>{{ site_settings.email }}</a>
+                    </div>
+
+                    <!-- Guarantee -->
+                    <div class="guarantee-card">
+                        <div class="guarantee-icon"><i class="fas fa-shield-check"></i></div>
+                        <h3 class="font-semibold mb-1" style="color:var(--navy)">100% Satisfaction</h3>
+                        <p class="text-sm" style="color:var(--muted)">Money-back guarantee if you're not completely satisfied with the result.</p>
+                    </div>
+
+                    <!-- Share -->
+                    <div class="bg-white p-5" style="border:1px solid var(--cream-dark)">
+                        <p class="font-mono text-xs tracking-widest uppercase mb-3" style="color:var(--muted)">Share</p>
+                        <div class="flex gap-2">
+                            <div class="share-btn"><a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ service.title|urlencode }}" target="_blank"><i class="fab fa-twitter"></i></a></div>
+                            <div class="share-btn"><a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank"><i class="fab fa-linkedin-in"></i></a></div>
+                            <button class="share-btn" onclick="copyLink()"><i class="fas fa-link"></i></button>
                         </div>
                     </div>
                 </div>
@@ -423,44 +322,20 @@
 
 <!-- Related Services -->
 {% if related_services %}
-<section class="py-20 bg-white dark:bg-gray-950">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Other <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Services</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-400">
-                Explore more ways I can help you
-            </p>
-        </div>
-        
-        <div class="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
+        <div class="section-label">Other Services</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {% for related in related_services %}
-            <article data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
-                <a href="{{ related.get_absolute_url }}" class="block group">
-                    <div class="feature-card bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all p-6 border border-gray-200 dark:border-gray-700 h-full">
-                        <div class="w-16 h-16 bg-gradient-to-br {{ related.gradient_colors|default:'from-blue-500 to-purple-600' }} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                            <i class="{{ related.icon_class|default:'fas fa-code' }} text-white text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            {{ related.title }}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
-                            {{ related.short_description|truncatewords:15 }}
-                        </p>
-                        <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                            {% if related.price %}
-                            <span class="font-bold text-blue-600 dark:text-blue-400">From ${{ related.price }}</span>
-                            {% else %}
-                            <span class="text-sm text-gray-500">Custom pricing</span>
-                            {% endif %}
-                            <span class="text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </article>
+            <a href="{{ related.get_absolute_url }}" class="related-service-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:80 }}">
+                <div class="related-icon"><i class="{{ related.icon_class|default:'fas fa-code' }}"></i></div>
+                <h3 class="font-semibold mb-2" style="color:var(--navy)">{{ related.title }}</h3>
+                <p class="text-sm mb-4 line-clamp-2" style="color:var(--muted)">{{ related.short_description|truncatewords:15 }}</p>
+                <div class="flex items-center justify-between" style="border-top:1px solid var(--cream-dark);padding-top:1rem">
+                    {% if related.price %}<span class="font-semibold" style="color:var(--navy);font-size:.875rem">From ${{ related.price }}</span>{% else %}<span class="text-sm" style="color:var(--muted)">Custom pricing</span>{% endif %}
+                    <span style="color:var(--gold-muted);font-size:.75rem"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
             {% endfor %}
         </div>
     </div>
@@ -468,28 +343,15 @@
 {% endif %}
 
 <!-- CTA -->
-<section class="py-24 gradient-hero text-white">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
-                <i class="fas fa-rocket text-5xl"></i>
-            </div>
-            <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6">
-                Ready to Start?
-            </h2>
-            <p class="text-xl lg:text-2xl opacity-90 mb-10 max-w-3xl mx-auto leading-relaxed">
-                Let's discuss your project and create a solution tailored to your needs
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{% url 'contact' %}?service={{ service.slug }}" 
-                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                    <i class="fas fa-envelope"></i>Get Started Now
-                </a>
-                <a href="{% url 'services' %}" 
-                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                    <i class="fas fa-arrow-left"></i>View All Services
-                </a>
-            </div>
+<section class="cta-section py-28">
+    <div class="blob w-96 h-96 opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);top:50%;left:-100px;transform:translateY(-50%)"></div>
+    <div class="container mx-auto px-6 lg:px-8 max-w-3xl text-center relative z-10" data-aos="fade-up">
+        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase">Ready to Begin?</span>
+        <h2 class="font-display text-5xl text-white mt-4 mb-5 leading-tight">Ready to<br><em class="text-amber-300">Get Started?</em></h2>
+        <p class="text-slate-400 text-lg mb-10 leading-relaxed">Let's discuss your project and craft a solution tailored precisely to your needs.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'contact' %}?service={{ service.slug }}" class="btn-white"><i class="fas fa-envelope text-xs"></i>Get Started Now</a>
+            <a href="{% url 'services' %}" class="btn-ghost"><i class="fas fa-arrow-left text-xs"></i>All Services</a>
         </div>
     </div>
 </section>
@@ -497,58 +359,15 @@
 {% endblock %}
 
 {% block extra_js %}
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
 <script>
-// Initialize AOS
-AOS.init({ duration: 1000, once: true, offset: 100 });
-
-// FAQ Toggle
-function toggleFaq(button) {
-    const content = button.nextElementSibling;
-    const icon = button.querySelector('i');
-    const isOpen = content.style.maxHeight;
-    
-    // Close all others
-    document.querySelectorAll('.faq-content').forEach(c => {
-        if (c !== content) {
-            c.style.maxHeight = null;
-            c.previousElementSibling.querySelector('i').classList.remove('rotate-180');
-        }
-    });
-    
-    // Toggle current
-    if (isOpen) {
-        content.style.maxHeight = null;
-        icon.classList.remove('rotate-180');
-    } else {
-        content.style.maxHeight = content.scrollHeight + 'px';
-        icon.classList.add('rotate-180');
-    }
+AOS.init({duration:900,once:true,offset:80});
+function toggleFaq(btn){
+    const item=btn.closest('.faq-item');
+    const content=item.querySelector('.faq-content');
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el=>{el.classList.remove('open');el.querySelector('.faq-content').style.maxHeight=null;});
+    if(!isOpen){item.classList.add('open');content.style.maxHeight=content.scrollHeight+'px';}
 }
-
-// Copy link
-function copyLink() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-        const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50';
-        toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Link copied to clipboard!';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    });
-}
-
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
+function copyLink(){navigator.clipboard.writeText(window.location.href).then(()=>{const t=document.createElement('div');t.style.cssText='position:fixed;bottom:1.5rem;right:1.5rem;padding:.75rem 1.25rem;background:var(--navy);color:var(--gold-light);font-family:DM Mono,monospace;font-size:.8rem;letter-spacing:.05em;z-index:9999;border:1px solid var(--gold);';t.innerHTML='<i class="fas fa-check mr-2"></i>Link copied';document.body.appendChild(t);setTimeout(()=>t.remove(),2500);});}
 </script>
 {% endblock %}

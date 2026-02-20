@@ -6,572 +6,275 @@
 
 {% block extra_css %}
 <style>
-    @keyframes search-pulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.05); opacity: 0.8; }
-    }
-    
-    @keyframes result-appear {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @keyframes highlight-fade {
-        0% { background-color: rgba(59, 130, 246, 0.3); }
-        100% { background-color: transparent; }
-    }
-    
-    .search-highlight {
-        background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%);
-        color: #1f2937;
-        padding: 0.125rem 0.25rem;
-        border-radius: 0.25rem;
-        font-weight: 600;
-    }
-    
-    .result-card {
-        animation: result-appear 0.5s ease-out forwards;
-        opacity: 0;
-    }
-    
-    .result-card:nth-child(1) { animation-delay: 0.05s; }
-    .result-card:nth-child(2) { animation-delay: 0.1s; }
-    .result-card:nth-child(3) { animation-delay: 0.15s; }
-    .result-card:nth-child(4) { animation-delay: 0.2s; }
-    .result-card:nth-child(5) { animation-delay: 0.25s; }
-    .result-card:nth-child(n+6) { animation-delay: 0.3s; }
-    
-    .category-badge {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .category-badge::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.5s;
-    }
-    
-    .category-badge:hover::before {
-        left: 100%;
-    }
-    
-    .no-results-animation {
-        animation: search-pulse 2s ease-in-out infinite;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    :root{--navy:#0a0f2e;--navy-mid:#141b4d;--gold:#c9932a;--gold-light:#e8b84b;--gold-muted:#8a6520;--cream:#f8f4ef;--cream-dark:#ede8e0;--charcoal:#2c2c3e;--muted:#6b6b7f;}
+    *{font-family:'DM Sans',sans-serif;}
+    .font-display{font-family:'Playfair Display',Georgia,serif;}
+    .font-mono{font-family:'DM Mono',monospace;}
+    body{background:var(--cream);color:var(--charcoal);}
+
+    .search-hero{background:var(--navy);position:relative;overflow:hidden;}
+    .search-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+
+    .search-box{background:#fff;border:none;display:flex;align-items:stretch;box-shadow:0 4px 40px rgba(10,15,46,.25);}
+    .search-box input{flex:1;padding:1.25rem 1.5rem;font-size:1.1rem;color:var(--charcoal);border:none;outline:none;background:transparent;}
+    .search-box input::placeholder{color:rgba(44,44,62,.35);}
+    .search-box button{padding:0 2rem;background:var(--navy);color:var(--gold-light);font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s;white-space:nowrap;display:flex;align-items:center;gap:.625rem;}
+    .search-box button:hover{background:#1e2a6e;}
+
+    .quick-tag{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);text-decoration:none;transition:all .2s ease;}
+    .quick-tag:hover{background:rgba(255,255,255,.15);border-color:rgba(201,147,42,.4);color:var(--gold-light);}
+
+    /* Filter tabs */
+    .tab-btn{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.625rem 1.25rem;background:#fff;border:1px solid var(--cream-dark);color:var(--muted);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.5rem;}
+    .tab-btn:hover{border-color:var(--gold);color:var(--navy);}
+    .tab-btn.active{background:var(--navy);border-color:var(--navy);color:var(--gold-light);}
+    .tab-count{font-size:.6rem;background:rgba(255,255,255,.15);padding:.15rem .5rem;border-radius:999px;}
+    .tab-btn:not(.active) .tab-count{background:var(--cream-dark);color:var(--muted);}
+
+    /* Section header */
+    .result-section-header{display:flex;align-items:center;gap:.875rem;margin-bottom:2rem;}
+    .section-bar{width:4px;height:2.5rem;background:linear-gradient(to bottom,var(--gold),var(--gold-light));}
+    .section-title{font-family:'Playfair Display',serif;font-size:1.625rem;color:var(--navy);}
+    .section-count{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;padding:.35rem .875rem;background:var(--cream);border:1px solid var(--cream-dark);color:var(--muted);}
+
+    /* Project result card */
+    .proj-result{background:#fff;border:1px solid var(--cream-dark);display:flex;flex-direction:column;transition:all .3s ease;text-decoration:none;color:inherit;}
+    .proj-result:hover{transform:translateY(-5px);border-color:rgba(201,147,42,.25);box-shadow:0 12px 40px rgba(10,15,46,.08);}
+    .proj-result-img{height:180px;overflow:hidden;background:var(--navy-mid);position:relative;}
+    .proj-result-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+    .proj-result:hover .proj-result-img img{transform:scale(1.05);}
+    .proj-result-img-placeholder{height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.1);font-size:2.5rem;}
+    .proj-result-body{padding:1.25rem;}
+
+    /* Blog result card */
+    .post-result{background:#fff;border:1px solid var(--cream-dark);display:flex;flex-direction:column md:flex-row;transition:all .3s ease;text-decoration:none;color:inherit;overflow:hidden;}
+    .post-result:hover{transform:translateY(-3px);border-color:rgba(201,147,42,.25);box-shadow:0 10px 35px rgba(10,15,46,.07);}
+    .post-result-img{min-width:280px;height:200px;overflow:hidden;background:var(--navy-mid);position:relative;flex-shrink:0;}
+    .post-result-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+    .post-result:hover .post-result-img img{transform:scale(1.04);}
+    .post-result-body{padding:1.75rem;flex:1;}
+
+    /* Service result card */
+    .service-result{background:#fff;border:1px solid var(--cream-dark);padding:2rem;transition:all .3s ease;position:relative;overflow:hidden;}
+    .service-result::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--gold),var(--gold-light));transform:scaleY(0);transform-origin:top;transition:transform .3s ease;}
+    .service-result:hover{transform:translateY(-4px);border-color:rgba(201,147,42,.2);box-shadow:0 12px 40px rgba(10,15,46,.08);}
+    .service-result:hover::before{transform:scaleY(1);}
+    .service-icon{width:48px;height:48px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;flex-shrink:0;}
+    .service-icon i{color:var(--gold);font-size:1.1rem;}
+
+    /* Tags */
+    .tag-pill{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.06em;padding:.3rem .75rem;background:var(--cream);border:1px solid var(--cream-dark);color:var(--charcoal);text-decoration:none;transition:all .2s;}
+    .tag-pill:hover{border-color:var(--gold);color:var(--navy);}
+
+    /* Search highlight */
+    .search-hl{background:rgba(201,147,42,.2);color:var(--gold-muted);font-weight:600;padding:0 2px;}
+
+    /* No results */
+    .tips-box{background:#fff;border:1px solid var(--cream-dark);padding:2rem;}
+    .tip-item{display:flex;align-items:flex-start;gap:.75rem;padding:.625rem 0;border-bottom:1px solid var(--cream-dark);font-size:.875rem;}
+    .tip-item:last-child{border-bottom:none;}
+    .tip-item i{color:var(--gold);margin-top:3px;font-size:.7rem;}
+
+    .browse-card{background:#fff;border:1px solid var(--cream-dark);padding:2.5rem;text-align:center;text-decoration:none;color:inherit;display:block;transition:all .3s ease;}
+    .browse-card:hover{transform:translateY(-6px);border-color:rgba(201,147,42,.3);box-shadow:0 12px 40px rgba(10,15,46,.08);}
+    .browse-icon{width:64px;height:64px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;background:var(--navy);}
+    .browse-icon i{color:var(--gold);font-size:1.5rem;}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
+    .section-label::before{content:'';width:3rem;height:1px;background:var(--cream-dark);}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+
+    .meta-line{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:1rem;}
+    .meta-line i{margin-right:.25rem;}
+
+    .link-arrow{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-muted);display:inline-flex;align-items:center;gap:.375rem;text-decoration:none;border-bottom:1px solid transparent;transition:all .2s;}
+    .link-arrow:hover{color:var(--gold);border-bottom-color:var(--gold);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .result-card{animation:fadeUp .5s ease forwards;opacity:0;}
+    .result-card:nth-child(1){animation-delay:.05s}.result-card:nth-child(2){animation-delay:.1s}.result-card:nth-child(3){animation-delay:.15s}.result-card:nth-child(4){animation-delay:.2s}.result-card:nth-child(n+5){animation-delay:.25s}
+    .d1{animation-delay:.1s;opacity:0;}.d2{animation-delay:.2s;opacity:0;}.d3{animation-delay:.3s;opacity:0;}
+    .fade-up{animation:fadeUp .7s ease forwards;}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Search Section -->
-<section class="relative pt-32 pb-16 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white overflow-hidden">
-    <!-- Animated Background Pattern -->
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 50px 50px;"></div>
-    </div>
-    
-    <!-- Floating Shapes -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-1/4 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-blob"></div>
-        <div class="absolute top-1/3 right-10 w-96 h-96 bg-purple-300/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute bottom-10 left-1/2 w-80 h-80 bg-blue-300/10 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
-    </div>
-    
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <!-- Icon -->
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl mb-6" data-aos="zoom-in">
-                <i class="fas fa-search text-4xl"></i>
-            </div>
-            
-            <!-- Title -->
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold mb-6" data-aos="fade-up">
-                {% if query %}
-                    Search Results for <span class="text-yellow-300">"{{ query }}"</span>
-                {% else %}
-                    Search <span class="text-yellow-300">Everything</span>
-                {% endif %}
-            </h1>
-            
-            <!-- Search Stats -->
-            {% if query and total_results > 0 %}
-            <p class="text-xl opacity-90 mb-8" data-aos="fade-up" data-aos-delay="100">
-                Found <strong class="text-yellow-300">{{ total_results }}</strong> result{{ total_results|pluralize }} across projects, blog posts, and services
-            </p>
-            {% elif query %}
-            <p class="text-xl opacity-90 mb-8" data-aos="fade-up" data-aos-delay="100">
-                No results found. Try different keywords or browse our content below.
-            </p>
-            {% else %}
-            <p class="text-xl opacity-90 mb-8" data-aos="fade-up" data-aos-delay="100">
-                Search across all projects, blog posts, and services
-            </p>
-            {% endif %}
-            
-            <!-- Enhanced Search Form -->
-            <form method="get" action="{% url 'search' %}" class="max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="200">
-                <div class="relative group">
-                    <!-- Search Icon -->
-                    <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400 text-xl group-focus-within:text-blue-500 transition-colors"></i>
-                    </div>
-                    
-                    <!-- Input Field -->
-                    <input type="text" 
-                           name="q" 
-                           value="{{ query }}"
-                           placeholder="Search projects, blog posts, services..." 
-                           class="w-full pl-16 pr-32 py-5 text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-2xl focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 focus:outline-none transition-all"
-                           autofocus>
-                    
-                    <!-- Search Button -->
-                    <button type="submit" 
-                            class="absolute right-2 top-2 bottom-2 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all hover:shadow-lg hover:scale-105 flex items-center gap-2">
-                        <i class="fas fa-search"></i>
-                        <span class="hidden sm:inline">Search</span>
-                    </button>
+<!-- Hero -->
+<section class="search-hero pt-40 pb-20">
+    <div class="blob w-[500px] h-[500px] opacity-10" style="background:radial-gradient(circle,#4f46e5,transparent);top:-150px;left:-100px;"></div>
+    <div class="blob w-[400px] h-[400px] opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);bottom:-100px;right:0;"></div>
+    <div class="container mx-auto px-6 lg:px-8 max-w-4xl text-center relative z-10">
+        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase fade-up">Search</span>
+        {% if query %}
+        <h1 class="font-display text-5xl lg:text-6xl text-white mt-3 mb-4 leading-tight fade-up d1">Results for<br><em class="text-amber-300">"{{ query }}"</em></h1>
+        {% if total_results > 0 %}
+        <p class="text-slate-400 mb-8 fade-up d2"><span class="text-amber-300 font-semibold">{{ total_results }}</span> result{{ total_results|pluralize }} found across projects, blog posts, and services</p>
+        {% else %}
+        <p class="text-slate-400 mb-8 fade-up d2">No results found. Try different keywords or browse below.</p>
+        {% endif %}
+        {% else %}
+        <h1 class="font-display text-5xl lg:text-6xl text-white mt-3 mb-4 leading-tight fade-up d1">Search<br><em class="text-amber-300">Everything</em></h1>
+        <p class="text-slate-400 mb-8 fade-up d2">Search across all projects, blog posts, and services</p>
+        {% endif %}
+
+        <!-- Search form -->
+        <div class="fade-up d2">
+            <form method="get" action="{% url 'search' %}">
+                <div class="search-box">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search projects, blog posts, services…" autofocus>
+                    <button type="submit"><i class="fas fa-search"></i><span class="hidden sm:inline">Search</span></button>
                 </div>
-                
-                <!-- Quick Search Suggestions -->
-                {% if not query %}
-                <div class="flex flex-wrap justify-center gap-3 mt-6">
-                    <span class="text-sm opacity-80">Popular searches:</span>
-                    <a href="?q=web+development" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-sm font-medium transition-all hover:scale-105">
-                        Web Development
-                    </a>
-                    <a href="?q=design" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-sm font-medium transition-all hover:scale-105">
-                        Design
-                    </a>
-                    <a href="?q=react" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-sm font-medium transition-all hover:scale-105">
-                        React
-                    </a>
-                    <a href="?q=python" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-sm font-medium transition-all hover:scale-105">
-                        Python
-                    </a>
-                </div>
-                {% endif %}
             </form>
         </div>
+
+        {% if not query %}
+        <div class="flex flex-wrap justify-center gap-2 mt-6 fade-up d3">
+            <span class="text-xs text-slate-500 self-center font-mono tracking-widest uppercase">Try:</span>
+            <a href="?q=web+development" class="quick-tag">Web Development</a>
+            <a href="?q=design" class="quick-tag">Design</a>
+            <a href="?q=react" class="quick-tag">React</a>
+            <a href="?q=python" class="quick-tag">Python</a>
+            <a href="?q=django" class="quick-tag">Django</a>
+        </div>
+        {% endif %}
     </div>
 </section>
 
 {% if query %}
-<!-- Results Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto">
-            {% if total_results > 0 %}
-            <!-- Filter Tabs -->
-            <div class="flex flex-wrap gap-3 mb-12" data-aos="fade-up">
-                <button class="filter-tab active px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all" data-filter="all">
-                    <i class="fas fa-globe mr-2"></i>All Results ({{ total_results }})
-                </button>
-                {% if projects %}
-                <button class="filter-tab px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-blue-50 dark:hover:bg-gray-700 transition-all" data-filter="projects">
-                    <i class="fas fa-folder mr-2"></i>Projects ({{ projects|length }})
-                </button>
-                {% endif %}
-                {% if posts %}
-                <button class="filter-tab px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-blue-50 dark:hover:bg-gray-700 transition-all" data-filter="posts">
-                    <i class="fas fa-newspaper mr-2"></i>Blog Posts ({{ posts|length }})
-                </button>
-                {% endif %}
-                {% if services %}
-                <button class="filter-tab px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-blue-50 dark:hover:bg-gray-700 transition-all" data-filter="services">
-                    <i class="fas fa-briefcase mr-2"></i>Services ({{ services|length }})
-                </button>
-                {% endif %}
-            </div>
-            
-            <!-- Projects Results -->
-            {% if projects %}
-            <div class="result-group mb-16" data-category="projects" data-aos="fade-up">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-display font-bold flex items-center gap-3">
-                        <span class="w-2 h-10 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></span>
-                        Projects
-                        <span class="px-4 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-lg">{{ projects|length }}</span>
-                    </h2>
-                </div>
-                
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for project in projects %}
-                    <article class="result-card group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                        <!-- Project Image -->
-                        <div class="relative h-48 overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
-                            {% if project.thumbnail or project.featured_image %}
-                            <img src="{{ project.thumbnail|default:project.featured_image }}" 
-                                 alt="{{ project.title }}"
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                 loading="lazy">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                            {% else %}
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-folder text-white/30 text-6xl"></i>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Category Badge -->
-                            <div class="absolute top-4 left-4">
-                                <span class="category-badge px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                    <i class="fas fa-folder mr-1"></i>{{ project.get_category_display }}
-                                </span>
-                            </div>
-                            
-                            {% if project.featured %}
-                            <div class="absolute top-4 right-4">
-                                <span class="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                    <i class="fas fa-star mr-1"></i>Featured
-                                </span>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Project Content -->
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
-                            </h3>
-                            
-                            <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 text-sm">
-                                {{ project.description }}
-                            </p>
-                            
-                            <!-- Stats -->
-                            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                <span><i class="fas fa-eye mr-1"></i>{{ project.views }}</span>
-                                <span><i class="fas fa-heart mr-1"></i>{{ project.likes }}</span>
-                                <span><i class="fas fa-calendar mr-1"></i>{{ project.project_date|date:"M Y" }}</span>
-                            </div>
-                            
-                            <!-- Tech Tags -->
-                            {% if project.technologies %}
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                {% for tech in project.tech_list|slice:":3" %}
-                                <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
-                                    {{ tech }}
-                                </span>
-                                {% endfor %}
-                                {% if project.tech_list|length > 3 %}
-                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">
-                                    +{{ project.tech_list|length|add:"-3" }}
-                                </span>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                            
-                            <!-- CTA -->
-                            <a href="{{ project.get_absolute_url }}" 
-                               class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold hover:gap-3 transition-all group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                                View Project
-                                <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </article>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- Blog Posts Results -->
-            {% if posts %}
-            <div class="result-group mb-16" data-category="posts" data-aos="fade-up" data-aos-delay="100">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-display font-bold flex items-center gap-3">
-                        <span class="w-2 h-10 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></span>
-                        Blog Posts
-                        <span class="px-4 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-lg">{{ posts|length }}</span>
-                    </h2>
-                </div>
-                
-                <div class="space-y-6">
-                    {% for post in posts %}
-                    <article class="result-card group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                        <div class="flex flex-col md:flex-row">
-                            <!-- Post Image -->
-                            <div class="relative md:w-80 h-64 md:h-auto overflow-hidden bg-gradient-to-br from-purple-500 to-pink-600 flex-shrink-0">
-                                {% if post.featured_image %}
-                                <img src="{{ post.featured_image }}" 
-                                     alt="{{ post.title }}"
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                     loading="lazy">
-                                {% else %}
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fas fa-newspaper text-white/30 text-6xl"></i>
-                                </div>
-                                {% endif %}
-                                
-                                {% if post.featured %}
-                                <div class="absolute top-4 right-4">
-                                    <span class="px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                        <i class="fas fa-star mr-1"></i>Featured
-                                    </span>
-                                </div>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Post Content -->
-                            <div class="flex-1 p-6 md:p-8">
-                                <!-- Meta Info -->
-                                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                    <span><i class="fas fa-calendar mr-1"></i>{{ post.published_date|date:"M d, Y" }}</span>
-                                    <span><i class="fas fa-eye mr-1"></i>{{ post.views }} views</span>
-                                    <span><i class="fas fa-clock mr-1"></i>{{ post.reading_time|default:"5" }} min read</span>
-                                    {% if post.author %}
-                                    <span><i class="fas fa-user mr-1"></i>{{ post.author.get_full_name|default:post.author.username }}</span>
-                                    {% endif %}
-                                </div>
-                                
-                                <!-- Title -->
-                                <h3 class="text-2xl font-bold mb-3 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
-                                    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-                                </h3>
-                                
-                                <!-- Excerpt -->
-                                <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                                    {{ post.excerpt|default:post.content|truncatewords:30|striptags }}
-                                </p>
-                                
-                                <!-- Tags -->
-                                {% if post.tags.all %}
-                                <div class="flex flex-wrap gap-2 mb-4">
-                                    {% for tag in post.tags.all|slice:":5" %}
-                                    <a href="{% url 'blog' %}?tag={{ tag.slug }}" 
-                                       class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors">
-                                        #{{ tag.name }}
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                                
-                                <!-- CTA -->
-                                <a href="{{ post.get_absolute_url }}" 
-                                   class="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold hover:gap-3 transition-all">
-                                    Read Article
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- Services Results -->
-            {% if services %}
-            <div class="result-group mb-16" data-category="services" data-aos="fade-up" data-aos-delay="200">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-display font-bold flex items-center gap-3">
-                        <span class="w-2 h-10 bg-gradient-to-b from-green-600 to-emerald-600 rounded-full"></span>
-                        Services
-                        <span class="px-4 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full text-lg">{{ services|length }}</span>
-                    </h2>
-                </div>
-                
-                <div class="grid md:grid-cols-2 gap-6">
-                    {% for service in services %}
-                    <article class="result-card group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                        <div class="p-8">
-                            <!-- Icon -->
-                            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                                <i class="{{ service.icon|default:'fas fa-cog' }} text-white text-3xl"></i>
-                            </div>
-                            
-                            <!-- Title -->
-                            <h3 class="text-2xl font-bold mb-3 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                                <a href="{% url 'service_detail' service.slug %}">{{ service.title }}</a>
-                            </h3>
-                            
-                            <!-- Description -->
-                            <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                                {{ service.short_description }}
-                            </p>
-                            
-                            <!-- Features -->
-                            {% if service.technologies %}
-                            <div class="flex flex-wrap gap-2 mb-6">
-                                {% for tech in service.tech_list|slice:":4" %}
-                                <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full text-xs font-medium">
-                                    {{ tech }}
-                                </span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Pricing & CTA -->
-                            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-                                {% if service.starting_price %}
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Starting at</div>
-                                    <div class="text-2xl font-bold text-green-600 dark:text-green-400">
-                                        ${{ service.starting_price }}
-                                    </div>
-                                </div>
-                                {% else %}
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Pricing</div>
-                                    <div class="text-lg font-bold text-green-600 dark:text-green-400">
-                                        Custom Quote
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                <a href="{% url 'service_detail' service.slug %}" 
-                                   class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-all hover:scale-105">
-                                    Learn More
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            
-            {% else %}
-            <!-- No Results State -->
-            <div class="text-center py-20" data-aos="zoom-in">
-                <div class="no-results-animation inline-block mb-8">
-                    <div class="w-32 h-32 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center shadow-2xl">
-                        <i class="fas fa-search text-gray-400 dark:text-gray-500 text-6xl"></i>
-                    </div>
-                </div>
-                
-                <h2 class="text-4xl font-display font-bold mb-4">
-                    No Results Found
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-                    We couldn't find anything matching "<strong class="text-blue-600 dark:text-blue-400">{{ query }}</strong>". Try different keywords or browse our content below.
-                </p>
-                
-                <!-- Search Suggestions -->
-                <div class="max-w-3xl mx-auto mb-12">
-                    <div class="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-2xl border border-blue-200 dark:border-blue-700">
-                        <h3 class="text-xl font-bold mb-4 text-blue-900 dark:text-blue-100">
-                            <i class="fas fa-lightbulb mr-2"></i>Search Tips:
-                        </h3>
-                        <ul class="space-y-3 text-left text-blue-800 dark:text-blue-200">
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle mt-1 text-blue-600"></i>
-                                <span>Try using different or more general keywords</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle mt-1 text-blue-600"></i>
-                                <span>Check your spelling</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle mt-1 text-blue-600"></i>
-                                <span>Use fewer words in your search</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle mt-1 text-blue-600"></i>
-                                <span>Browse by category instead</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Browse Options -->
-                <div class="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                    <a href="{% url 'projects' %}" 
-                       class="group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
-                            <i class="fas fa-folder text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Browse Projects</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Explore all projects</p>
-                    </a>
-                    
-                    <a href="{% url 'blog' %}" 
-                       class="group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2">
-                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
-                            <i class="fas fa-newspaper text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Read Blog</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Latest articles</p>
-                    </a>
-                    
-                    <a href="{% url 'services' %}" 
-                       class="group p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2">
-                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
-                            <i class="fas fa-briefcase text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">View Services</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">What I offer</p>
-                    </a>
-                </div>
-            </div>
-            {% endif %}
+<section class="py-20" style="background:var(--cream)">
+    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
+        {% if total_results > 0 %}
+        <!-- Tabs -->
+        <div class="flex flex-wrap gap-2 mb-12" data-aos="fade-up">
+            <button class="tab-btn active" data-filter="all"><i class="fas fa-globe text-xs"></i>All<span class="tab-count">{{ total_results }}</span></button>
+            {% if projects %}<button class="tab-btn" data-filter="projects"><i class="fas fa-folder text-xs"></i>Projects<span class="tab-count">{{ projects|length }}</span></button>{% endif %}
+            {% if posts %}<button class="tab-btn" data-filter="posts"><i class="fas fa-newspaper text-xs"></i>Blog<span class="tab-count">{{ posts|length }}</span></button>{% endif %}
+            {% if services %}<button class="tab-btn" data-filter="services"><i class="fas fa-briefcase text-xs"></i>Services<span class="tab-count">{{ services|length }}</span></button>{% endif %}
         </div>
+
+        <!-- Projects -->
+        {% if projects %}
+        <div class="result-group mb-16" data-category="projects" data-aos="fade-up">
+            <div class="result-section-header">
+                <div class="section-bar"></div>
+                <h2 class="section-title">Projects</h2>
+                <span class="section-count">{{ projects|length }}</span>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {% for project in projects %}
+                <a href="{{ project.get_absolute_url }}" class="proj-result result-card">
+                    <div class="proj-result-img">
+                        {% if project.thumbnail or project.featured_image %}<img src="{{ project.thumbnail|default:project.featured_image }}" alt="{{ project.title }}" loading="lazy">{% else %}<div class="proj-result-img-placeholder"><i class="fas fa-folder"></i></div>{% endif %}
+                        {% if project.featured %}<span class="absolute top-3 right-3 font-mono text-xs px-2 py-1" style="background:var(--gold);color:#fff;">★ Featured</span>{% endif %}
+                    </div>
+                    <div class="proj-result-body">
+                        <div class="meta-line mb-2"><span><i class="fas fa-eye"></i>{{ project.views }}</span><span><i class="fas fa-heart"></i>{{ project.likes }}</span><span><i class="fas fa-calendar"></i>{{ project.project_date|date:"M Y" }}</span></div>
+                        <h3 class="font-semibold mb-2 leading-snug" style="color:var(--navy);font-size:1.05rem">{{ project.title }}</h3>
+                        <p class="text-sm mb-3 line-clamp-2" style="color:var(--muted)">{{ project.description|truncatewords:20|striptags }}</p>
+                        {% if project.technologies %}<div class="flex flex-wrap gap-1 mb-3">{% for tech in project.tech_list|slice:":3" %}<span class="tag-pill">{{ tech }}</span>{% endfor %}</div>{% endif %}
+                        <span class="link-arrow">View Project <i class="fas fa-arrow-right text-xs"></i></span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Blog Posts -->
+        {% if posts %}
+        <div class="result-group mb-16" data-category="posts" data-aos="fade-up" data-aos-delay="100">
+            <div class="result-section-header">
+                <div class="section-bar" style="background:linear-gradient(to bottom,#7c3aed,#ec4899)"></div>
+                <h2 class="section-title">Blog Posts</h2>
+                <span class="section-count">{{ posts|length }}</span>
+            </div>
+            <div class="space-y-4">
+                {% for post in posts %}
+                <a href="{{ post.get_absolute_url }}" class="post-result result-card flex flex-col md:flex-row">
+                    <div class="post-result-img">
+                        {% if post.featured_image %}<img src="{{ post.featured_image }}" alt="{{ post.title }}" loading="lazy">{% else %}<div class="proj-result-img-placeholder"><i class="fas fa-newspaper"></i></div>{% endif %}
+                    </div>
+                    <div class="post-result-body">
+                        <div class="meta-line mb-3"><span><i class="fas fa-calendar"></i>{{ post.published_date|date:"M d, Y" }}</span><span><i class="fas fa-eye"></i>{{ post.views }}</span><span><i class="fas fa-clock"></i>{{ post.reading_time|default:5 }} min</span></div>
+                        <h3 class="font-display text-xl mb-2 leading-snug" style="color:var(--navy)">{{ post.title }}</h3>
+                        <p class="text-sm mb-3 line-clamp-3" style="color:var(--muted)">{{ post.excerpt|default:post.content|truncatewords:30|striptags }}</p>
+                        {% if post.tags.all %}<div class="flex flex-wrap gap-1 mb-4">{% for tag in post.tags.all|slice:":4" %}<span class="tag-pill">#{{ tag.name }}</span>{% endfor %}</div>{% endif %}
+                        <span class="link-arrow">Read Article <i class="fas fa-arrow-right text-xs"></i></span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Services -->
+        {% if services %}
+        <div class="result-group mb-16" data-category="services" data-aos="fade-up" data-aos-delay="200">
+            <div class="result-section-header">
+                <div class="section-bar" style="background:linear-gradient(to bottom,#16a34a,#059669)"></div>
+                <h2 class="section-title">Services</h2>
+                <span class="section-count">{{ services|length }}</span>
+            </div>
+            <div class="grid md:grid-cols-2 gap-5">
+                {% for service in services %}
+                <div class="service-result result-card">
+                    <div class="flex items-start gap-4">
+                        <div class="service-icon"><i class="{{ service.icon|default:'fas fa-cog' }}"></i></div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold mb-2" style="color:var(--navy);font-size:1.1rem"><a href="{% url 'service_detail' service.slug %}" style="text-decoration:none;color:inherit">{{ service.title }}</a></h3>
+                            <p class="text-sm mb-3 line-clamp-2" style="color:var(--muted)">{{ service.short_description }}</p>
+                            {% if service.technologies %}<div class="flex flex-wrap gap-1 mb-4">{% for tech in service.tech_list|slice:":3" %}<span class="tag-pill">{{ tech }}</span>{% endfor %}</div>{% endif %}
+                            <div class="flex items-center justify-between pt-3" style="border-top:1px solid var(--cream-dark)">
+                                {% if service.starting_price %}<span class="font-semibold" style="color:var(--navy)">From ${{ service.starting_price }}</span>{% else %}<span class="text-sm" style="color:var(--muted)">Custom Quote</span>{% endif %}
+                                <a href="{% url 'service_detail' service.slug %}" class="link-arrow">Learn More <i class="fas fa-arrow-right text-xs"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- No results -->
+        <div class="text-center py-16" data-aos="fade-up">
+            <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center" style="background:var(--cream-dark)">
+                <i class="fas fa-search text-4xl" style="color:var(--muted)"></i>
+            </div>
+            <h2 class="font-display text-4xl mb-3" style="color:var(--navy)">No Results Found</h2>
+            <p class="mb-10" style="color:var(--muted)">Nothing matching <em>"{{ query }}"</em> — try different keywords.</p>
+            <div class="tips-box max-w-xl mx-auto mb-12 text-left">
+                <p class="font-mono text-xs tracking-widest uppercase mb-4" style="color:var(--gold-muted)">Search Tips</p>
+                <ul>
+                    <li class="tip-item"><i class="fas fa-circle"></i>Try different or more general keywords</li>
+                    <li class="tip-item"><i class="fas fa-circle"></i>Check your spelling</li>
+                    <li class="tip-item"><i class="fas fa-circle"></i>Use fewer words in your search</li>
+                    <li class="tip-item"><i class="fas fa-circle"></i>Browse by category instead</li>
+                </ul>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                <a href="{% url 'projects' %}" class="browse-card"><div class="browse-icon"><i class="fas fa-folder"></i></div><h3 class="font-semibold mb-1" style="color:var(--navy)">Projects</h3><p class="text-sm" style="color:var(--muted)">Browse all projects</p></a>
+                <a href="{% url 'blog' %}" class="browse-card"><div class="browse-icon" style="background:#3b1d8c"><i class="fas fa-newspaper" style="color:#a78bfa"></i></div><h3 class="font-semibold mb-1" style="color:var(--navy)">Blog</h3><p class="text-sm" style="color:var(--muted)">Latest articles</p></a>
+                <a href="{% url 'services' %}" class="browse-card"><div class="browse-icon" style="background:#14532d"><i class="fas fa-briefcase" style="color:#4ade80"></i></div><h3 class="font-semibold mb-1" style="color:var(--navy)">Services</h3><p class="text-sm" style="color:var(--muted)">What I offer</p></a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </section>
 
 {% else %}
-<!-- No Query - Suggestion Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="text-4xl font-display font-bold mb-6">
-                    What are you looking for?
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-400">
-                    Start typing in the search box above, or browse our popular categories
-                </p>
-            </div>
-            
-            <!-- Popular Categories -->
-            <div class="grid md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="100">
-                <a href="{% url 'projects' %}" 
-                   class="group p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-2xl border border-blue-200 dark:border-blue-700 hover:shadow-2xl transition-all hover:-translate-y-2">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                        <i class="fas fa-folder text-white text-4xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 text-blue-900 dark:text-blue-100">Projects</h3>
-                    <p class="text-blue-800 dark:text-blue-200 mb-4">Explore my portfolio of completed work</p>
-                    <span class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold">
-                        Browse Projects <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
-                    </span>
-                </a>
-                
-                <a href="{% url 'blog' %}" 
-                   class="group p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-2xl border border-purple-200 dark:border-purple-700 hover:shadow-2xl transition-all hover:-translate-y-2">
-                    <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                        <i class="fas fa-newspaper text-white text-4xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 text-purple-900 dark:text-purple-100">Blog</h3>
-                    <p class="text-purple-800 dark:text-purple-200 mb-4">Read articles about web development</p>
-                    <span class="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 font-semibold">
-                        Read Articles <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
-                    </span>
-                </a>
-                
-                <a href="{% url 'services' %}" 
-                   class="group p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 rounded-2xl border border-green-200 dark:border-green-700 hover:shadow-2xl transition-all hover:-translate-y-2">
-                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all">
-                        <i class="fas fa-briefcase text-white text-4xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3 text-green-900 dark:text-green-100">Services</h3>
-                    <p class="text-green-800 dark:text-green-200 mb-4">Discover what I can do for you</p>
-                    <span class="inline-flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold">
-                        View Services <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
-                    </span>
-                </a>
-            </div>
+<!-- No query state -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 lg:px-8 max-w-5xl">
+        <div class="section-label">Browse Categories</div>
+        <div class="grid md:grid-cols-3 gap-5" data-aos="fade-up">
+            <a href="{% url 'projects' %}" class="browse-card"><div class="browse-icon"><i class="fas fa-folder"></i></div><h3 class="font-display text-xl mb-2" style="color:var(--navy)">Projects</h3><p class="text-sm mb-4" style="color:var(--muted)">Explore my portfolio of completed work</p><span class="link-arrow">Browse Projects <i class="fas fa-arrow-right text-xs"></i></span></a>
+            <a href="{% url 'blog' %}" class="browse-card"><div class="browse-icon" style="background:#3b1d8c"><i class="fas fa-newspaper" style="color:#a78bfa"></i></div><h3 class="font-display text-xl mb-2" style="color:var(--navy)">Blog</h3><p class="text-sm mb-4" style="color:var(--muted)">Articles about web development and design</p><span class="link-arrow">Read Articles <i class="fas fa-arrow-right text-xs"></i></span></a>
+            <a href="{% url 'services' %}" class="browse-card"><div class="browse-icon" style="background:#14532d"><i class="fas fa-briefcase" style="color:#4ade80"></i></div><h3 class="font-display text-xl mb-2" style="color:var(--navy)">Services</h3><p class="text-sm mb-4" style="color:var(--muted)">Discover what I can do for you</p><span class="link-arrow">View Services <i class="fas fa-arrow-right text-xs"></i></span></a>
         </div>
     </div>
 </section>
@@ -581,96 +284,37 @@
 
 {% block extra_js %}
 <script>
-// Initialize AOS
-AOS.init({
-    duration: 800,
-    once: true,
-    offset: 100
-});
+AOS.init({duration:900,once:true,offset:80});
 
-// Filter functionality
-const filterTabs = document.querySelectorAll('.filter-tab');
-const resultGroups = document.querySelectorAll('.result-group');
-
-filterTabs.forEach(tab => {
-    tab.addEventListener('click', function() {
-        const filter = this.dataset.filter;
-        
-        // Update active tab
-        filterTabs.forEach(t => {
-            t.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-lg');
-            t.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
+// Tab filter
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+        const filter=this.dataset.filter;
+        document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.result-group').forEach(g=>{
+            g.style.display=(filter==='all'||g.dataset.category===filter)?'':'none';
         });
-        this.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-lg');
-        this.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
-        
-        // Filter results
-        resultGroups.forEach(group => {
-            if (filter === 'all' || group.dataset.category === filter) {
-                group.style.display = 'block';
-                // Re-trigger animations
-                group.querySelectorAll('.result-card').forEach((card, index) => {
-                    card.style.animation = 'none';
-                    setTimeout(() => {
-                        card.style.animation = '';
-                    }, 10);
-                });
-            } else {
-                group.style.display = 'none';
-            }
-        });
-        
-        // Smooth scroll to results
-        if (filter !== 'all') {
-            setTimeout(() => {
-                const visibleGroup = document.querySelector(`.result-group[data-category="${filter}"]`);
-                if (visibleGroup) {
-                    visibleGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 100);
-        }
     });
 });
 
-// Highlight search terms in results
-const searchQuery = '{{ query|escapejs }}';
-if (searchQuery) {
-    const terms = searchQuery.toLowerCase().split(' ').filter(t => t.length > 2);
-    
-    document.querySelectorAll('.result-card h3, .result-card p').forEach(element => {
-        let html = element.innerHTML;
-        
-        terms.forEach(term => {
-            const regex = new RegExp(`(${term})`, 'gi');
-            html = html.replace(regex, '<span class="search-highlight">$1</span>');
+// Highlight search terms
+const q='{{ query|escapejs }}';
+if(q){
+    const terms=q.toLowerCase().split(' ').filter(t=>t.length>2);
+    document.querySelectorAll('.proj-result h3,.proj-result p,.post-result h3,.post-result p').forEach(el=>{
+        let html=el.innerHTML;
+        terms.forEach(term=>{
+            const rx=new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+            html=html.replace(rx,'<mark class="search-hl">$1</mark>');
         });
-        
-        element.innerHTML = html;
+        el.innerHTML=html;
     });
 }
 
-// Auto-focus search input on load
-const searchInput = document.querySelector('input[name="q"]');
-if (searchInput && !searchQuery) {
-    searchInput.focus();
-}
-
-// Add keyboard shortcut (Ctrl+K or Cmd+K) to focus search
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInput?.focus();
-    }
+// Keyboard shortcut
+document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.querySelector('input[name="q"]')?.focus();}
 });
-
-// Track search analytics
-if (searchQuery) {
-    // Send search analytics (you can implement this based on your analytics setup)
-    console.log('Search performed:', {
-        query: searchQuery,
-        results: {{ total_results }},
-        timestamp: new Date().toISOString()
-    });
-}
 </script>
 {% endblock %}

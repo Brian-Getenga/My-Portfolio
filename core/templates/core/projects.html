@@ -7,384 +7,259 @@
 
 {% block extra_css %}
 <style>
-    .animated-gradient {
-        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-    }
-    
-    @keyframes gradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-    
-    .project-card {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .project-card:hover {
-        transform: translateY(-12px) scale(1.02);
-    }
-    
-    .filter-btn {
-        transition: all 0.3s ease;
-    }
-    
-    .filter-btn.active {
-        background: linear-gradient(to right, #3b82f6, #8b5cf6);
-        color: white;
-        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-    }
-    
-    .tech-badge {
-        transition: all 0.3s ease;
-    }
-    
-    .tech-badge:hover {
-        transform: translateY(-2px) scale(1.05);
-    }
-    
-    .project-overlay {
-        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    }
-    
-    @keyframes fadeInScale {
-        from {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    
-    .fade-in-scale {
-        animation: fadeInScale 0.5s ease-out;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    :root{--navy:#0a0f2e;--navy-mid:#141b4d;--gold:#c9932a;--gold-light:#e8b84b;--gold-muted:#8a6520;--cream:#f8f4ef;--cream-dark:#ede8e0;--charcoal:#2c2c3e;--muted:#6b6b7f;}
+    *{font-family:'DM Sans',sans-serif;}
+    .font-display{font-family:'Playfair Display',Georgia,serif;}
+    .font-mono{font-family:'DM Mono',monospace;}
+    body{background:var(--cream);color:var(--charcoal);}
+
+    .projects-hero{background:var(--navy);position:relative;overflow:hidden;}
+    .projects-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+
+    .stat-block{text-align:center;padding:0 2rem;}
+    .stat-block:not(:last-child){border-right:1px solid rgba(255,255,255,.1);}
+    .stat-num{font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:#fff;line-height:1;display:block;}
+    .stat-num span{color:var(--gold-light);}
+    .stat-desc{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-top:.5rem;}
+
+    /* Filter bar */
+    .filter-bar{background:#fff;border-bottom:1px solid var(--cream-dark);position:sticky;top:72px;z-index:40;}
+    .filter-btn{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.625rem 1.25rem;background:transparent;border:1px solid transparent;color:var(--muted);cursor:pointer;transition:all .2s ease;white-space:nowrap;}
+    .filter-btn:hover{color:var(--navy);border-color:var(--cream-dark);}
+    .filter-btn.active{background:var(--navy);color:var(--gold-light);border-color:var(--navy);}
+
+    .search-wrap{position:relative;}
+    .search-wrap input{padding:.625rem 1rem .625rem 2.75rem;background:var(--cream);border:1px solid var(--cream-dark);font-size:.875rem;color:var(--charcoal);outline:none;transition:all .2s ease;width:260px;}
+    .search-wrap input:focus{border-color:var(--gold);background:#fff;}
+    .search-wrap .search-icon{position:absolute;left:.875rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem;pointer-events:none;}
+
+    select.sort-select{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.625rem 2rem .625rem 1rem;background:var(--cream);border:1px solid var(--cream-dark);color:var(--charcoal);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b7f'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;}
+
+    .view-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid var(--cream-dark);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;font-size:.8rem;}
+    .view-btn.active{background:var(--navy);border-color:var(--navy);color:var(--gold-light);}
+
+    /* Project card */
+    .project-card{background:#fff;border:1px solid var(--cream-dark);display:flex;flex-direction:column;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;text-decoration:none;color:inherit;}
+    .project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transform:scaleX(0);transform-origin:left;transition:transform .35s ease;}
+    .project-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(10,15,46,.1);border-color:rgba(201,147,42,.2);}
+    .project-card:hover::before{transform:scaleX(1);}
+
+    .card-img{position:relative;height:220px;overflow:hidden;background:var(--cream-dark);}
+    .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+    .project-card:hover .card-img img{transform:scale(1.07);}
+    .card-img .no-img{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(10,15,46,.15);font-size:3rem;}
+    .card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,15,46,.8),transparent);opacity:0;transition:opacity .3s ease;}
+    .project-card:hover .card-overlay{opacity:1;}
+    .overlay-btns{position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;display:flex;gap:.625rem;transform:translateY(8px);transition:transform .3s ease;}
+    .project-card:hover .overlay-btns{transform:translateY(0);}
+    .overlay-btn{flex:1;padding:.5rem;text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:none;text-decoration:none;}
+    .overlay-btn.light{background:#fff;color:var(--navy);}
+    .overlay-btn.light:hover{background:var(--gold-light);}
+    .overlay-btn.dark{background:var(--navy);color:#fff;}
+    .overlay-btn.dark:hover{background:#1e2a6e;}
+
+    .badge-cat{position:absolute;top:1rem;left:1rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:var(--navy);color:var(--gold-light);padding:.3rem .75rem;}
+    .badge-feat{position:absolute;top:1rem;right:1rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:#fff;padding:.3rem .75rem;}
+
+    .card-body{padding:1.5rem;flex:1;display:flex;flex-direction:column;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--navy);font-weight:600;margin-bottom:.625rem;line-height:1.3;transition:color .2s;}
+    .project-card:hover .card-title{color:var(--gold-muted);}
+    .card-desc{font-size:.875rem;color:var(--muted);line-height:1.6;margin-bottom:1rem;flex:1;}
+    .tech-tag-sm{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.06em;color:var(--navy);background:var(--cream);border:1px solid var(--cream-dark);padding:.25rem .625rem;}
+    .card-meta{display:flex;align-items:center;justify-content:space-between;padding-top:.875rem;border-top:1px solid var(--cream-dark);font-size:.8rem;color:var(--muted);}
+    .card-meta i{margin-right:.3rem;font-size:.75rem;}
+    .card-arrow{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-muted);display:flex;align-items:center;gap:.375rem;}
+
+    /* Pagination */
+    .page-btn{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.05em;padding:.625rem 1rem;background:#fff;border:1px solid var(--cream-dark);color:var(--charcoal);text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;}
+    .page-btn:hover{border-color:var(--gold);color:var(--navy);}
+    .page-btn.active{background:var(--navy);border-color:var(--navy);color:var(--gold-light);}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:5rem 2rem;}
+
+    /* Tech cloud */
+    .tech-cloud-item{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;padding:.625rem 1.25rem;background:#fff;border:1px solid var(--cream-dark);color:var(--charcoal);cursor:default;transition:all .25s ease;}
+    .tech-cloud-item:hover{border-color:var(--gold);color:var(--navy);transform:translateY(-2px);}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
+    .section-label::before{content:'';width:3rem;height:1px;background:var(--cream-dark);}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+
+    .cta-section{background:var(--navy);position:relative;overflow:hidden;}
+    .cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .btn-white{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:#fff;color:var(--navy);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid #fff;transition:all .25s ease;}
+    .btn-white:hover{background:var(--cream);}
+    .btn-ghost{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:transparent;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.35);transition:all .25s ease;}
+    .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.6);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .7s ease forwards;}
+    .d1{animation-delay:.1s;opacity:0;}.d2{animation-delay:.2s;opacity:0;}.d3{animation-delay:.3s;opacity:0;}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative pt-32 pb-20 animated-gradient text-white overflow-hidden">
-    <!-- Animated Background -->
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-        <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
-    </div>
-    
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <!-- Badge -->
-            <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down">
-                <span class="text-sm font-semibold">💼 My Work</span>
+<!-- Hero -->
+<section class="projects-hero pt-40 pb-24">
+    <div class="blob w-[600px] h-[600px] opacity-10" style="background:radial-gradient(circle,#3b82f6,transparent);top:-200px;left:-100px;"></div>
+    <div class="blob w-[400px] h-[400px] opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);bottom:-100px;right:0;"></div>
+    <div class="container mx-auto px-6 lg:px-8 max-w-5xl relative z-10">
+        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase fade-up">Portfolio</span>
+        <h1 class="font-display text-6xl lg:text-7xl text-white mt-3 mb-5 leading-none fade-up d1">Featured<br><em class="text-amber-300">Projects</em></h1>
+        <p class="text-slate-400 text-xl max-w-xl leading-relaxed mb-16 fade-up d2">A curated selection of web applications, designs, and creative solutions built with care and precision.</p>
+
+        <div class="flex flex-wrap gap-0 fade-up d3">
+            <div class="stat-block pl-0">
+                <span class="stat-num counter" data-target="{{ stats.total_projects|default:50 }}">0</span>
+                <span class="stat-desc">Projects</span>
             </div>
-            
-            <!-- Main Heading -->
-            <h1 class="text-5xl md:text-7xl font-display font-bold mb-6" data-aos="fade-up">
-                Featured <span class="text-yellow-300">Projects</span>
-            </h1>
-            
-            <!-- Description -->
-            <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="100">
-                Explore my portfolio of web applications, designs, and creative solutions
-            </p>
-            
-            <!-- Stats -->
-            <div class="flex justify-center gap-8 flex-wrap" data-aos="fade-up" data-aos-delay="200">
-                <div class="text-center">
-                    <div class="text-4xl font-bold counter" data-target="{{ stats.total_projects|default:50 }}">0</div>
-                    <div class="text-sm opacity-80">Projects Completed</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold counter" data-target="{{ stats.total_clients|default:30 }}">0</div>
-                    <div class="text-sm opacity-80">Happy Clients</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl font-bold counter" data-target="{{ stats.technologies|default:20 }}">0</div>
-                    <div class="text-sm opacity-80">Technologies</div>
-                </div>
+            <div class="stat-block">
+                <span class="stat-num counter" data-target="{{ stats.total_clients|default:30 }}">0</span>
+                <span class="stat-desc">Clients</span>
+            </div>
+            <div class="stat-block">
+                <span class="stat-num counter" data-target="{{ stats.technologies|default:20 }}">0</span>
+                <span class="stat-desc">Technologies</span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Filter & Search Bar -->
-<section class="sticky top-20 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg backdrop-blur-sm bg-opacity-95">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <!-- Search Bar -->
-            <div class="w-full lg:w-96">
-                <form method="get" class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                    <input type="text" 
-                           name="search" 
-                           value="{{ request.GET.search }}"
-                           placeholder="Search projects..." 
-                           class="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border-2 border-transparent rounded-xl focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 transition-all outline-none">
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div class="container mx-auto px-6 lg:px-8 max-w-7xl py-4">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <!-- Search -->
+            <div class="search-wrap">
+                <form method="get">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search projects…">
                 </form>
             </div>
-            
-            <!-- Category Filters -->
-            <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <button class="filter-btn px-5 py-2 rounded-full font-semibold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all {% if not current_category %}active{% endif %}" 
-                        data-filter="all">
-                    All Projects
-                </button>
+
+            <!-- Category filters -->
+            <div class="flex flex-wrap gap-1">
+                <button class="filter-btn {% if not current_category %}active{% endif %}" data-filter="all">All</button>
                 {% for category in categories %}
-                <button class="filter-btn px-5 py-2 rounded-full font-semibold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all {% if current_category == category.slug %}active{% endif %}" 
-                        data-filter="{{ category.slug }}">
-                    {{ category.name }}
-                </button>
+                <button class="filter-btn {% if current_category == category.slug %}active{% endif %}" data-filter="{{ category.slug }}">{{ category.name }}</button>
                 {% endfor %}
             </div>
-            
-            <!-- Sort & View Toggle -->
-            <div class="flex items-center gap-3">
-                <!-- Sort -->
-                <form method="get" class="flex items-center gap-2">
+
+            <!-- Sort & view -->
+            <div class="flex items-center gap-2">
+                <form method="get">
                     {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}">{% endif %}
                     {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
-                    
-                    <select name="sort" 
-                            onchange="this.form.submit()"
-                            class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border-2 border-transparent rounded-lg focus:border-blue-500 transition-all outline-none cursor-pointer">
+                    <select name="sort" onchange="this.form.submit()" class="sort-select">
                         <option value="-created" {% if current_sort == '-created' %}selected{% endif %}>Latest</option>
                         <option value="-views" {% if current_sort == '-views' %}selected{% endif %}>Most Viewed</option>
                         <option value="-likes" {% if current_sort == '-likes' %}selected{% endif %}>Most Liked</option>
-                        <option value="title" {% if current_sort == 'title' %}selected{% endif %}>A-Z</option>
+                        <option value="title" {% if current_sort == 'title' %}selected{% endif %}>A–Z</option>
                     </select>
                 </form>
-                
-                <!-- View Toggle -->
-                <div class="hidden md:flex gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
-                    <button id="grid-view" class="p-2 rounded bg-blue-600 text-white transition-all">
-                        <i class="fas fa-th"></i>
-                    </button>
-                    <button id="list-view" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
-                        <i class="fas fa-list"></i>
-                    </button>
+                <div class="hidden md:flex gap-1">
+                    <button id="grid-view" class="view-btn active"><i class="fas fa-th"></i></button>
+                    <button id="list-view" class="view-btn"><i class="fas fa-bars"></i></button>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Projects Grid -->
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<!-- Projects -->
+<section class="py-20" style="background:var(--cream)">
+    <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
         {% if projects %}
-        <div id="projects-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for project in projects %}
-            <article class="project-card group fade-in-scale" 
-                     data-category="{{ project.category.slug }}"
-                     data-aos="fade-up" 
-                     data-aos-delay="{{ forloop.counter0|mul:50 }}">
-                <a href="{{ project.get_absolute_url }}" class="block h-full">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-gray-100 dark:border-gray-700 h-full flex flex-col">
-                        <!-- Project Image -->
-                        <div class="relative h-64 overflow-hidden bg-gray-200 dark:bg-gray-700">
-                            {% if project.featured_image or project.thumbnail %}
-                            <img src="{% if project.thumbnail %}{{ project.thumbnail.url }}{% else %}{{ project.featured_image.url }}{% endif %}" 
-                                 alt="{{ project.title }}" 
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                 loading="lazy">
-                            {% else %}
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="fas fa-image text-6xl text-gray-400"></i>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Overlay with Quick Actions -->
-                            <div class="absolute inset-0 project-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div class="absolute bottom-0 left-0 right-0 p-6">
-                                    <div class="flex gap-3">
-                                        {% if project.live_url %}
-                                        <button onclick="window.open('{{ project.live_url }}', '_blank'); event.preventDefault(); event.stopPropagation();"
-                                                class="flex-1 px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-semibold text-center hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-                                            <i class="fas fa-external-link-alt"></i>Live Demo
-                                        </button>
-                                        {% endif %}
-                                        {% if project.github_url %}
-                                        <button onclick="window.open('{{ project.github_url }}', '_blank'); event.preventDefault(); event.stopPropagation();"
-                                                class="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold text-center hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                                            <i class="fab fa-github"></i>Code
-                                        </button>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Category Badge -->
-                            <span class="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full shadow-lg">
-                                {{ project.category.name|default:'Project' }}
-                            </span>
-                            
-                            <!-- Featured Badge -->
-                            {% if project.featured %}
-                            <span class="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                <i class="fas fa-star"></i> Featured
-                            </span>
-                            {% endif %}
+            <article class="project-card" data-category="{{ project.category.slug }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:50 }}">
+                <a href="{{ project.get_absolute_url }}" class="flex flex-col h-full" style="text-decoration:none;color:inherit;">
+                    <div class="card-img">
+                        {% if project.featured_image or project.thumbnail %}
+                        <img src="{% if project.thumbnail %}{{ project.thumbnail.url }}{% else %}{{ project.featured_image.url }}{% endif %}" alt="{{ project.title }}" loading="lazy">
+                        {% else %}
+                        <div class="no-img"><i class="fas fa-cube"></i></div>
+                        {% endif %}
+                        <div class="card-overlay"></div>
+                        <div class="overlay-btns">
+                            {% if project.live_url %}<span class="overlay-btn light" onclick="window.open('{{ project.live_url }}','_blank');event.preventDefault();event.stopPropagation();">Live Demo</span>{% endif %}
+                            {% if project.github_url %}<span class="overlay-btn dark" onclick="window.open('{{ project.github_url }}','_blank');event.preventDefault();event.stopPropagation();">Code</span>{% endif %}
                         </div>
-                        
-                        <!-- Project Info -->
-                        <div class="p-6 flex-grow flex flex-col">
-                            <!-- Title -->
-                            <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                {{ project.title }}
-                            </h3>
-                            
-                            <!-- Description -->
-                            <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-grow">
-                                {{ project.short_description|default:project.description|truncatewords:20 }}
-                            </p>
-                            
-                            <!-- Tech Stack -->
-                            {% if project.technologies %}
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                {% for tech in project.tech_list|slice:":4" %}
-                                <span class="tech-badge px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-medium">
-                                    {{ tech }}
-                                </span>
-                                {% endfor %}
-                                {% if project.tech_list|length > 4 %}
-                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">
-                                    +{{ project.tech_list|length|add:"-4" }}
-                                </span>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                            
-                            <!-- Meta Info -->
-                            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 text-sm">
-                                <div class="flex items-center gap-4 text-gray-500 dark:text-gray-400">
-                                    <span class="flex items-center gap-1">
-                                        <i class="fas fa-eye"></i>{{ project.views|default:0 }}
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <i class="fas fa-heart"></i>{{ project.likes|default:0 }}
-                                    </span>
-                                </div>
-                                <span class="text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                                    View <i class="fas fa-arrow-right"></i>
-                                </span>
-                            </div>
+                        <span class="badge-cat">{{ project.category.name|default:'Project' }}</span>
+                        {% if project.featured %}<span class="badge-feat">★ Featured</span>{% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ project.title }}</h3>
+                        <p class="card-desc">{{ project.short_description|default:project.description|truncatewords:20 }}</p>
+                        {% if project.technologies %}
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            {% for tech in project.tech_list|slice:":4" %}<span class="tech-tag-sm">{{ tech }}</span>{% endfor %}
+                            {% if project.tech_list|length > 4 %}<span class="tech-tag-sm">+{{ project.tech_list|length|add:"-4" }}</span>{% endif %}
+                        </div>
+                        {% endif %}
+                        <div class="card-meta">
+                            <span><i class="fas fa-eye"></i>{{ project.views|default:0 }} <i class="fas fa-heart ml-2"></i>{{ project.likes|default:0 }}</span>
+                            <span class="card-arrow">View <i class="fas fa-arrow-right text-xs"></i></span>
                         </div>
                     </div>
                 </a>
             </article>
             {% endfor %}
         </div>
-        
+
         <!-- Pagination -->
         {% if is_paginated %}
-        <div class="flex justify-center mt-12" data-aos="fade-up">
-            <nav class="flex items-center gap-2">
-                {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-                {% endif %}
-                
+        <div class="flex justify-center mt-14" data-aos="fade-up">
+            <div class="flex gap-1">
+                {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="page-btn"><i class="fas fa-chevron-left text-xs"></i></a>{% endif %}
                 {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg">{{ num }}</span>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
-                    {{ num }}
-                </a>
-                {% endif %}
+                    {% if page_obj.number == num %}<span class="page-btn active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="page-btn">{{ num }}</a>{% endif %}
                 {% endfor %}
-                
-                {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
-                   class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow hover:shadow-lg">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                {% endif %}
-            </nav>
+                {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="page-btn"><i class="fas fa-chevron-right text-xs"></i></a>{% endif %}
+            </div>
         </div>
         {% endif %}
-        
+
         {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-20" data-aos="zoom-in">
-            <div class="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center">
-                <i class="fas fa-folder-open text-6xl text-blue-600 dark:text-blue-400"></i>
-            </div>
-            <h3 class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">No Projects Found</h3>
-            <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                {% if request.GET.search %}
-                No projects match "{{ request.GET.search }}". Try different keywords.
-                {% else %}
-                Check back soon for exciting new projects!
-                {% endif %}
-            </p>
-            <a href="{% url 'projects' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-refresh"></i>View All Projects
-            </a>
+        <div class="empty-state" data-aos="fade-up">
+            <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center" style="background:var(--cream-dark);border:1px solid var(--cream-dark)"><i class="fas fa-folder-open text-4xl" style="color:var(--muted)"></i></div>
+            <h3 class="font-display text-3xl mb-3" style="color:var(--navy)">No Projects Found</h3>
+            <p class="mb-6" style="color:var(--muted)">{% if request.GET.search %}No projects match "{{ request.GET.search }}". Try different keywords.{% else %}Check back soon for exciting new projects!{% endif %}</p>
+            <a href="{% url 'projects' %}" class="font-mono text-sm tracking-widest uppercase" style="color:var(--gold-muted);border-bottom:1px solid var(--gold-muted);">View All Projects</a>
         </div>
         {% endif %}
     </div>
 </section>
 
-<!-- Technologies Section -->
+<!-- Technologies -->
 {% if technologies %}
-<section class="py-20 bg-white dark:bg-gray-950">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Technologies <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">I Use</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-400">
-                Tools and frameworks I work with
-            </p>
-        </div>
-        
-        <div class="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 lg:px-8 max-w-5xl">
+        <div class="section-label">Tech Stack</div>
+        <div class="flex flex-wrap gap-2" data-aos="fade-up">
             {% for tech in technologies %}
-            <div class="tech-badge group px-6 py-3 bg-gray-100 dark:bg-gray-800 rounded-full font-semibold hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-lg" 
-                 data-aos="zoom-in" 
-                 data-aos-delay="{{ forloop.counter0|mul:20 }}">
-                {{ tech }}
-            </div>
+            <span class="tech-cloud-item" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|mul:15 }}">{{ tech }}</span>
             {% endfor %}
         </div>
     </div>
 </section>
 {% endif %}
 
-<!-- CTA Section -->
-<section class="py-24 animated-gradient text-white">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
-                <i class="fas fa-lightbulb text-5xl"></i>
-            </div>
-            <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6">
-                Have a Project in Mind?
-            </h2>
-            <p class="text-xl lg:text-2xl opacity-90 mb-10 max-w-3xl mx-auto leading-relaxed">
-                Let's collaborate and bring your ideas to life with cutting-edge technology
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{% url 'contact' %}" 
-                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                    <i class="fas fa-paper-plane"></i>Get Started
-                </a>
-                <a href="{% url 'services' %}" 
-                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                    <i class="fas fa-briefcase"></i>View Services
-                </a>
-            </div>
+<!-- CTA -->
+<section class="cta-section py-28">
+    <div class="blob w-96 h-96 opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);top:50%;left:-100px;transform:translateY(-50%)"></div>
+    <div class="container mx-auto px-6 lg:px-8 max-w-3xl text-center relative z-10" data-aos="fade-up">
+        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase">Ready to Build?</span>
+        <h2 class="font-display text-5xl text-white mt-4 mb-5 leading-tight">Have a Project<br><em class="text-amber-300">In Mind?</em></h2>
+        <p class="text-slate-400 text-lg mb-10 leading-relaxed">Let's collaborate and bring your ideas to life with cutting-edge technology and refined design.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'contact' %}" class="btn-white"><i class="fas fa-paper-plane text-xs"></i>Get Started</a>
+            <a href="{% url 'services' %}" class="btn-ghost"><i class="fas fa-briefcase text-xs"></i>View Services</a>
         </div>
     </div>
 </section>
@@ -392,116 +267,41 @@
 {% endblock %}
 
 {% block extra_js %}
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
 <script>
-// Initialize AOS
-AOS.init({
-    duration: 800,
-    once: true,
-    offset: 100
+AOS.init({duration:900,once:true,offset:80});
+
+// Counter
+document.querySelectorAll('.counter').forEach(el=>{
+    const target=parseInt(el.dataset.target)||0;
+    const obs=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting){
+            let c=0;const inc=target/100;
+            const t=setInterval(()=>{c+=inc;if(c>=target){el.textContent=target;clearInterval(t);}else el.textContent=Math.ceil(c);},20);
+            obs.unobserve(el);
+        }});
+    },{threshold:.5});
+    obs.observe(el);
 });
 
-// Counter Animation
-function animateCounters() {
-    const counters = document.querySelectorAll('.counter');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                const target = parseInt(counter.getAttribute('data-target')) || 0;
-                const duration = 2000;
-                const increment = target / (duration / 16);
-                let current = 0;
-                
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.textContent = Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.textContent = target;
-                    }
-                };
-                updateCounter();
-                observer.unobserve(counter);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    counters.forEach(counter => observer.observe(counter));
-}
-
-animateCounters();
-
-// Filter Functionality
-const filterButtons = document.querySelectorAll('.filter-btn');
-const projectCards = document.querySelectorAll('.project-card');
-
-filterButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        const filter = this.dataset.filter;
-        
-        // Update active state
-        filterButtons.forEach(btn => btn.classList.remove('active'));
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+        const filter=this.dataset.filter;
+        document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
         this.classList.add('active');
-        
-        // Filter projects
-        projectCards.forEach(card => {
-            const category = card.dataset.category;
-            if (filter === 'all' || category === filter) {
-                card.style.display = 'block';
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 10);
-            } else {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.display = 'none';
-                }, 300);
-            }
+        document.querySelectorAll('.project-card').forEach(card=>{
+            const cat=card.dataset.category;
+            if(filter==='all'||cat===filter){card.style.display='';setTimeout(()=>{card.style.opacity='1';card.style.transform='';},10);}
+            else{card.style.opacity='0';setTimeout(()=>{card.style.display='none';},280);}
         });
     });
 });
 
-// View Toggle
-const gridView = document.getElementById('grid-view');
-const listView = document.getElementById('list-view');
-const container = document.getElementById('projects-container');
-
-if (gridView && listView) {
-    gridView.addEventListener('click', function() {
-        container.classList.remove('grid-cols-1');
-        container.classList.add('md:grid-cols-2', 'lg:grid-cols-3');
-        gridView.classList.add('bg-blue-600', 'text-white');
-        gridView.classList.remove('hover:bg-gray-200', 'dark:hover:bg-gray-700');
-        listView.classList.remove('bg-blue-600', 'text-white');
-        listView.classList.add('hover:bg-gray-200', 'dark:hover:bg-gray-700');
-    });
-    
-    listView.addEventListener('click', function() {
-        container.classList.add('grid-cols-1');
-        container.classList.remove('md:grid-cols-2', 'lg:grid-cols-3');
-        listView.classList.add('bg-blue-600', 'text-white');
-        listView.classList.remove('hover:bg-gray-200', 'dark:hover:bg-gray-700');
-        gridView.classList.remove('bg-blue-600', 'text-white');
-        gridView.classList.add('hover:bg-gray-200', 'dark:hover:bg-gray-700');
-    });
-}
-
-// Search Enhancement
-const searchInput = document.querySelector('input[name="search"]');
-if (searchInput) {
-    let searchTimeout;
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            this.form.submit();
-        }, 500);
-    });
+// View toggle
+const gv=document.getElementById('grid-view'),lv=document.getElementById('list-view'),grid=document.getElementById('projects-grid');
+if(gv&&lv){
+    gv.addEventListener('click',()=>{grid.classList.remove('grid-cols-1');grid.classList.add('md:grid-cols-2','lg:grid-cols-3');gv.classList.add('active');lv.classList.remove('active');});
+    lv.addEventListener('click',()=>{grid.classList.add('grid-cols-1');grid.classList.remove('md:grid-cols-2','lg:grid-cols-3');lv.classList.add('active');gv.classList.remove('active');});
 }
 </script>
 {% endblock %}

@@ -7,358 +7,261 @@
 
 {% block extra_css %}
 <style>
-    .gradient-hero {
-        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-    }
-    
-    @keyframes gradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-    
-    .gallery-item {
-        transition: all 0.4s ease;
-        cursor: pointer;
-    }
-    
-    .gallery-item:hover {
-        transform: scale(1.05);
-    }
-    
-    #lightbox {
-        backdrop-filter: blur(10px);
-    }
-    
-    .feature-check {
-        transition: all 0.3s ease;
-    }
-    
-    .feature-check:hover {
-        transform: translateX(4px);
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    :root{--navy:#0a0f2e;--navy-mid:#141b4d;--gold:#c9932a;--gold-light:#e8b84b;--gold-muted:#8a6520;--cream:#f8f4ef;--cream-dark:#ede8e0;--charcoal:#2c2c3e;--muted:#6b6b7f;}
+    *{font-family:'DM Sans',sans-serif;}
+    .font-display{font-family:'Playfair Display',Georgia,serif;}
+    .font-mono{font-family:'DM Mono',monospace;}
+    body{background:var(--cream);color:var(--charcoal);}
+
+    .project-hero{background:var(--navy);position:relative;overflow:hidden;}
+    .project-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+
+    .breadcrumb-item{color:rgba(255,255,255,.45);font-size:.8rem;letter-spacing:.05em;}
+    .breadcrumb-item a{color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s;}
+    .breadcrumb-item a:hover{color:var(--gold-light);}
+    .breadcrumb-sep{color:rgba(255,255,255,.2);margin:0 .5rem;font-size:.7rem;}
+    .breadcrumb-active{color:var(--gold-light);}
+
+    .category-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,147,42,.3);padding:.35rem .875rem;margin-bottom:1.25rem;}
+
+    .meta-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(4px);padding:.5rem 1rem;font-size:.8rem;color:rgba(255,255,255,.7);}
+    .meta-pill i{color:var(--gold);font-size:.75rem;}
+
+    .btn-white{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:#fff;color:var(--navy);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid #fff;transition:all .25s ease;}
+    .btn-white:hover{background:var(--cream);border-color:var(--cream);}
+    .btn-ghost{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:transparent;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.35);transition:all .25s ease;}
+    .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.6);}
+
+    .featured-image-wrap{background:#fff;border-bottom:3px solid var(--gold);}
+
+    .content-section{padding:3.5rem 0;}
+    .content-h2{font-family:'Playfair Display',serif;font-size:1.75rem;color:var(--navy);display:flex;align-items:center;gap:.875rem;margin-bottom:1.75rem;}
+    .content-icon{width:44px;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .content-icon i{color:var(--gold);font-size:.95rem;}
+
+    .prose{color:var(--charcoal);line-height:1.8;font-size:.95rem;}
+    .prose h2,.prose h3{font-family:'Playfair Display',serif;color:var(--navy);margin:2rem 0 .75rem;}
+    .prose p{margin-bottom:1.25rem;}
+    .prose blockquote{border-left:3px solid var(--gold);padding:.75rem 1.25rem;background:rgba(201,147,42,.04);margin:1.5rem 0;}
+
+    .feature-item{display:flex;align-items:flex-start;gap:.875rem;padding:.875rem;background:#fff;border:1px solid var(--cream-dark);transition:all .2s ease;}
+    .feature-item:hover{border-color:rgba(201,147,42,.25);background:rgba(201,147,42,.02);}
+    .feature-check{width:28px;height:28px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .feature-check i{color:var(--gold);font-size:.65rem;}
+    .feature-item span{font-size:.875rem;line-height:1.5;color:var(--charcoal);}
+
+    .tech-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.75rem;color:var(--navy);background:var(--cream);border:1px solid var(--cream-dark);padding:.4rem .875rem;transition:all .2s ease;cursor:default;}
+    .tech-tag:hover{border-color:var(--gold);background:#fff;}
+
+    .gallery-item{overflow:hidden;cursor:pointer;position:relative;}
+    .gallery-item::after{content:'\f00e';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;inset:0;background:rgba(10,15,46,.5);color:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease;}
+    .gallery-item:hover::after{opacity:1;}
+    .gallery-item img{width:100%;height:220px;object-fit:cover;display:block;transition:transform .5s ease;}
+    .gallery-item:hover img{transform:scale(1.05);}
+
+    .challenge-box,.solution-box{padding:1.75rem;border-left:3px solid;}
+    .challenge-box{background:#fff8f0;border-color:#f97316;}
+    .solution-box{background:#f0fff4;border-color:#22c55e;}
+
+    /* Sidebar */
+    .sidebar-card{background:#fff;border:1px solid rgba(201,147,42,.15);padding:2rem;position:relative;}
+    .sidebar-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+    .info-row{display:flex;align-items:center;gap:.875rem;padding:.875rem 0;border-bottom:1px solid var(--cream-dark);}
+    .info-row:last-of-type{border-bottom:none;}
+    .info-icon{width:36px;height:36px;background:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .info-icon i{color:var(--gold);font-size:.875rem;}
+    .info-label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;display:block;}
+    .info-value{font-size:.9rem;font-weight:600;color:var(--navy);}
+
+    .btn-primary-sm{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:var(--navy);color:var(--gold-light);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--navy);transition:all .25s;}
+    .btn-primary-sm:hover{background:#1e2a6e;border-color:var(--gold);}
+    .btn-dark-sm{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:var(--charcoal);color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--charcoal);transition:all .25s;}
+    .btn-dark-sm:hover{background:#1a1a2e;}
+
+    .share-btn{flex:1;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--cream-dark);color:var(--charcoal);text-decoration:none;font-size:.9rem;transition:all .2s;min-height:44px;}
+    .share-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* Related */
+    .related-card{background:#fff;border:1px solid var(--cream-dark);transition:all .35s ease;display:block;text-decoration:none;color:inherit;}
+    .related-card:hover{transform:translateY(-6px);border-color:rgba(201,147,42,.3);box-shadow:0 12px 40px rgba(10,15,46,.1);}
+    .related-card img{width:100%;height:180px;object-fit:cover;display:block;transition:transform .5s ease;}
+    .related-card:hover img{transform:scale(1.05);}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
+    .section-label::before{content:'';width:3rem;height:1px;background:var(--cream-dark);}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+
+    /* CTA */
+    .cta-section{background:var(--navy);position:relative;overflow:hidden;}
+    .cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
+
+    /* Lightbox */
+    #lightbox{backdrop-filter:blur(12px);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .7s ease forwards;}
+    .d1{animation-delay:.1s;opacity:0;}.d2{animation-delay:.2s;opacity:0;}.d3{animation-delay:.3s;opacity:0;}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative pt-32 pb-20 gradient-hero text-white overflow-hidden">
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-    </div>
-    
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto">
-            <!-- Breadcrumb -->
-            <nav class="mb-8" data-aos="fade-down">
-                <ol class="flex items-center flex-wrap gap-2 text-sm opacity-90">
-                    <li><a href="{% url 'home' %}" class="hover:text-yellow-300 transition-colors">Home</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'projects' %}" class="hover:text-yellow-300 transition-colors">Projects</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-yellow-300 truncate">{{ project.title|truncatewords:5 }}</li>
-                </ol>
-            </nav>
-            
-            <div class="text-center">
-                <!-- Category Badge -->
-                <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-6" data-aos="fade-down" data-aos-delay="100">
-                    <span class="text-sm font-semibold">{{ project.category.name|default:'Project' }}</span>
-                </div>
-                
-                <!-- Title -->
-                <h1 class="text-4xl md:text-6xl font-display font-bold mb-6" data-aos="fade-up" data-aos-delay="200">
-                    {{ project.title }}
-                </h1>
-                
-                <!-- Short Description -->
-                <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="300">
-                    {{ project.short_description|default:project.description|truncatewords:30 }}
-                </p>
-                
-                <!-- Quick Actions -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8" data-aos="fade-up" data-aos-delay="400">
-                    {% if project.live_url %}
-                    <a href="{{ project.live_url }}" target="_blank"
-                       class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:shadow-2xl hover:scale-105 transition-all">
-                        <i class="fas fa-external-link-alt"></i>View Live Demo
-                    </a>
-                    {% endif %}
-                    {% if project.github_url %}
-                    <a href="{{ project.github_url }}" target="_blank"
-                       class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all">
-                        <i class="fab fa-github"></i>View Source Code
-                    </a>
-                    {% endif %}
-                </div>
-                
-                <!-- Quick Stats -->
-                <div class="flex flex-wrap justify-center gap-6 text-base" data-aos="fade-up" data-aos-delay="500">
-                    {% if project.completion_date %}
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-calendar"></i>{{ project.completion_date|date:"M Y" }}
-                    </span>
-                    {% endif %}
-                    {% if project.client %}
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-building"></i>{{ project.client }}
-                    </span>
-                    {% endif %}
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-eye"></i>{{ project.views }} views
-                    </span>
-                    <span class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                        <i class="fas fa-heart"></i>{{ project.likes }} likes
-                    </span>
-                </div>
+<!-- Hero -->
+<section class="project-hero pt-40 pb-20">
+    <div class="blob w-[500px] h-[500px] opacity-10" style="background:radial-gradient(circle,#3b82f6,transparent);top:-100px;left:-100px;"></div>
+    <div class="blob w-[400px] h-[400px] opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);bottom:-80px;right:0;"></div>
+
+    <div class="container mx-auto px-6 lg:px-8 max-w-5xl relative z-10">
+        <!-- Breadcrumb -->
+        <nav class="mb-10 fade-up" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-1">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-sep">›</li>
+                <li class="breadcrumb-item"><a href="{% url 'projects' %}">Projects</a></li>
+                <li class="breadcrumb-sep">›</li>
+                <li class="breadcrumb-active text-sm font-mono text-amber-300">{{ project.title|truncatewords:5 }}</li>
+            </ol>
+        </nav>
+
+        <div class="max-w-3xl">
+            <span class="category-tag fade-up d1">{{ project.category.name|default:'Project' }}</span>
+            <h1 class="font-display text-5xl lg:text-6xl text-white leading-tight mb-6 fade-up d1">{{ project.title }}</h1>
+            <p class="text-slate-300 text-lg leading-relaxed mb-10 fade-up d2">{{ project.short_description|default:project.description|truncatewords:30 }}</p>
+
+            <!-- Meta pills -->
+            <div class="flex flex-wrap gap-3 mb-10 fade-up d2">
+                {% if project.completion_date %}<span class="meta-pill"><i class="fas fa-calendar-alt"></i>{{ project.completion_date|date:"M Y" }}</span>{% endif %}
+                {% if project.client %}<span class="meta-pill"><i class="fas fa-building"></i>{{ project.client }}</span>{% endif %}
+                <span class="meta-pill"><i class="fas fa-eye"></i>{{ project.views }} views</span>
+                <span class="meta-pill"><i class="fas fa-heart"></i>{{ project.likes }} likes</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-4 fade-up d3">
+                {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" class="btn-white"><i class="fas fa-external-link-alt text-xs"></i>Live Demo</a>{% endif %}
+                {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" class="btn-ghost"><i class="fab fa-github"></i>Source Code</a>{% endif %}
             </div>
         </div>
     </div>
 </section>
 
-<!-- Main Image -->
+<!-- Featured Image -->
 {% if project.featured_image %}
-<section class="py-12 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto" data-aos="zoom-in">
-            <div class="rounded-3xl overflow-hidden shadow-2xl">
-                <img src="{{ project.featured_image.url }}" 
-                     alt="{{ project.title }}" 
-                     class="w-full h-auto"
-                     loading="eager">
-            </div>
-        </div>
+<div class="featured-image-wrap">
+    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
+        <img src="{{ project.featured_image.url }}" alt="{{ project.title }}" class="w-full max-h-[600px] object-cover" loading="eager">
     </div>
-</section>
+</div>
 {% endif %}
 
 <!-- Main Content -->
-<section class="py-20 bg-white dark:bg-gray-950">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid lg:grid-cols-3 gap-12">
-                <!-- Main Content -->
-                <div class="lg:col-span-2 space-y-12">
-                    <!-- Overview -->
-                    <div data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-info-circle text-white text-xl"></i>
-                            </div>
-                            Project Overview
-                        </h2>
-                        <div class="prose dark:prose-invert prose-lg max-w-none">
-                            {{ project.description|safe }}
+<section class="py-20" style="background:var(--cream)">
+    <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+        <div class="grid lg:grid-cols-3 gap-12">
+            <!-- Content -->
+            <div class="lg:col-span-2 space-y-16">
+
+                <!-- Overview -->
+                <div data-aos="fade-up">
+                    <div class="content-h2"><div class="content-icon"><i class="fas fa-align-left"></i></div>Project Overview</div>
+                    <div class="prose">{{ project.description|safe }}</div>
+                </div>
+
+                <!-- Features -->
+                {% if project.features %}
+                <div data-aos="fade-up">
+                    <div class="content-h2"><div class="content-icon"><i class="fas fa-check"></i></div>Key Features</div>
+                    <div class="grid md:grid-cols-2 gap-2">
+                        {% for feature in project.feature_list %}
+                        <div class="feature-item">
+                            <div class="feature-check"><i class="fas fa-check"></i></div>
+                            <span>{{ feature }}</span>
                         </div>
+                        {% endfor %}
                     </div>
-                    
-                    <!-- Features -->
-                    {% if project.features %}
-                    <div data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-check-double text-white text-xl"></i>
-                            </div>
-                            Key Features
-                        </h2>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            {% for feature in project.feature_list %}
-                            <div class="feature-check flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
-                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-check text-green-600 dark:text-green-400"></i>
-                                </div>
-                                <span class="text-gray-700 dark:text-gray-300 font-medium">{{ feature }}</span>
-                            </div>
-                            {% endfor %}
-                        </div>
+                </div>
+                {% endif %}
+
+                <!-- Technologies -->
+                {% if project.technologies %}
+                <div data-aos="fade-up">
+                    <div class="content-h2"><div class="content-icon"><i class="fas fa-code"></i></div>Technologies Used</div>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tech in project.tech_list %}<span class="tech-tag">{{ tech }}</span>{% endfor %}
                     </div>
-                    {% endif %}
-                    
-                    <!-- Technologies -->
-                    {% if project.technologies %}
-                    <div data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-code text-white text-xl"></i>
-                            </div>
-                            Technologies Used
-                        </h2>
-                        <div class="flex flex-wrap gap-3">
-                            {% for tech in project.tech_list %}
-                            <span class="px-5 py-3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-xl font-semibold hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-lg hover:scale-105">
-                                {{ tech }}
-                            </span>
-                            {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Gallery -->
+                {% if project.images.all %}
+                <div data-aos="fade-up">
+                    <div class="content-h2"><div class="content-icon"><i class="fas fa-images"></i></div>Gallery</div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% for image in project.images.all %}
+                        <div class="gallery-item" onclick="openLightbox({{ forloop.counter0 }})">
+                            <img src="{{ image.image.url }}" alt="{{ image.caption }}" loading="lazy">
                         </div>
+                        {% endfor %}
                     </div>
-                    {% endif %}
-                    
-                    <!-- Image Gallery -->
-                    {% if project.images.all %}
-                    <div data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-images text-white text-xl"></i>
-                            </div>
-                            Gallery
-                        </h2>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            {% for image in project.images.all %}
-                            <div class="gallery-item rounded-2xl overflow-hidden shadow-lg" onclick="openLightbox({{ forloop.counter0 }})">
-                                <img src="{{ image.image.url }}" 
-                                     alt="{{ image.caption }}" 
-                                     class="w-full h-64 object-cover"
-                                     loading="lazy">
-                            </div>
-                            {% endfor %}
-                        </div>
+                </div>
+                {% endif %}
+
+                <!-- Challenges & Solutions -->
+                {% if project.challenges or project.solutions %}
+                <div data-aos="fade-up">
+                    <div class="content-h2"><div class="content-icon"><i class="fas fa-lightbulb"></i></div>Challenges &amp; Solutions</div>
+                    {% if project.challenges %}
+                    <div class="challenge-box mb-4">
+                        <h3 class="font-semibold mb-3 flex items-center gap-2 text-orange-700"><i class="fas fa-exclamation-triangle text-sm"></i>Challenges</h3>
+                        <div class="prose text-sm">{{ project.challenges|safe }}</div>
                     </div>
                     {% endif %}
-                    
-                    <!-- Challenges & Solutions -->
-                    {% if project.challenges or project.solutions %}
-                    <div data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-lightbulb text-white text-xl"></i>
-                            </div>
-                            Challenges & Solutions
-                        </h2>
-                        
-                        {% if project.challenges %}
-                        <div class="mb-6 p-6 bg-orange-50 dark:bg-orange-900/20 rounded-2xl border-2 border-orange-200 dark:border-orange-800">
-                            <h3 class="font-bold text-xl mb-4 text-orange-600 dark:text-orange-400 flex items-center gap-2">
-                                <i class="fas fa-exclamation-triangle"></i>Challenges
-                            </h3>
-                            <div class="prose dark:prose-invert max-w-none">
-                                {{ project.challenges|safe }}
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if project.solutions %}
-                        <div class="p-6 bg-green-50 dark:bg-green-900/20 rounded-2xl border-2 border-green-200 dark:border-green-800">
-                            <h3 class="font-bold text-xl mb-4 text-green-600 dark:text-green-400 flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>Solutions
-                            </h3>
-                            <div class="prose dark:prose-invert max-w-none">
-                                {{ project.solutions|safe }}
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Results/Outcome -->
-                    {% if project.outcome %}
-                    <div data-aos="fade-right">
-                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-chart-line text-white text-xl"></i>
-                            </div>
-                            Results & Impact
-                        </h2>
-                        <div class="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
-                            <div class="prose dark:prose-invert max-w-none">
-                                {{ project.outcome|safe }}
-                            </div>
-                        </div>
+                    {% if project.solutions %}
+                    <div class="solution-box">
+                        <h3 class="font-semibold mb-3 flex items-center gap-2 text-green-700"><i class="fas fa-check-circle text-sm"></i>Solutions</h3>
+                        <div class="prose text-sm">{{ project.solutions|safe }}</div>
                     </div>
                     {% endif %}
                 </div>
-                
-                <!-- Sidebar -->
-                <div class="space-y-6" data-aos="fade-left">
-                    <!-- Project Info Card -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 sticky top-24">
-                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Project Info</h3>
-                        
-                        <div class="space-y-4">
-                            {% if project.client %}
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-building text-blue-600 dark:text-blue-400"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Client</div>
-                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.client }}</div>
-                                </div>
-                            </div>
-                            {% endif %}
-                            
-                            {% if project.completion_date %}
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-calendar-check text-green-600 dark:text-green-400"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Completed</div>
-                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.completion_date|date:"F Y" }}</div>
-                                </div>
-                            </div>
-                            {% endif %}
-                            
-                            {% if project.duration %}
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-clock text-purple-600 dark:text-purple-400"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Duration</div>
-                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.duration }}</div>
-                                </div>
-                            </div>
-                            {% endif %}
-                            
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-folder text-orange-600 dark:text-orange-400"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Category</div>
-                                    <div class="font-semibold text-gray-900 dark:text-white">{{ project.category.name }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
-                            {% if project.live_url %}
-                            <a href="{{ project.live_url }}" target="_blank"
-                               class="block text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-2xl hover:scale-105 transition-all">
-                                <i class="fas fa-external-link-alt mr-2"></i>Visit Website
-                            </a>
-                            {% endif %}
-                            {% if project.github_url %}
-                            <a href="{{ project.github_url }}" target="_blank"
-                               class="block text-center px-6 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all">
-                                <i class="fab fa-github mr-2"></i>View Code
-                            </a>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Share -->
-                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <h4 class="font-semibold mb-3 text-gray-900 dark:text-white">Share This Project</h4>
-                            <div class="flex gap-3">
-                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ project.title|urlencode }}" 
-                                   target="_blank"
-                                   class="flex-1 aspect-square bg-blue-500 hover:bg-blue-600 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                                    <i class="fab fa-twitter text-xl"></i>
-                                </a>
-                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
-                                   target="_blank"
-                                   class="flex-1 aspect-square bg-blue-700 hover:bg-blue-800 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                                    <i class="fab fa-linkedin-in text-xl"></i>
-                                </a>
-                                <button onclick="copyLink()" 
-                                        class="flex-1 aspect-square bg-gray-600 hover:bg-gray-700 text-white rounded-xl flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                                    <i class="fas fa-link text-xl"></i>
-                                </button>
-                            </div>
+                {% endif %}
+
+                <!-- Results -->
+                {% if project.outcome %}
+                <div data-aos="fade-up">
+                    <div class="content-h2"><div class="content-icon"><i class="fas fa-chart-line"></i></div>Results &amp; Impact</div>
+                    <div class="prose" style="background:#fff;border:1px solid var(--cream-dark);border-left:3px solid var(--gold);padding:1.75rem;">{{ project.outcome|safe }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div data-aos="fade-left">
+                <div class="sidebar-card sticky top-28">
+                    <h3 class="font-display text-xl mb-6" style="color:var(--navy)">Project Info</h3>
+                    {% if project.client %}
+                    <div class="info-row"><div class="info-icon"><i class="fas fa-building"></i></div><div><span class="info-label">Client</span><span class="info-value">{{ project.client }}</span></div></div>
+                    {% endif %}
+                    {% if project.completion_date %}
+                    <div class="info-row"><div class="info-icon"><i class="fas fa-calendar-check"></i></div><div><span class="info-label">Completed</span><span class="info-value">{{ project.completion_date|date:"F Y" }}</span></div></div>
+                    {% endif %}
+                    {% if project.duration %}
+                    <div class="info-row"><div class="info-icon"><i class="fas fa-clock"></i></div><div><span class="info-label">Duration</span><span class="info-value">{{ project.duration }}</span></div></div>
+                    {% endif %}
+                    <div class="info-row mb-6"><div class="info-icon"><i class="fas fa-folder"></i></div><div><span class="info-label">Category</span><span class="info-value">{{ project.category.name }}</span></div></div>
+
+                    <div class="flex flex-col gap-2 mb-6">
+                        {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" class="btn-primary-sm"><i class="fas fa-external-link-alt text-xs"></i>Visit Website</a>{% endif %}
+                        {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" class="btn-dark-sm"><i class="fab fa-github"></i>View Code</a>{% endif %}
+                    </div>
+
+                    <div class="pt-5" style="border-top:1px solid var(--cream-dark)">
+                        <p class="font-mono text-xs tracking-widest uppercase mb-3" style="color:var(--muted)">Share</p>
+                        <div class="flex gap-2">
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ project.title|urlencode }}" target="_blank" class="share-btn"><i class="fab fa-twitter"></i></a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="share-btn"><i class="fab fa-linkedin-in"></i></a>
+                            <button onclick="copyLink()" class="share-btn"><i class="fas fa-link"></i></button>
                         </div>
                     </div>
                 </div>
@@ -369,150 +272,61 @@
 
 <!-- Related Projects -->
 {% if related_projects %}
-<section class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold mb-4">
-                Related <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Projects</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-400">
-                More projects you might like
-            </p>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
+        <div class="section-label">Related Projects</div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for related in related_projects %}
-            <article data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
-                <a href="{{ related.get_absolute_url }}" class="block group">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border border-gray-100 dark:border-gray-700 h-full">
-                        {% if related.featured_image or related.thumbnail %}
-                        <div class="h-48 overflow-hidden">
-                            <img src="{% if related.thumbnail %}{{ related.thumbnail.url }}{% else %}{{ related.featured_image.url }}{% endif %}" 
-                                 alt="{{ related.title }}" 
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        </div>
-                        {% endif %}
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                {{ related.title }}
-                            </h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">
-                                {{ related.short_description }}
-                            </p>
-                            <span class="text-blue-600 dark:text-blue-400 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                                View Project <i class="fas fa-arrow-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </article>
+            <a href="{{ related.get_absolute_url }}" class="related-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:80 }}">
+                {% if related.featured_image or related.thumbnail %}
+                <div class="overflow-hidden"><img src="{% if related.thumbnail %}{{ related.thumbnail.url }}{% else %}{{ related.featured_image.url }}{% endif %}" alt="{{ related.title }}"></div>
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="font-semibold mb-2 leading-snug" style="color:var(--navy)">{{ related.title }}</h3>
+                    <p class="text-sm mb-3 line-clamp-2" style="color:var(--muted)">{{ related.short_description }}</p>
+                    <span class="link-gold text-xs font-mono tracking-widest uppercase" style="color:var(--gold-muted)">View Project →</span>
+                </div>
+            </a>
             {% endfor %}
         </div>
     </div>
 </section>
 {% endif %}
 
-<!-- Lightbox -->
-<div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4" onclick="closeLightbox()">
-    <button class="absolute top-4 right-4 text-white text-4xl hover:scale-110 transition-transform" onclick="closeLightbox()">
-        <i class="fas fa-times"></i>
-    </button>
-    <button class="absolute left-4 text-white text-4xl hover:scale-110 transition-transform" onclick="prevImage(); event.stopPropagation();">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="absolute right-4 text-white text-4xl hover:scale-110 transition-transform" onclick="nextImage(); event.stopPropagation();">
-        <i class="fas fa-chevron-right"></i>
-    </button>
-    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain" onclick="event.stopPropagation();">
-</div>
-
 <!-- CTA -->
-<section class="py-24 gradient-hero text-white">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto text-center" data-aos="zoom-in">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8">
-                <i class="fas fa-handshake text-5xl"></i>
-            </div>
-            <h2 class="text-4xl lg:text-6xl font-display font-bold mb-6">
-                Like What You See?
-            </h2>
-            <p class="text-xl lg:text-2xl opacity-90 mb-10 max-w-3xl mx-auto leading-relaxed">
-                Let's work together on your next project and create something amazing
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{% url 'contact' %}" 
-                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                    <i class="fas fa-envelope"></i>Start a Project
-                </a>
-                <a href="{% url 'projects' %}" 
-                   class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                    <i class="fas fa-folder"></i>View More Projects
-                </a>
-            </div>
+<section class="cta-section py-28">
+    <div class="blob w-96 h-96 opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);top:50%;left:-100px;transform:translateY(-50%)"></div>
+    <div class="container mx-auto px-6 lg:px-8 max-w-3xl text-center relative z-10" data-aos="fade-up">
+        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase">Let's Work Together</span>
+        <h2 class="font-display text-5xl text-white mt-4 mb-5 leading-tight">Like What<br><em class="text-amber-300">You See?</em></h2>
+        <p class="text-slate-400 text-lg mb-10 leading-relaxed">Let's collaborate on your next project and create something extraordinary together.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'contact' %}" class="btn-white"><i class="fas fa-envelope text-xs"></i>Start a Project</a>
+            <a href="{% url 'projects' %}" class="btn-ghost"><i class="fas fa-folder text-xs"></i>View All Projects</a>
         </div>
     </div>
 </section>
 
+<!-- Lightbox -->
+<div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox()">
+    <button class="absolute top-6 right-6 text-white text-3xl hover:text-amber-300 transition-colors" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+    <button class="absolute left-6 text-white text-2xl hover:text-amber-300 transition-colors" onclick="prevImage();event.stopPropagation()"><i class="fas fa-chevron-left"></i></button>
+    <button class="absolute right-16 text-white text-2xl hover:text-amber-300 transition-colors" onclick="nextImage();event.stopPropagation()"><i class="fas fa-chevron-right"></i></button>
+    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain" onclick="event.stopPropagation()">
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
 <script>
-// Initialize AOS
-AOS.init({ duration: 1000, once: true, offset: 100 });
-
-// Lightbox
-const images = [
-    {% for image in project.images.all %}
-    '{{ image.image.url }}',
-    {% endfor %}
-];
-let currentIndex = 0;
-
-function openLightbox(index) {
-    currentIndex = index;
-    document.getElementById('lightbox').classList.remove('hidden');
-    document.getElementById('lightbox-image').src = images[currentIndex];
-    document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox() {
-    document.getElementById('lightbox').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
-
-function nextImage() {
-    currentIndex = (currentIndex + 1) % images.length;
-    document.getElementById('lightbox-image').src = images[currentIndex];
-}
-
-function prevImage() {
-    currentIndex = (currentIndex - 1 + images.length) % images.length;
-    document.getElementById('lightbox-image').src = images[currentIndex];
-}
-
-// Keyboard navigation
-document.addEventListener('keydown', function(e) {
-    const lightbox = document.getElementById('lightbox');
-    if (!lightbox.classList.contains('hidden')) {
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowRight') nextImage();
-        if (e.key === 'ArrowLeft') prevImage();
-    }
-});
-
-// Copy link
-function copyLink() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-        const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50';
-        toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Link copied to clipboard!';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    });
-}
+AOS.init({duration:900,once:true,offset:80});
+const images=[{% for image in project.images.all %}'{{ image.image.url }}',{% endfor %}];
+let ci=0;
+function openLightbox(i){ci=i;const l=document.getElementById('lightbox');l.classList.remove('hidden');l.classList.add('flex');document.getElementById('lightbox-image').src=images[ci];document.body.style.overflow='hidden';}
+function closeLightbox(){const l=document.getElementById('lightbox');l.classList.add('hidden');l.classList.remove('flex');document.body.style.overflow='';}
+function nextImage(){ci=(ci+1)%images.length;document.getElementById('lightbox-image').src=images[ci];}
+function prevImage(){ci=(ci-1+images.length)%images.length;document.getElementById('lightbox-image').src=images[ci];}
+document.addEventListener('keydown',e=>{const l=document.getElementById('lightbox');if(!l.classList.contains('hidden')){if(e.key==='Escape')closeLightbox();if(e.key==='ArrowRight')nextImage();if(e.key==='ArrowLeft')prevImage();}});
+function copyLink(){navigator.clipboard.writeText(window.location.href).then(()=>{const t=document.createElement('div');t.className='fixed bottom-6 right-6 text-sm px-5 py-3 z-50';t.style.cssText='background:var(--navy);color:var(--gold-light);border:1px solid var(--gold);font-family:DM Mono,monospace;letter-spacing:.05em;';t.innerHTML='<i class="fas fa-check mr-2"></i>Link copied';document.body.appendChild(t);setTimeout(()=>t.remove(),2500);});}
 </script>
 {% endblock %}

@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <!-- SEO Meta Tags -->
-    <title>{% block title %}{{ site_settings.site_name }} - {{ site_settings.site_description }}{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name }} — {{ site_settings.site_description }}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{{ site_settings.meta_description|default:site_settings.site_description }}{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}{{ site_settings.meta_keywords }}{% endblock %}">
     <meta name="author" content="{{ site_settings.site_name }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}">
     
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name }}{% endblock %}">
@@ -21,980 +19,800 @@
     {% if site_settings.profile_image %}
     <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}{% endblock %}">
     {% endif %}
-    <meta property="og:site_name" content="{{ site_settings.site_name }}">
     
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="{{ request.build_absolute_uri }}">
     <meta name="twitter:title" content="{% block twitter_title %}{{ site_settings.site_name }}{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}{{ site_settings.site_description }}{% endblock %}">
-    {% if site_settings.profile_image %}
-    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}{% endblock %}">
-    {% endif %}
-    {% if site_settings.twitter_url %}
-    <meta name="twitter:creator" content="@{{ site_settings.twitter_url|slice:'-15:' }}">
-    {% endif %}
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
-    <link rel="manifest" href="/static/site.webmanifest">
-    
-    <!-- Preconnect for Performance -->
+
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    <link rel="dns-prefetch" href="https://unpkg.com">
     
-    <!-- Tailwind CSS -->
+    <!-- Premium Fonts: Editorial serif + geometric sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- AOS Animation Library -->
+    <!-- AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
-    <!-- Swiper Slider -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-                        'display': ['Space Grotesk', 'Poppins', 'sans-serif'],
-                        'mono': ['JetBrains Mono', 'monospace'],
+                        'display': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'sans': ['"DM Sans"', 'system-ui', 'sans-serif'],
+                        'mono': ['"DM Mono"', 'monospace'],
                     },
                     colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                            950: '#172554',
+                        navy: {
+                            50: '#f0f4ff',
+                            100: '#e0e9ff',
+                            200: '#c7d7fe',
+                            300: '#a4bcfd',
+                            400: '#819cf8',
+                            500: '#6478f1',
+                            600: '#4f5ce5',
+                            700: '#3f48ca',
+                            800: '#353da4',
+                            900: '#0a0f2e',
+                            950: '#060918',
                         },
-                        accent: {
-                            purple: '#8b5cf6',
-                            pink: '#ec4899',
-                            orange: '#f97316',
-                            cyan: '#06b6d4',
-                            emerald: '#10b981',
-                            amber: '#f59e0b',
+                        gold: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#c9932a',
+                            600: '#a87520',
+                            700: '#8a5f17',
+                            800: '#744d0e',
+                            900: '#633f09',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
                         }
                     },
                     animation: {
-                        'gradient': 'gradient 8s linear infinite',
-                        'gradient-xy': 'gradient-xy 15s ease infinite',
-                        'gradient-slow': 'gradient 15s ease infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'float-slow': 'float 8s ease-in-out infinite',
-                        'slide-up': 'slide-up 0.5s ease-out',
-                        'slide-down': 'slide-down 0.5s ease-out',
-                        'slide-left': 'slide-left 0.5s ease-out',
-                        'slide-right': 'slide-right 0.5s ease-out',
-                        'fade-in': 'fade-in 0.5s ease-out',
-                        'fade-in-up': 'fade-in-up 0.6s ease-out',
-                        'scale-in': 'scale-in 0.3s ease-out',
-                        'bounce-slow': 'bounce 3s infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'shimmer': 'shimmer 2s linear infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                        'spin-slow': 'spin 3s linear infinite',
-                        'wiggle': 'wiggle 1s ease-in-out infinite',
-                        'blob': 'blob 7s infinite',
-                        'tilt': 'tilt 10s infinite linear',
+                        'fade-up': 'fadeUp 0.7s ease-out forwards',
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-right': 'slideRight 0.7s cubic-bezier(0.16,1,0.3,1) forwards',
+                        'shimmer': 'shimmer 2.5s linear infinite',
+                        'float': 'float 8s ease-in-out infinite',
+                        'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+                        'line-grow': 'lineGrow 1.2s ease-out forwards',
+                        'count-up': 'countUp 0.5s ease-out forwards',
+                        'spin-slow': 'spin 12s linear infinite',
                     },
                     keyframes: {
-                        gradient: {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            },
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(32px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
-                        'gradient-xy': {
-                            '0%, 100%': {
-                                'background-size': '400% 400%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        },
-                        'slide-up': {
-                            '0%': { transform: 'translateY(100px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        'slide-down': {
-                            '0%': { transform: 'translateY(-100px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        'slide-left': {
-                            '0%': { transform: 'translateX(100px)', opacity: '0' },
-                            '100%': { transform: 'translateX(0)', opacity: '1' },
-                        },
-                        'slide-right': {
-                            '0%': { transform: 'translateX(-100px)', opacity: '0' },
-                            '100%': { transform: 'translateX(0)', opacity: '1' },
-                        },
-                        'fade-in': {
+                        fadeIn: {
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
                         },
-                        'fade-in-up': {
-                            '0%': { opacity: '0', transform: 'translateY(30px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        'scale-in': {
-                            '0%': { transform: 'scale(0.9)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        slideRight: {
+                            '0%': { opacity: '0', transform: 'translateX(-40px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
                         },
                         shimmer: {
                             '0%': { backgroundPosition: '-1000px 0' },
                             '100%': { backgroundPosition: '1000px 0' },
                         },
-                        glow: {
-                            '0%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' },
-                            '100%': { boxShadow: '0 0 40px rgba(139, 92, 246, 0.8)' },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '33%': { transform: 'translateY(-18px) rotate(1deg)' },
+                            '66%': { transform: 'translateY(-8px) rotate(-1deg)' },
                         },
-                        wiggle: {
-                            '0%, 100%': { transform: 'rotate(-3deg)' },
-                            '50%': { transform: 'rotate(3deg)' },
+                        glowPulse: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(201,147,42,0.2)' },
+                            '50%': { boxShadow: '0 0 50px rgba(201,147,42,0.5)' },
                         },
-                        blob: {
-                            '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-                            '25%': { transform: 'translate(20px, -50px) scale(1.1)' },
-                            '50%': { transform: 'translate(0, 20px) scale(0.9)' },
-                            '75%': { transform: 'translate(-20px, -15px) scale(1.05)' },
+                        lineGrow: {
+                            '0%': { width: '0%' },
+                            '100%': { width: '100%' },
                         },
-                        tilt: {
-                            '0%, 100%': { transform: 'rotate(0deg)' },
-                            '25%': { transform: 'rotate(1deg)' },
-                            '75%': { transform: 'rotate(-1deg)' },
-                        },
-                    },
-                    backgroundImage: {
-                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-                        'gradient-mesh': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     },
                     boxShadow: {
-                        'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
-                        'glow-lg': '0 0 40px rgba(59, 130, 246, 0.6)',
-                        'glow-purple': '0 0 30px rgba(139, 92, 246, 0.5)',
-                        'glow-pink': '0 0 30px rgba(236, 72, 153, 0.5)',
-                        'inner-glow': 'inset 0 0 20px rgba(59, 130, 246, 0.3)',
-                        'neumorphic': '20px 20px 60px #bebebe, -20px -20px 60px #ffffff',
-                        'neumorphic-dark': '20px 20px 60px #0a0a0a, -20px -20px 60px #1e1e1e',
+                        'gold': '0 4px 24px rgba(201,147,42,0.3)',
+                        'gold-lg': '0 8px 48px rgba(201,147,42,0.4)',
+                        'navy': '0 8px 32px rgba(10,15,46,0.4)',
+                        'glass': '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
+                        'card': '0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04)',
+                        'card-hover': '0 4px 12px rgba(0,0,0,0.08), 0 24px 48px rgba(0,0,0,0.08)',
+                        'elevated': '0 24px 64px rgba(0,0,0,0.16)',
                     },
-                    backdropBlur: {
-                        xs: '2px',
-                    },
+                    backgroundImage: {
+                        'gold-gradient': 'linear-gradient(135deg, #c9932a, #fbbf24, #c9932a)',
+                        'navy-gradient': 'linear-gradient(135deg, #0a0f2e, #1a2255)',
+                        'card-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0))',
+                    }
                 }
-            },
-            darkMode: 'class',
+            }
         }
     </script>
     
     <style>
-        /* Premium Scrollbar Design */
-        ::-webkit-scrollbar {
-            width: 14px;
-            height: 14px;
-        }
-        ::-webkit-scrollbar-track {
-            background: linear-gradient(180deg, #f1f5f9, #e2e8f0);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #3b82f6, #8b5cf6);
-            border-radius: 10px;
-            border: 2px solid #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #2563eb, #7c3aed);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        /* === BASE RESET & TYPOGRAPHY === */
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        ::selection { background: rgba(201,147,42,0.25); color: #0a0f2e; }
+        .dark ::selection { background: rgba(201,147,42,0.3); color: #fff; }
+        
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0a0f2e, #353da4); border-radius: 4px; }
+        .dark ::-webkit-scrollbar-track { background: #0f172a; }
+        .dark ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #353da4, #c9932a); }
+        
+        /* === PROGRESS BAR === */
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 2px; z-index: 9999;
+            background: linear-gradient(90deg, #c9932a, #fbbf24);
+            transition: width 0.15s ease; width: 0%;
+            box-shadow: 0 0 8px rgba(201,147,42,0.6);
         }
         
-        .dark ::-webkit-scrollbar-track {
-            background: linear-gradient(180deg, #1e293b, #0f172a);
+        /* === NAVBAR === */
+        #navbar {
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
         }
-        .dark ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #60a5fa, #a78bfa);
-            border-color: #1e293b;
-        }
-        
-        ::selection {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-        }
-        
-        /* Enhanced Loading Spinner */
-        .loading-spinner {
-            border: 4px solid rgba(59, 130, 246, 0.1);
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 0.8s linear infinite;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Gradient Text Variants */
-        .gradient-text {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradient 3s ease infinite;
-        }
-        
-        .gradient-text-emerald {
-            background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .gradient-text-fire {
-            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Enhanced Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        }
-        
-        .dark .glass {
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.125);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        
-        /* Neumorphic Design */
-        .neumorphic {
-            background: #f0f0f0;
-            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
-        }
-        
-        .dark .neumorphic {
-            background: #1a1a1a;
-            box-shadow: 20px 20px 60px #0a0a0a, -20px -20px 60px #1e1e1e;
-        }
-        
-        /* Premium Card Hover Effect */
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        
-        .card-hover::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 2px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .card-hover:hover::before {
-            opacity: 1;
-        }
-        
-        /* Smooth Transitions */
-        * {
-            transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 200ms;
-        }
-        
-        /* Premium Code Blocks */
-        code {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
-            padding: 0.25em 0.5em;
-            border-radius: 0.375rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875em;
-            border: 1px solid rgba(139, 92, 246, 0.2);
-        }
-        
-        pre {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            overflow-x: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        pre code {
-            background: transparent;
-            padding: 0;
-            border: none;
-        }
-        
-        /* Enhanced Link Underline */
-        .link-underline {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .link-underline::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .link-underline:hover::after {
-            width: 100%;
-        }
-        
-        /* Shimmer Effect */
-        .shimmer {
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
-        
-        /* Skeleton Loading */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 0.5rem;
-        }
-        
-        .dark .skeleton {
-            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-            background-size: 200% 100%;
-        }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        /* Blob Animation */
-        .blob {
-            animation: blob 7s infinite;
-            filter: blur(40px);
-        }
-        
-        /* Accessibility - Skip to Content */
-        .skip-to-content {
-            position: absolute;
-            left: -9999px;
-            z-index: 999;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-        }
-        
-        .skip-to-content:focus {
-            left: 50%;
-            transform: translateX(-50%);
-            top: 20px;
-        }
-
-        /* Navbar Enhanced Blur */
-        .navbar-blur {
+        #navbar.scrolled {
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 24px rgba(0,0,0,0.04);
         }
-
-        /* Enhanced Button Styles */
-        .btn-gradient {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        .dark #navbar.scrolled {
+            background: rgba(10,15,46,0.96);
+            box-shadow: 0 1px 0 rgba(201,147,42,0.1), 0 4px 24px rgba(0,0,0,0.3);
+        }
+        
+        /* === NAV LINK === */
+        .nav-link {
+            position: relative;
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            color: #334155;
+            transition: color 0.25s ease;
+        }
+        .dark .nav-link { color: #cbd5e1; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 1px;
+            background: linear-gradient(90deg, #c9932a, #fbbf24);
+            transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link:hover { color: #0a0f2e; }
+        .dark .nav-link:hover { color: #fff; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .nav-link.active { color: #0a0f2e; }
+        .dark .nav-link.active { color: #fff; }
+        
+        /* === GLASS CARD === */
+        .glass {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        /* === GRADIENT TEXT === */
+        .text-gold {
+            background: linear-gradient(135deg, #c9932a 0%, #fbbf24 50%, #c9932a 100%);
             background-size: 200% auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
         }
         
-        .btn-gradient:hover {
-            background-position: right center;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-            transform: translateY(-2px);
+        /* === LOADING === */
+        #loading-screen {
+            position: fixed; inset: 0; z-index: 99999;
+            background: #0a0f2e;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease;
         }
+        .loader-ring {
+            width: 56px; height: 56px;
+            border: 2px solid rgba(201,147,42,0.15);
+            border-top-color: #c9932a;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Toast Animations */
-        .toast-enter {
-            animation: slideInFromTop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        /* === BUTTON PRIMARY === */
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 2rem;
+            background: #0a0f2e;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            border-radius: 2px;
+            border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            position: relative; overflow: hidden;
         }
-
-        .toast-exit {
-            animation: slideInFromTop 0.4s cubic-bezier(0.4, 0, 0.2, 1) reverse;
+        .btn-primary::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, #c9932a, #fbbf24);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
+        .btn-primary:hover::before { opacity: 1; }
+        .btn-primary:hover { border-color: #c9932a; color: #0a0f2e; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,147,42,0.3); }
+        .btn-primary span { position: relative; z-index: 1; }
+        .dark .btn-primary { background: rgba(201,147,42,0.1); border-color: rgba(201,147,42,0.3); color: #fbbf24; }
+        .dark .btn-primary:hover { border-color: #c9932a; }
         
-        @keyframes slideInFromTop {
-            0% {
-                transform: translateY(-100%) translateX(100px);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0) translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        /* Focus Styles - Accessibility */
-        *:focus-visible {
-            outline: 3px solid #3b82f6;
-            outline-offset: 3px;
-            border-radius: 0.25rem;
-        }
-        
-        /* Hover Glow Effect */
-        .hover-glow {
+        /* === BUTTON OUTLINE === */
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 2rem;
+            background: transparent;
+            color: #0a0f2e;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            border-radius: 2px;
+            border: 1px solid #0a0f2e;
             transition: all 0.3s ease;
         }
+        .btn-outline:hover { background: #0a0f2e; color: #fff; transform: translateY(-1px); }
+        .dark .btn-outline { color: #cbd5e1; border-color: rgba(255,255,255,0.2); }
+        .dark .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
         
-        .hover-glow:hover {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.4);
+        /* === SECTION LABEL === */
+        .section-label {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: #c9932a;
         }
-        
-        /* Ripple Effect */
-        .ripple {
-            position: relative;
-            overflow: hidden;
+        .section-label::before, .section-label::after {
+            content: ''; flex: 1; min-width: 1.5rem; height: 1px;
+            background: linear-gradient(90deg, transparent, #c9932a);
         }
+        .section-label::after { background: linear-gradient(90deg, #c9932a, transparent); }
         
-        .ripple::after {
+        /* === CARD === */
+        .card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            position: relative; overflow: hidden;
+        }
+        .dark .card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+        .card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.12); transform: translateY(-4px); }
+        .dark .card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+        .card::before {
             content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, #c9932a, #fbbf24);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .card:hover::before { transform: scaleX(1); }
+        
+        /* === DIVIDER === */
+        .divider {
+            width: 3rem; height: 2px;
+            background: linear-gradient(90deg, #c9932a, #fbbf24);
+            border-radius: 1px;
         }
         
-        .ripple:active::after {
-            width: 200px;
-            height: 200px;
+        /* === NOISE OVERLAY === */
+        .noise::after {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.06; pointer-events: none;
         }
+        
+        /* === SKIP LINK === */
+        .skip-link {
+            position: absolute; left: -9999px; top: 1rem;
+            z-index: 99999; padding: 0.5rem 1rem;
+            background: #c9932a; color: #0a0f2e;
+            font-weight: 700; border-radius: 2px;
+            transition: left 0s;
+        }
+        .skip-link:focus { left: 1rem; }
+        
+        /* === TOAST === */
+        .toast {
+            animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(120%) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        
+        /* === MOBILE MENU === */
+        #mobile-menu {
+            transform: translateY(-8px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+        }
+        #mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* === BACK TO TOP === */
+        #back-to-top {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        /* === FOCUS STYLES === */
+        *:focus-visible {
+            outline: 2px solid #c9932a;
+            outline-offset: 3px;
+            border-radius: 2px;
+        }
+        
+        /* === TRANSITIONS === */
+        .theme-transition {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        /* Cookie Banner */
+        #cookie-banner {
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        #cookie-banner.show { transform: translateY(0); }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="font-sans antialiased text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-950 transition-colors duration-300">
-    
+<body class="font-sans antialiased theme-transition bg-white dark:bg-navy-950 text-slate-800 dark:text-slate-200 min-h-screen">
+
     <!-- Loading Screen -->
-    <div id="loading-screen" class="fixed inset-0 z-[9999] bg-white dark:bg-gray-950 flex items-center justify-center transition-opacity duration-500">
+    <div id="loading-screen">
         <div class="text-center">
-            <div class="loading-spinner mx-auto mb-6"></div>
-            <h2 class="text-2xl font-display font-bold gradient-text">Loading...</h2>
+            <div class="loader-ring mx-auto mb-6"></div>
+            <div class="text-gold text-sm font-mono tracking-widest uppercase">Loading</div>
         </div>
     </div>
-    
-    <!-- Skip to Content -->
-    <a href="#main-content" class="skip-to-content">Skip to main content</a>
-    
-    <!-- Maintenance Mode Banner -->
+
+    <!-- Progress Bar -->
+    <div id="progress-bar"></div>
+
+    <!-- Skip Link -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- Maintenance Banner -->
     {% if site_settings.maintenance_mode %}
-    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-3 text-center font-semibold z-50 relative shadow-lg animate-pulse">
-        <i class="fas fa-tools mr-2"></i>
-        Site is currently under maintenance. Some features may be unavailable.
+    <div class="bg-gold-500 text-navy-900 text-center text-sm font-semibold py-2.5 px-4 z-50 relative">
+        <i class="fas fa-wrench mr-2"></i>
+        Site undergoing maintenance — some features may be temporarily unavailable.
     </div>
     {% endif %}
-    
-    <!-- Navigation -->
-    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-950/80 navbar-blur border-b border-gray-200/50 dark:border-gray-800/50 transition-all duration-300">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 lg:h-20">
+
+    <!-- ==================== NAVBAR ==================== -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-navy-950/90">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 lg:h-18">
+                
                 <!-- Logo -->
-                <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
-                    <div class="relative">
-                        <div class="absolute inset-0 Z rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative text-2xl lg:text-3xl font-display font-bold group-hover:scale-105 transition-transform">
-                            {% if site_settings.site_logo %}
-                            <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.site_name }}" class="h-8 lg:h-10">
-                            {% else %}
-                            <span class="gradient-text"><i class="fas fa-code mr-2"></i>{{ site_settings.site_name|truncatewords:2 }}</span>
-                            {% endif %}
+                <a href="{% url 'home' %}" class="group flex items-center gap-3" aria-label="Go to homepage">
+                    {% if site_settings.site_logo %}
+                    <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.site_name }}" class="h-8">
+                    {% else %}
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 bg-navy-900 dark:bg-gold-500 flex items-center justify-center" style="clip-path: polygon(50% 0%, 100% 100%, 0% 100%)">
                         </div>
+                        <span class="font-display text-lg font-700 text-navy-900 dark:text-white tracking-tight">
+                            {{ site_settings.site_name|truncatewords:2 }}
+                        </span>
                     </div>
+                    {% endif %}
                     {% if site_settings.available_for_work %}
-                    <span class="hidden sm:inline-flex items-center px-3 py-1 text-xs font-semibold bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full shadow-lg">
-                        <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>Available
+                    <span class="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Available
                     </span>
                     {% endif %}
                 </a>
-                
-                <!-- Desktop Menu -->
-                <div class="hidden lg:flex items-center space-x-8">
-                    <a href="{% url 'home' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative group {% if request.path == '/' %}text-primary-600 dark:text-primary-400{% endif %}">
-                        Home
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-purple-500 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="{% url 'about' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative group {% if '/about' in request.path %}text-primary-600 dark:text-primary-400{% endif %}">
-                        About
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-purple-500 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="{% url 'projects' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative group {% if '/project' in request.path %}text-primary-600 dark:text-primary-400{% endif %}">
-                        Projects
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-purple-500 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="{% url 'services' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative group {% if '/service' in request.path %}text-primary-600 dark:text-primary-400{% endif %}">
-                        Services
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-purple-500 group-hover:w-full transition-all duration-300"></span>
-                    </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden lg:flex items-center gap-8">
+                    <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+                    <a href="{% url 'about' %}" class="nav-link {% if '/about' in request.path %}active{% endif %}">About</a>
+                    <a href="{% url 'projects' %}" class="nav-link {% if '/project' in request.path %}active{% endif %}">Projects</a>
+                    <a href="{% url 'services' %}" class="nav-link {% if '/service' in request.path %}active{% endif %}">Services</a>
                     {% if site_settings.enable_blog %}
-                    <a href="{% url 'blog' %}" class="nav-link font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors relative group {% if '/blog' in request.path %}text-primary-600 dark:text-primary-400{% endif %}">
-                        Blog
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-purple-500 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'contact' %}" class="relative px-8 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full font-semibold overflow-hidden group">
-                        <span class="relative z-10">Get in Touch</span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </a>
-                    
-                    {% if site_settings.enable_dark_mode %}
-                    <button id="theme-toggle" class="relative p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all group" aria-label="Toggle dark mode">
-                        <i class="fas fa-moon dark:hidden text-gray-700 text-xl group-hover:scale-110 transition-transform"></i>
-                        <i class="fas fa-sun hidden dark:block text-yellow-400 text-xl group-hover:scale-110 transition-transform group-hover:rotate-180"></i>
-                    </button>
+                    <a href="{% url 'blog' %}" class="nav-link {% if '/blog' in request.path %}active{% endif %}">Blog</a>
                     {% endif %}
                 </div>
-                
-                <!-- Mobile Menu Button -->
-                <div class="flex items-center space-x-4 lg:hidden">
+
+                <!-- Desktop Actions -->
+                <div class="hidden lg:flex items-center gap-4">
                     {% if site_settings.enable_dark_mode %}
-                    <button id="mobile-theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" aria-label="Toggle dark mode">
-                        <i class="fas fa-moon dark:hidden text-xl"></i>
-                        <i class="fas fa-sun hidden dark:block text-yellow-400 text-xl"></i>
+                    <button id="theme-toggle" class="w-9 h-9 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-navy-900 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-white/10" aria-label="Toggle theme">
+                        <i class="fas fa-moon text-sm dark:hidden"></i>
+                        <i class="fas fa-sun text-sm hidden dark:block"></i>
                     </button>
                     {% endif %}
-                    <button id="mobile-menu-button" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" aria-label="Open menu">
-                        <i class="fas fa-bars text-xl"></i>
+                    <a href="{% url 'contact' %}" class="btn-primary">
+                        <span>Let's Talk</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Mobile Controls -->
+                <div class="flex items-center gap-3 lg:hidden">
+                    {% if site_settings.enable_dark_mode %}
+                    <button id="mobile-theme-toggle" class="w-9 h-9 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-navy-900 dark:hover:text-white transition-colors" aria-label="Toggle theme">
+                        <i class="fas fa-moon text-sm dark:hidden"></i>
+                        <i class="fas fa-sun text-sm hidden dark:block"></i>
+                    </button>
+                    {% endif %}
+                    <button id="mobile-menu-btn" class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300" aria-label="Open menu" aria-expanded="false">
+                        <span class="w-5 h-px bg-current transition-all duration-300" id="bar1"></span>
+                        <span class="w-5 h-px bg-current transition-all duration-300" id="bar2"></span>
+                        <span class="w-3 h-px bg-current transition-all duration-300" id="bar3"></span>
                     </button>
                 </div>
             </div>
         </div>
-        
+
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden lg:hidden bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 shadow-2xl">
-            <div class="container mx-auto px-4 py-6 space-y-1">
-                <a href="{% url 'home' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all {% if request.path == '/' %}text-primary-600 dark:text-primary-400 bg-gray-50 dark:bg-gray-800{% endif %}">
-                    <i class="fas fa-home w-6 mr-3"></i> Home
+        <div id="mobile-menu" class="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-navy-900 border-t border-slate-100 dark:border-white/5 shadow-2xl">
+            <div class="max-w-7xl mx-auto px-6 py-8 space-y-1">
+                {% for item in nav_items %}
+                <a href="{{ item.url }}" class="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-sm transition-all font-medium">
+                    {{ item.label }}
                 </a>
-                <a href="{% url 'about' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all {% if '/about' in request.path %}text-primary-600 dark:text-primary-400 bg-gray-50 dark:bg-gray-800{% endif %}">
-                    <i class="fas fa-user w-6 mr-3"></i> About
-                </a>
-                <a href="{% url 'projects' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all {% if '/project' in request.path %}text-primary-600 dark:text-primary-400 bg-gray-50 dark:bg-gray-800{% endif %}">
-                    <i class="fas fa-folder w-6 mr-3"></i> Projects
-                </a>
-                <a href="{% url 'services' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all {% if '/service' in request.path %}text-primary-600 dark:text-primary-400 bg-gray-50 dark:bg-gray-800{% endif %}">
-                    <i class="fas fa-briefcase w-6 mr-3"></i> Services
-                </a>
+                {% endfor %}
+                <a href="{% url 'home' %}" class="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-sm transition-all font-medium">Home</a>
+                <a href="{% url 'about' %}" class="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-sm transition-all font-medium">About</a>
+                <a href="{% url 'projects' %}" class="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-sm transition-all font-medium">Projects</a>
+                <a href="{% url 'services' %}" class="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-sm transition-all font-medium">Services</a>
                 {% if site_settings.enable_blog %}
-                <a href="{% url 'blog' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all {% if '/blog' in request.path %}text-primary-600 dark:text-primary-400 bg-gray-50 dark:bg-gray-800{% endif %}">
-                    <i class="fas fa-blog w-6 mr-3"></i> Blog
-                </a>
+                <a href="{% url 'blog' %}" class="flex items-center gap-3 px-4 py-3 text-slate-700 dark:text-slate-300 hover:text-navy-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-sm transition-all font-medium">Blog</a>
                 {% endif %}
-                <a href="{% url 'contact' %}" class="block text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
-                    <i class="fas fa-envelope w-6 mr-3"></i> Contact
-                </a>
-                {% if site_settings.resume_file %}
-                <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <a href="{% url 'download_resume' %}" class="block w-full text-center px-6 py-4 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-glow transition-all">
-                        <i class="fas fa-download mr-2"></i>Download Resume
+                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
+                    <a href="{% url 'contact' %}" class="btn-primary w-full justify-center">
+                        <span>Let's Talk</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
                     </a>
                 </div>
-                {% endif %}
             </div>
         </div>
     </nav>
-    
-    <!-- Progress Bar -->
-    <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 z-[60] transition-all duration-300 shadow-glow" style="width: 0%"></div>
-    
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-banner" class="hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6 z-50 shadow-2xl">
-        <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 gap-4">
-            <div class="flex items-start space-x-4">
-                <i class="fas fa-cookie-bite text-3xl text-yellow-400 mt-1"></i>
-                <div>
-                    <h4 class="font-bold text-lg mb-1">🍪 Cookie Policy</h4>
-                    <p class="text-sm text-gray-300">We use cookies to enhance your experience.</p>
-                </div>
+
+    <!-- ==================== MESSAGES ==================== -->
+    {% if messages %}
+    <div id="toast-container" class="fixed top-20 right-5 z-[60] space-y-2.5 max-w-sm w-full">
+        {% for message in messages %}
+        <div class="toast flex items-start gap-3 p-4 bg-white dark:bg-navy-800 rounded-sm shadow-xl border-l-2
+            {% if message.tags == 'success' %}border-emerald-500{% elif message.tags == 'error' %}border-red-500{% elif message.tags == 'warning' %}border-amber-500{% else %}border-blue-500{% endif %}">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
+                {% if message.tags == 'success' %}bg-emerald-50 text-emerald-600{% elif message.tags == 'error' %}bg-red-50 text-red-600{% elif message.tags == 'warning' %}bg-amber-50 text-amber-600{% else %}bg-blue-50 text-blue-600{% endif %}">
+                <i class="fas fa-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}times{% elif message.tags == 'warning' %}exclamation{% else %}info{% endif %} text-xs"></i>
             </div>
-            <div class="flex space-x-4 flex-shrink-0">
-                <button id="cookie-accept" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 rounded-lg hover:shadow-glow transition-all text-sm font-semibold">Accept All</button>
-                <button id="cookie-decline" class="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-all text-sm font-semibold">Decline</button>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                    {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}
+                </p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{{ message }}</p>
             </div>
+            <button onclick="this.parentElement.remove()" class="flex-shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <i class="fas fa-times text-xs"></i>
+            </button>
         </div>
+        {% endfor %}
     </div>
-    
-    <!-- Main Content -->
-    <main id="main-content" class="min-h-screen pt-16 lg:pt-2">
-        {% if messages %}
-        <div id="toast-container" class="fixed top-24 right-4 z-[60] space-y-3 max-w-md">
-            {% for message in messages %}
-            <div class="toast-message toast-enter glass backdrop-blur-xl rounded-xl shadow-2xl p-5 border-l-4 transform hover:scale-105 transition-transform
-                {% if message.tags == 'success' %}border-green-500{% elif message.tags == 'error' %}border-red-500{% elif message.tags == 'warning' %}border-yellow-500{% else %}border-blue-500{% endif %}">
-                <div class="flex items-start space-x-4">
-                    <div class="flex-shrink-0">
-                        {% if message.tags == 'success' %}
-                        <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                            <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                        </div>
-                        {% elif message.tags == 'error' %}
-                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
-                        </div>
-                        {% elif message.tags == 'warning' %}
-                        <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
-                            <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
-                        </div>
-                        {% else %}
-                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                            <i class="fas fa-info-circle text-blue-500 text-xl"></i>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                            {% if message.tags == 'success' %}Success!{% elif message.tags == 'error' %}Error!{% elif message.tags == 'warning' %}Warning!{% else %}Info{% endif %}
-                        </p>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ message }}</p>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        
+    {% endif %}
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main id="main-content" class="pt-16 lg:pt-18">
         {% block content %}{% endblock %}
     </main>
-    
-    <!-- Back to Top Button -->
-    <button id="back-to-top" class="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-glow hover:scale-110 transition-all duration-300 opacity-0 pointer-events-none z-40 group" aria-label="Back to top">
-        <i class="fas fa-arrow-up text-xl group-hover:animate-bounce"></i>
-    </button>
-    
-    <!-- Footer -->
-    <footer class="relative bg-gradient-to-b from-gray-900 to-black text-gray-300 pt-20 pb-10 overflow-hidden">
-        <div class="absolute inset-0 opacity-5">
-            <div class="absolute top-0 left-0 w-96 h-96 bg-primary-500 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
-        </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="relative bg-navy-900 text-slate-400 overflow-hidden">
+        <!-- Background texture -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+        <!-- Gold accent line -->
+        <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, #c9932a 30%, #fbbf24 50%, #c9932a 70%, transparent);"></div>
         
-        <div class="container mx-auto px-4 relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+            <!-- Top Footer -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-20 border-b border-white/5">
+                
+                <!-- Brand -->
                 <div class="lg:col-span-2">
-                    <h3 class="text-2xl lg:text-3xl font-display font-bold mb-4">
-                        <span class="gradient-text">{{ site_settings.site_name }}</span>
-                    </h3>
-                    <p class="text-gray-400 mb-6 leading-relaxed text-lg">{{ site_settings.tagline|default:site_settings.site_description }}</p>
+                    <div class="font-display text-2xl font-bold text-white mb-4">{{ site_settings.site_name }}</div>
+                    <p class="text-slate-500 leading-relaxed mb-8 max-w-sm">{{ site_settings.tagline|default:site_settings.site_description }}</p>
                     
-                    <div class="flex flex-wrap gap-3 mb-6">
+                    <!-- Social Links -->
+                    <div class="flex gap-3">
                         {% if site_settings.github_url %}
                         <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" 
-                           class="group w-12 h-12 rounded-xl bg-gray-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow-lg relative overflow-hidden" aria-label="GitHub">
-                            <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <i class="fab fa-github text-xl relative z-10"></i>
+                           class="w-10 h-10 bg-white/5 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500/40 flex items-center justify-center text-slate-400 hover:text-gold-400 transition-all rounded-sm text-sm" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
                         </a>
                         {% endif %}
                         {% if site_settings.linkedin_url %}
                         <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer"
-                           class="group w-12 h-12 rounded-xl bg-gray-800 hover:bg-gradient-to-r hover:from-blue-600 hover:to-cyan-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow-lg relative overflow-hidden" aria-label="LinkedIn">
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <i class="fab fa-linkedin text-xl relative z-10"></i>
+                           class="w-10 h-10 bg-white/5 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500/40 flex items-center justify-center text-slate-400 hover:text-gold-400 transition-all rounded-sm text-sm" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
                         </a>
                         {% endif %}
                         {% if site_settings.twitter_url %}
                         <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer"
-                           class="group w-12 h-12 rounded-xl bg-gray-800 hover:bg-gradient-to-r hover:from-sky-500 hover:to-blue-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow-lg relative overflow-hidden" aria-label="Twitter">
-                            <div class="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <i class="fab fa-twitter text-xl relative z-10"></i>
+                           class="w-10 h-10 bg-white/5 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500/40 flex items-center justify-center text-slate-400 hover:text-gold-400 transition-all rounded-sm text-sm" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
                         </a>
                         {% endif %}
                         <a href="mailto:{{ site_settings.email }}" 
-                           class="group w-12 h-12 rounded-xl bg-gray-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-glow-lg relative overflow-hidden" aria-label="Email">
-                            <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <i class="fas fa-envelope text-xl relative z-10"></i>
+                           class="w-10 h-10 bg-white/5 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500/40 flex items-center justify-center text-slate-400 hover:text-gold-400 transition-all rounded-sm text-sm" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
                         </a>
                     </div>
-                    
+
                     {% if site_settings.enable_newsletter %}
-                    <div class="mt-6">
-                        <h4 class="text-white font-semibold mb-3 text-lg flex items-center">
-                            <i class="fas fa-paper-plane mr-2 text-primary-400"></i>Subscribe to Newsletter
-                        </h4>
+                    <div class="mt-8">
+                        <p class="text-xs uppercase tracking-widest text-gold-500 font-semibold mb-3">Newsletter</p>
                         <form id="footer-newsletter-form" class="flex gap-2">
                             {% csrf_token %}
-                            <input type="email" name="email" placeholder="Enter your email" required
-                                   class="flex-1 px-4 py-3 rounded-xl bg-gray-800 border-2 border-gray-700 focus:border-primary-500 focus:outline-none text-white placeholder-gray-500 transition-all">
-                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 rounded-xl font-semibold transition-all whitespace-nowrap hover:shadow-glow">Subscribe</button>
+                            <input type="email" name="email" placeholder="your@email.com" required
+                                   class="flex-1 px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-sm text-white placeholder-slate-600 text-sm focus:border-gold-500/50 focus:outline-none focus:bg-white/8 transition-all">
+                            <button type="submit" class="px-4 py-2.5 bg-gold-500/20 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-navy-900 text-sm font-semibold rounded-sm transition-all whitespace-nowrap">
+                                Subscribe
+                            </button>
                         </form>
-                        <div id="footer-newsletter-message" class="mt-2 text-sm hidden"></div>
                     </div>
                     {% endif %}
                 </div>
                 
+                <!-- Navigation -->
                 <div>
-                    <h4 class="text-lg font-semibold text-white mb-6 flex items-center">
-                        <i class="fas fa-link mr-2 text-primary-400"></i>Quick Links
-                    </h4>
+                    <p class="text-xs uppercase tracking-widest text-gold-500 font-semibold mb-6">Navigation</p>
                     <ul class="space-y-3">
-                        <li><a href="{% url 'home' %}" class="hover:text-primary-400 transition-colors link-underline inline-block">Home</a></li>
-                        <li><a href="{% url 'about' %}" class="hover:text-primary-400 transition-colors link-underline inline-block">About</a></li>
-                        <li><a href="{% url 'projects' %}" class="hover:text-primary-400 transition-colors link-underline inline-block">Projects</a></li>
-                        <li><a href="{% url 'services' %}" class="hover:text-primary-400 transition-colors link-underline inline-block">Services</a></li>
+                        {% for link in footer_nav %}{% endfor %}
+                        <li><a href="{% url 'home' %}" class="text-slate-500 hover:text-white transition-colors text-sm">Home</a></li>
+                        <li><a href="{% url 'about' %}" class="text-slate-500 hover:text-white transition-colors text-sm">About</a></li>
+                        <li><a href="{% url 'projects' %}" class="text-slate-500 hover:text-white transition-colors text-sm">Projects</a></li>
+                        <li><a href="{% url 'services' %}" class="text-slate-500 hover:text-white transition-colors text-sm">Services</a></li>
                         {% if site_settings.enable_blog %}
-                        <li><a href="{% url 'blog' %}" class="hover:text-primary-400 transition-colors link-underline inline-block">Blog</a></li>
+                        <li><a href="{% url 'blog' %}" class="text-slate-500 hover:text-white transition-colors text-sm">Blog</a></li>
                         {% endif %}
-                        <li><a href="{% url 'contact' %}" class="hover:text-primary-400 transition-colors link-underline inline-block">Contact</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-slate-500 hover:text-white transition-colors text-sm">Contact</a></li>
                     </ul>
                 </div>
                 
+                <!-- Contact -->
                 <div>
-                    <h4 class="text-lg font-semibold text-white mb-6 flex items-center">
-                        <i class="fas fa-address-book mr-2 text-primary-400"></i>Contact
-                    </h4>
+                    <p class="text-xs uppercase tracking-widest text-gold-500 font-semibold mb-6">Contact</p>
                     <ul class="space-y-4">
-                        <li class="flex items-start space-x-3 group">
-                            <i class="fas fa-envelope text-primary-400 mt-1 group-hover:scale-110 transition-transform"></i>
-                            <a href="mailto:{{ site_settings.email }}" class="hover:text-primary-400 break-all transition-colors">{{ site_settings.email }}</a>
+                        <li>
+                            <a href="mailto:{{ site_settings.email }}" class="text-slate-500 hover:text-white transition-colors text-sm break-all">{{ site_settings.email }}</a>
                         </li>
                         {% if site_settings.phone %}
-                        <li class="flex items-start space-x-3 group">
-                            <i class="fas fa-phone text-primary-400 mt-1 group-hover:scale-110 transition-transform"></i>
-                            <a href="tel:{{ site_settings.phone }}" class="hover:text-primary-400 transition-colors">{{ site_settings.phone }}</a>
+                        <li>
+                            <a href="tel:{{ site_settings.phone }}" class="text-slate-500 hover:text-white transition-colors text-sm">{{ site_settings.phone }}</a>
                         </li>
                         {% endif %}
                         {% if site_settings.location %}
-                        <li class="flex items-start space-x-3">
-                            <i class="fas fa-map-marker-alt text-primary-400 mt-1"></i>
-                            <span>{{ site_settings.location }}</span>
-                        </li>
+                        <li class="text-slate-500 text-sm">{{ site_settings.location }}</li>
                         {% endif %}
                     </ul>
+
+                    {% if site_settings.resume_file %}
+                    <a href="{% url 'download_resume' %}" class="inline-flex items-center gap-2 mt-6 text-xs uppercase tracking-widest font-semibold text-gold-500 hover:text-gold-300 transition-colors">
+                        <i class="fas fa-download text-xs"></i> Download Resume
+                    </a>
+                    {% endif %}
                 </div>
             </div>
             
-            <div class="border-t border-gray-800 pt-8">
-                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                    <p class="text-gray-400 text-sm">{{ site_settings.footer_text|default:"© 2024 All rights reserved." }}</p>
-                    <div class="flex items-center space-x-6 text-sm">
-                        <a href="#" class="hover:text-primary-400 transition-colors">Privacy</a>
-                        <a href="#" class="hover:text-primary-400 transition-colors">Terms</a>
-                    </div>
+            <!-- Bottom Footer -->
+            <div class="flex flex-col sm:flex-row items-center justify-between py-6 gap-4">
+                <p class="text-slate-600 text-xs">{{ site_settings.footer_text|default:"© 2024 All rights reserved." }}</p>
+                <div class="flex items-center gap-6 text-xs text-slate-600">
+                    <a href="#" class="hover:text-slate-400 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-slate-400 transition-colors">Terms of Service</a>
                 </div>
-                <p class="text-sm text-gray-500 mt-6 text-center flex items-center justify-center gap-2">
-                    Built with <i class="fas fa-heart text-red-500 animate-pulse"></i> using <span class="font-semibold gradient-text">Django & Tailwind CSS</span>
-                </p>
             </div>
         </div>
     </footer>
-    
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 w-10 h-10 bg-navy-900 dark:bg-gold-500 text-white dark:text-navy-900 flex items-center justify-center shadow-xl z-40 hover:bg-gold-500 dark:hover:bg-gold-400 hover:text-navy-900 transition-all rounded-sm border border-white/10" aria-label="Back to top">
+        <i class="fas fa-arrow-up text-xs"></i>
+    </button>
+
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 z-50 bg-navy-900 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-slate-400">
+                <i class="fas fa-cookie-bite text-gold-500 mr-2"></i>
+                We use cookies to enhance your experience. By continuing, you agree to our cookie policy.
+            </p>
+            <div class="flex gap-3 flex-shrink-0">
+                <button id="cookie-accept" class="px-4 py-2 bg-gold-500/20 border border-gold-500/40 text-gold-400 hover:bg-gold-500 hover:text-navy-900 text-xs font-semibold rounded-sm transition-all">Accept</button>
+                <button id="cookie-decline" class="px-4 py-2 text-slate-500 hover:text-slate-300 text-xs font-semibold transition-colors">Decline</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     
     <script>
+        // Loading Screen
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loadingScreen = document.getElementById('loading-screen');
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => loadingScreen.style.display = 'none', 500);
-            }, 800);
+            const ls = document.getElementById('loading-screen');
+            if (ls) {
+                setTimeout(() => {
+                    ls.style.opacity = '0';
+                    ls.style.pointerEvents = 'none';
+                    setTimeout(() => ls.remove(), 600);
+                }, 600);
+            }
         });
-        
-        AOS.init({duration: 1000, once: true, offset: 100, easing: 'ease-out-cubic', delay: 100});
-        
-        const themeToggle = document.getElementById('theme-toggle');
-        const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
-        const htmlElement = document.documentElement;
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') htmlElement.classList.add('dark');
-        
-        function toggleTheme() {
-            htmlElement.classList.toggle('dark');
-            const newTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-            window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: newTheme } }));
+
+        // AOS
+        AOS.init({ duration: 900, once: true, offset: 60, easing: 'ease-out-cubic' });
+
+        // Theme
+        const html = document.documentElement;
+        const stored = localStorage.getItem('theme');
+        if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
         }
-        
-        themeToggle?.addEventListener('click', toggleTheme);
-        mobileThemeToggle?.addEventListener('click', toggleTheme);
-        
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        function toggleTheme() {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        }
+        document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+        document.getElementById('mobile-theme-toggle')?.addEventListener('click', toggleTheme);
+
+        // Mobile Menu
+        const mobileBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
+        const bar1 = document.getElementById('bar1');
+        const bar2 = document.getElementById('bar2');
+        const bar3 = document.getElementById('bar3');
+        let menuOpen = false;
         
-        mobileMenuButton?.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            const icon = mobileMenuButton.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!mobileMenuButton?.contains(e.target) && !mobileMenu?.contains(e.target)) {
-                mobileMenu?.classList.add('hidden');
-                const icon = mobileMenuButton?.querySelector('i');
-                icon?.classList.remove('fa-times');
-                icon?.classList.add('fa-bars');
-            }
-        });
-        
-        let ticking = false;
-        window.addEventListener('scroll', () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const winScroll = document.documentElement.scrollTop;
-                    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                    const scrolled = (winScroll / height) * 100;
-                    document.getElementById('progress-bar').style.width = scrolled + '%';
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-        
-        const backToTop = document.getElementById('back-to-top');
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 500) {
-                backToTop.classList.remove('opacity-0', 'pointer-events-none');
-                backToTop.classList.add('opacity-100');
+        mobileBtn?.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            mobileMenu.classList.toggle('open', menuOpen);
+            mobileBtn.setAttribute('aria-expanded', menuOpen);
+            if (menuOpen) {
+                bar1.style.transform = 'translateY(6px) rotate(45deg)';
+                bar2.style.opacity = '0';
+                bar3.style.transform = 'translateY(-6px) rotate(-45deg)';
+                bar3.style.width = '1.25rem';
             } else {
-                backToTop.classList.add('opacity-0', 'pointer-events-none');
-                backToTop.classList.remove('opacity-100');
+                bar1.style.transform = ''; bar2.style.opacity = '';
+                bar3.style.transform = ''; bar3.style.width = '';
             }
         });
-        
-        backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        
+
+        document.addEventListener('click', (e) => {
+            if (menuOpen && !mobileBtn?.contains(e.target) && !mobileMenu?.contains(e.target)) {
+                menuOpen = false;
+                mobileMenu.classList.remove('open');
+                bar1.style.transform = ''; bar2.style.opacity = '';
+                bar3.style.transform = ''; bar3.style.width = '';
+            }
+        });
+
+        // Navbar scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 40);
+        }, { passive: true });
+
+        // Progress bar
+        let rafPending = false;
+        window.addEventListener('scroll', () => {
+            if (!rafPending) {
+                rafPending = true;
+                requestAnimationFrame(() => {
+                    const pct = (window.scrollY / (document.documentElement.scrollHeight - innerHeight)) * 100;
+                    document.getElementById('progress-bar').style.width = Math.min(pct, 100) + '%';
+                    rafPending = false;
+                });
+            }
+        }, { passive: true });
+
+        // Back to top
+        const btt = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            btt?.classList.toggle('visible', window.scrollY > 400);
+        }, { passive: true });
+        btt?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // Auto dismiss toasts
         setTimeout(() => {
-            document.querySelectorAll('.toast-message').forEach(alert => {
-                alert.classList.remove('toast-enter');
-                alert.classList.add('toast-exit');
-                setTimeout(() => alert.remove(), 400);
+            document.querySelectorAll('.toast').forEach(t => {
+                t.style.transition = 'all 0.4s ease';
+                t.style.opacity = '0'; t.style.transform = 'translateX(120%)';
+                setTimeout(() => t.remove(), 400);
             });
         }, 6000);
-        
-        const cookieBanner = document.getElementById('cookie-banner');
-        if (!localStorage.getItem('cookieConsent')) {
-            setTimeout(() => cookieBanner?.classList.remove('hidden'), 2000);
+
+        // Cookie banner
+        if (!localStorage.getItem('cookie-consent')) {
+            setTimeout(() => document.getElementById('cookie-banner')?.classList.add('show'), 2500);
         }
-        
         document.getElementById('cookie-accept')?.addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'accepted');
-            cookieBanner?.classList.add('hidden');
+            localStorage.setItem('cookie-consent', 'accepted');
+            document.getElementById('cookie-banner')?.classList.remove('show');
         });
-        
         document.getElementById('cookie-decline')?.addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'declined');
-            cookieBanner?.classList.add('hidden');
+            localStorage.setItem('cookie-consent', 'declined');
+            document.getElementById('cookie-banner')?.classList.remove('show');
         });
-        
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        window.csrfToken = getCookie('csrftoken');
-        
+
+        // CSRF helper
+        window.getCsrfToken = () => {
+            const m = document.cookie.match(/csrftoken=([^;]+)/);
+            return m ? m[1] : '';
+        };
+
+        // Lazy images
         if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.classList.remove('lazy');
-                            imageObserver.unobserve(img);
-                        }
+            const imgObs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting && e.target.dataset.src) {
+                        e.target.src = e.target.dataset.src;
+                        imgObs.unobserve(e.target);
                     }
                 });
-            }, { rootMargin: '50px' });
-            
-            document.querySelectorAll('img.lazy').forEach(img => imageObserver.observe(img));
+            }, { rootMargin: '100px' });
+            document.querySelectorAll('img[data-src]').forEach(img => imgObs.observe(img));
         }
     </script>
     
     {% block extra_js %}{% endblock %}
-    
+
     {% if site_settings.google_analytics_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ site_settings.google_analytics_id }}"></script>
     <script>
