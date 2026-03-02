@@ -1,175 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Contact Message</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 30px;
-        }
-        .info-row {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .label {
-            font-weight: 600;
-            color: #667eea;
-            display: inline-block;
-            min-width: 100px;
-        }
-        .message-box {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-left: 4px solid #667eea;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .priority {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .priority-low { background-color: #d4edda; color: #155724; }
-        .priority-medium { background-color: #fff3cd; color: #856404; }
-        .priority-high { background-color: #f8d7da; color: #721c24; }
-        .priority-urgent { background-color: #dc3545; color: white; }
-        .button {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 14px;
-            background-color: #f8f9fa;
-        }
-        .metadata {
-            font-size: 12px;
-            color: #999;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>New Contact Message — {{ site_settings.site_name }}</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #f5f3f1; font-family: 'DM Sans', Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    .email-wrapper { background-color: #f5f3f1; padding: 32px 16px; }
+    .email-container { max-width: 600px; margin: 0 auto; }
+    .email-header { background: linear-gradient(135deg, #252422 0%, #403d39 100%); border-radius: 16px 16px 0 0; padding: 36px 40px; text-align: center; }
+    .email-body { background: #ffffff; padding: 40px; }
+    .email-footer { background: #f5f3f1; border-radius: 0 0 16px 16px; padding: 24px 40px; border-top: 1px solid #e5e2dc; }
+    .logo-mark { display: inline-block; width: 48px; height: 48px; background: #eb5e28; border-radius: 12px; line-height: 48px; text-align: center; font-size: 22px; font-weight: 900; color: #fff; font-family: Georgia, serif; font-style: italic; margin-bottom: 16px; }
+    h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 22px; color: #fffcf2; margin: 0; }
+    .subtitle { font-size: 13px; color: rgba(255,252,242,0.6); margin-top: 6px; }
+    .alert-badge { display: inline-block; background: rgba(235,94,40,0.15); border: 1px solid rgba(235,94,40,0.35); color: #eb5e28; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; margin-bottom: 24px; }
+    .field-row { padding: 14px 0; border-bottom: 1px solid #f0ede8; display: flex; gap: 12px; }
+    .field-row:last-of-type { border-bottom: none; }
+    .field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9b9590; min-width: 110px; padding-top: 2px; flex-shrink: 0; }
+    .field-value { font-size: 14px; color: #403d39; line-height: 1.6; }
+    .field-value a { color: #eb5e28; text-decoration: none; }
+    .message-box { background: #faf9f7; border: 1px solid #e5e2dc; border-left: 4px solid #eb5e28; border-radius: 0 10px 10px 0; padding: 20px 22px; margin: 24px 0; }
+    .message-box p { font-size: 14px; color: #5a5650; line-height: 1.8; white-space: pre-wrap; }
+    .priority-badge { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .priority-high { background: rgba(220,38,38,0.1); color: #dc2626; border: 1px solid rgba(220,38,38,0.2); }
+    .priority-medium { background: rgba(235,94,40,0.1); color: #eb5e28; border: 1px solid rgba(235,94,40,0.2); }
+    .priority-low { background: rgba(34,197,94,0.08); color: #16a34a; border: 1px solid rgba(34,197,94,0.2); }
+    .cta-btn { display: inline-block; background: #eb5e28; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 700; padding: 14px 32px; border-radius: 10px; margin-top: 8px; }
+    .cta-btn:hover { background: #ca4713; }
+    .meta-chip { display: inline-block; background: #f0ede8; border: 1px solid #e0dbd3; color: #807d76; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; margin: 2px; }
+    .footer-text { font-size: 12px; color: #9b9590; line-height: 1.6; }
+    .footer-text a { color: #eb5e28; text-decoration: none; }
+    .divider { height: 1px; background: #e5e2dc; margin: 20px 0; }
+    @media (max-width: 480px) {
+      .email-header, .email-body, .email-footer { padding-left: 24px !important; padding-right: 24px !important; }
+      .field-row { flex-direction: column; gap: 4px; }
+      .field-label { min-width: auto; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔔 New Contact Message</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">{{ contact.created_at|date:"F d, Y \a\t H:i" }}</p>
-        </div>
-        
-        <div class="content">
-            <div class="info-row">
-                <span class="label">From:</span>
-                <strong>{{ contact.name }}</strong>
-            </div>
-            
-            <div class="info-row">
-                <span class="label">Email:</span>
-                <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
-            </div>
-            
-            {% if contact.phone %}
-            <div class="info-row">
-                <span class="label">Phone:</span>
-                <a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>
-            </div>
-            {% endif %}
-            
-            <div class="info-row">
-                <span class="label">Subject:</span>
-                <strong>{{ contact.subject }}</strong>
-            </div>
-            
-            <div class="info-row">
-                <span class="label">Priority:</span>
-                <span class="priority priority-{{ contact.priority }}">{{ contact.get_priority_display }}</span>
-            </div>
-            
-            {% if contact.budget %}
-            <div class="info-row">
-                <span class="label">Budget:</span>
-                {{ contact.budget }}
-            </div>
-            {% endif %}
-            
-            {% if contact.timeline %}
-            <div class="info-row">
-                <span class="label">Timeline:</span>
-                {{ contact.timeline }}
-            </div>
-            {% endif %}
-            
-            <h3 style="color: #667eea; margin-top: 30px;">Message:</h3>
-            <div class="message-box">
-                {{ contact.message|linebreaks }}
-            </div>
-            
-            <div style="text-align: center;">
-                {% if admin_url %}
-                <a href="{{ admin_url }}" class="button">View in Admin Panel</a>
-                {% endif %}
-                <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject }}" class="button" style="background: #28a745; margin-left: 10px;">
-                    Reply to {{ contact.name }}
-                </a>
-            </div>
-            
-            <div class="metadata">
-                <strong>Technical Details:</strong><br>
-                IP Address: {{ contact.ip_address }}<br>
-                Submitted: {{ contact.created_at|date:"Y-m-d H:i:s" }}<br>
-                {% if contact.referrer %}
-                Referrer: {{ contact.referrer }}<br>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p><strong>{{ site_settings.site_name }}</strong></p>
-            <p>{{ site_settings.email }} | {{ site_settings.location }}</p>
-            <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                This is an automated notification from your portfolio contact form.
-            </p>
-        </div>
+<div class="email-wrapper">
+  <div class="email-container">
+
+    <!-- HEADER -->
+    <div class="email-header">
+      <div class="logo-mark">B</div>
+      <h1>New Contact Message</h1>
+      <p class="subtitle">{{ site_settings.site_name }} · {{ contact.created_at|date:"N j, Y · g:i A" }}</p>
     </div>
+
+    <!-- BODY -->
+    <div class="email-body">
+
+      <div style="text-align:center; margin-bottom: 28px;">
+        <span class="alert-badge">🔔 Action Required</span>
+      </div>
+
+      <p style="font-size:15px;color:#403d39;line-height:1.7;margin-bottom:24px;">
+        You've received a new message from your portfolio contact form. Here are the details:
+      </p>
+
+      <!-- Contact Info Fields -->
+      <div style="background:#faf9f7;border:1px solid #e5e2dc;border-radius:12px;padding:6px 20px;margin-bottom:24px;">
+        <div class="field-row">
+          <span class="field-label">Full Name</span>
+          <span class="field-value" style="font-weight:700;color:#252422;">{{ contact.name }}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Email</span>
+          <span class="field-value"><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></span>
+        </div>
+        {% if contact.phone %}
+        <div class="field-row">
+          <span class="field-label">Phone</span>
+          <span class="field-value"><a href="tel:{{ contact.phone }}">{{ contact.phone }}</a></span>
+        </div>
+        {% endif %}
+        {% if contact.company %}
+        <div class="field-row">
+          <span class="field-label">Company</span>
+          <span class="field-value">{{ contact.company }}</span>
+        </div>
+        {% endif %}
+        <div class="field-row">
+          <span class="field-label">Subject</span>
+          <span class="field-value" style="font-weight:600;">{{ contact.subject }}</span>
+        </div>
+        {% if contact.service_type %}
+        <div class="field-row">
+          <span class="field-label">Service</span>
+          <span class="field-value">{{ contact.get_service_type_display }}</span>
+        </div>
+        {% endif %}
+        {% if contact.budget %}
+        <div class="field-row">
+          <span class="field-label">Budget</span>
+          <span class="field-value">{{ contact.budget }}</span>
+        </div>
+        {% endif %}
+        {% if contact.timeline %}
+        <div class="field-row">
+          <span class="field-label">Timeline</span>
+          <span class="field-value">{{ contact.timeline }}</span>
+        </div>
+        {% endif %}
+        <div class="field-row">
+          <span class="field-label">Priority</span>
+          <span class="field-value">
+            <span class="priority-badge {% if contact.priority == 'high' %}priority-high{% elif contact.priority == 'medium' %}priority-medium{% else %}priority-low{% endif %}">
+              {{ contact.get_priority_display }}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9b9590;margin-bottom:10px;">Message</p>
+      <div class="message-box">
+        <p>{{ contact.message }}</p>
+      </div>
+
+      <!-- Meta -->
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9b9590;margin-bottom:10px;">Request Metadata</p>
+      <div style="margin-bottom:28px;">
+        <span class="meta-chip">📅 {{ contact.created_at|date:"N j, Y g:i A" }}</span>
+        <span class="meta-chip">🌐 {{ contact.ip_address }}</span>
+        {% if contact.source %}<span class="meta-chip">📌 {{ contact.source }}</span>{% endif %}
+      </div>
+
+      <!-- CTA -->
+      <div style="text-align:center;padding:24px;background:linear-gradient(135deg,rgba(235,94,40,0.06) 0%,transparent 100%);border:1px solid rgba(235,94,40,0.14);border-radius:14px;">
+        <p style="font-size:14px;color:#5a5650;margin-bottom:16px;">Reply promptly to build trust and win the project.</p>
+        <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject }}" class="cta-btn">
+          ✉️ Reply to {{ contact.name|truncatechars:20 }}
+        </a>
+        {% if admin_url %}
+        <br><br>
+        <a href="{{ admin_url }}" style="font-size:13px;color:#eb5e28;text-decoration:none;">View in Admin Panel →</a>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="email-footer">
+      <p class="footer-text" style="text-align:center;">
+        This notification was sent by <strong>{{ site_settings.site_name }}</strong> contact system.<br>
+        <a href="{{ site_settings.site_url|default:'#' }}">{{ site_settings.site_url|default:'Visit website' }}</a>
+      </p>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>

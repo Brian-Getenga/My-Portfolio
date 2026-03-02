@@ -83,7 +83,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
-                'core.context_processors.site_settings',
+                'core.context_processors.global_context',
             ],
         },
     },
@@ -206,7 +206,7 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='briangetenga3@gmail.com'
 ADMIN_EMAIL = env('ADMIN_EMAIL', default='briangetenga3@gmail.com')
 
 # Site URL for emails and absolute URLs
-SITE_URL = env('SITE_URL', default='http://localhost:8000')
+SITE_URL = env('SITE_URL', default='http://localhost:9003')
 
 # Security Settings (Production)
 if not DEBUG:

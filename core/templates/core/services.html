@@ -1,265 +1,407 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load math_filters %}
+{% load custom_filters %}
+Z
+{% block title %}Services — {{ site_settings.site_name|default:"Brian Getenga" }}{% endblock %}
+{% block meta_description %}Professional web development services by Brian Getenga — Django, React, REST APIs, e-commerce, and more. Transparent pricing, rapid delivery.{% endblock %}
 
-{% block title %}Services - {{ site_settings.site_name }}{% endblock %}
-{% block meta_description %}Professional web development, design, and consulting services. From custom websites to full-stack applications, I deliver quality solutions tailored to your needs.{% endblock %}
-
-{% block extra_css %}
+{% block extra_head %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-    :root{--navy:#0a0f2e;--navy-mid:#141b4d;--gold:#c9932a;--gold-light:#e8b84b;--gold-muted:#8a6520;--cream:#f8f4ef;--cream-dark:#ede8e0;--charcoal:#2c2c3e;--muted:#6b6b7f;}
-    *{font-family:'DM Sans',sans-serif;}
-    .font-display{font-family:'Playfair Display',Georgia,serif;}
-    .font-mono{font-family:'DM Mono',monospace;}
-    body{background:var(--cream);color:var(--charcoal);}
+  /* ── Service card ───────────────────────────── */
+  .svc-card {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: 2rem 1.85rem; position: relative; overflow: hidden;
+    transition: box-shadow .3s, transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s;
+    display: flex; flex-direction: column;
+  }
+  .svc-card:hover { box-shadow: var(--shadow-xl); transform: translateY(-5px); border-color: rgba(235,94,40,.28); }
+  .svc-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #eb5e28, #ca4713);
+    transform: scaleX(0); transform-origin: left; transition: transform .35s ease;
+  }
+  .svc-card:hover::before { transform: scaleX(1); }
+  .svc-card.featured { border-color: rgba(235,94,40,.38); }
+  .svc-card.featured::before { transform: scaleX(1); }
 
-    .services-hero{background:var(--navy);position:relative;overflow:hidden;}
-    .services-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
-    .blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+  .svc-icon {
+    width: 54px; height: 54px; border-radius: 15px; margin-bottom: 1.4rem;
+    background: rgba(235,94,40,.1); border: 1px solid rgba(235,94,40,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; color: #eb5e28;
+    transition: background .2s, color .2s, transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  .svc-card:hover .svc-icon { background: #eb5e28; color: #fff; transform: scale(1.1); }
 
-    /* Service cards */
-    .service-card{background:#fff;border:1px solid var(--cream-dark);padding:2.5rem;display:flex;flex-direction:column;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;text-decoration:none;color:inherit;}
-    .service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transform:scaleX(0);transform-origin:left;transition:transform .35s ease;}
-    .service-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(10,15,46,.1);border-color:rgba(201,147,42,.2);}
-    .service-card:hover::before{transform:scaleX(1);}
-    .service-icon{width:56px;height:56px;background:var(--navy);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;transition:transform .3s;}
-    .service-card:hover .service-icon{transform:scale(1.1);}
-    .service-icon i{color:var(--gold);font-size:1.25rem;}
-    .service-title{font-family:'Playfair Display',serif;font-size:1.375rem;color:var(--navy);margin-bottom:.75rem;line-height:1.3;transition:color .2s;}
-    .service-card:hover .service-title{color:var(--gold-muted);}
-    .service-desc{font-size:.875rem;color:var(--muted);line-height:1.7;flex:1;margin-bottom:1.5rem;}
-    .feature-list{list-style:none;padding:0;margin-bottom:1.5rem;}
-    .feature-list li{display:flex;align-items:center;gap:.625rem;font-size:.8rem;color:var(--charcoal);padding:.375rem 0;border-bottom:1px solid var(--cream-dark);}
-    .feature-list li:last-child{border-bottom:none;}
-    .feature-list li i{color:var(--gold);font-size:.65rem;}
-    .service-footer{display:flex;align-items:center;justify-content:space-between;padding-top:1.25rem;border-top:1px solid var(--cream-dark);}
-    .service-price{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--navy);}
-    .service-price-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.25rem;}
-    .link-arrow{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-muted);display:inline-flex;align-items:center;gap:.375rem;transition:all .2s;}
-    .service-card:hover .link-arrow{color:var(--gold);gap:.625rem;}
+  .svc-feature {
+    display: flex; align-items: flex-start; gap: .65rem; margin-bottom: .55rem;
+    font-family: 'DM Sans', sans-serif; font-size: .85rem; color: var(--text-muted); line-height: 1.5;
+  }
+  .svc-feature-check { color: #22c55e; font-size: .62rem; margin-top: .22rem; flex-shrink: 0; width: 14px; }
 
-    /* Pricing table */
-    .pricing-card{background:#fff;border:1px solid var(--cream-dark);padding:2.5rem;position:relative;display:flex;flex-direction:column;transition:all .3s ease;}
-    .pricing-card:hover{box-shadow:0 16px 50px rgba(10,15,46,.08);}
-    .pricing-card.featured{border-color:var(--gold);transform:translateY(-8px);}
-    .pricing-card.featured:hover{transform:translateY(-12px);}
-    .featured-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;padding:.35rem 1.25rem;white-space:nowrap;}
-    .plan-name{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--navy);margin-bottom:.375rem;}
-    .plan-desc{font-size:.875rem;color:var(--muted);margin-bottom:1.5rem;}
-    .plan-price{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:700;color:var(--navy);line-height:1;}
-    .plan-period{font-size:.875rem;color:var(--muted);margin-left:.25rem;}
-    .plan-original{font-size:1rem;color:var(--muted);text-decoration:line-through;display:block;margin-top:.25rem;}
-    .plan-features{list-style:none;padding:0;margin:1.75rem 0;flex:1;}
-    .plan-feature{display:flex;align-items:flex-start;gap:.75rem;padding:.625rem 0;border-bottom:1px solid var(--cream-dark);font-size:.875rem;}
-    .plan-feature:last-child{border-bottom:none;}
-    .plan-check{width:24px;height:24px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .plan-check i{color:#16a34a;font-size:.6rem;}
-    .btn-plan{display:flex;align-items:center;justify-content:center;gap:.625rem;padding:1rem;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid;transition:all .25s;width:100%;}
-    .btn-plan.primary{background:var(--navy);color:var(--gold-light);border-color:var(--navy);}
-    .btn-plan.primary:hover{background:#1e2a6e;border-color:var(--gold);}
-    .btn-plan.secondary{background:transparent;color:var(--charcoal);border-color:var(--cream-dark);}
-    .btn-plan.secondary:hover{border-color:var(--navy);color:var(--navy);}
+  /* ── Process step ───────────────────────────── */
+  .process-step {
+    display: flex; gap: 1.25rem; align-items: flex-start;
+    padding: 1.4rem 1.5rem; background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 16px; transition: all .25s;
+  }
+  .process-step:hover { border-color: rgba(235,94,40,.25); box-shadow: var(--shadow-md); transform: translateX(4px); }
+  .step-num {
+    width: 42px; height: 42px; border-radius: 50%; background: rgba(235,94,40,.1);
+    border: 1.5px solid rgba(235,94,40,.25); display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1rem; color: #eb5e28;
+    flex-shrink: 0; transition: all .22s;
+  }
+  .process-step:hover .step-num { background: #eb5e28; color: #fff; }
 
-    /* Process */
-    .process-timeline{position:relative;max-width:680px;margin:0 auto;}
-    .process-timeline::before{content:'';position:absolute;left:1.75rem;top:3.5rem;bottom:2rem;width:1px;background:linear-gradient(to bottom,var(--gold),rgba(201,147,42,.1));}
-    .process-item{display:flex;gap:1.75rem;padding-bottom:3rem;position:relative;}
-    .process-num{width:52px;height:52px;background:var(--navy);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--gold-light);position:relative;z-index:1;}
-    .process-body{padding-top:.5rem;flex:1;}
-    .process-body h3{font-weight:600;font-size:1.1rem;color:var(--navy);margin-bottom:.5rem;}
-    .process-body p{font-size:.875rem;line-height:1.7;color:var(--muted);}
-    .process-dur{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted);display:inline-flex;align-items:center;gap:.375rem;margin-top:.75rem;}
+  /* ── Tech badge ─────────────────────────────── */
+  .tech-badge {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .42rem .85rem; border-radius: 999px;
+    background: var(--bg-surface); border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif; font-size: .8rem; color: var(--text-muted);
+    transition: all .2s; white-space: nowrap;
+  }
+  .tech-badge:hover { background: rgba(235,94,40,.08); border-color: rgba(235,94,40,.25); color: #eb5e28; }
+  .tech-badge i { font-size: .72rem; color: #eb5e28; }
 
-    /* Testimonials */
-    .testimonial-card{background:#fff;border:1px solid var(--cream-dark);padding:2rem;position:relative;}
-    .testimonial-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--gold),var(--gold-light));}
-    .stars{display:flex;gap:.25rem;margin-bottom:1rem;}
-    .stars i{color:var(--gold);font-size:.875rem;}
-    .testimonial-text{font-style:italic;line-height:1.75;color:var(--charcoal);margin-bottom:1.5rem;font-size:.95rem;}
-    .testimonial-avatar{width:48px;height:48px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--gold-light);flex-shrink:0;}
-    .testimonial-name{font-weight:600;color:var(--navy);}
-    .testimonial-role{font-size:.8rem;color:var(--muted);font-family:'DM Mono',monospace;}
+  /* ── Pricing note ───────────────────────────── */
+  .pricing-tag {
+    font-family: 'Courier Prime', monospace; font-size: .78rem; font-weight: 700;
+    color: #eb5e28; margin-top: auto; padding-top: 1.1rem;
+  }
 
-    .section-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
-    .section-label::before{content:'';width:3rem;height:1px;background:var(--cream-dark);}
-    .section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+  /* ── FAQ ────────────────────────────────────── */
+  .faq-item { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg-surface); transition: border-color .2s; }
+  .faq-item:hover { border-color: rgba(235,94,40,.22); }
+  .faq-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.05rem 1.25rem; background: none; border: none; cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .9rem; color: var(--text-primary); transition: color .2s; }
+  .faq-trigger:hover { color: #eb5e28; }
+  .faq-icon { color: #eb5e28; font-size: .68rem; flex-shrink: 0; transition: transform .28s cubic-bezier(.34,1.56,.64,1); }
+  .faq-body { overflow: hidden; max-height: 0; transition: max-height .38s cubic-bezier(.22,1,.36,1), padding .38s ease; padding: 0 1.25rem; }
+  .faq-body.open { padding: 0 1.25rem 1.05rem; max-height: 400px; }
+  .faq-body p { font-family: 'DM Sans', sans-serif; font-size: .875rem; color: var(--text-muted); line-height: 1.75; }
 
-    .cta-section{background:var(--navy);position:relative;overflow:hidden;}
-    .cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
-    .btn-white{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:#fff;color:var(--navy);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid #fff;transition:all .25s ease;}
-    .btn-white:hover{background:var(--cream);}
-    .btn-ghost{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:transparent;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.35);transition:all .25s ease;}
-    .btn-ghost:hover{background:rgba(255,255,255,.08);}
-
-    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-    .fade-up{animation:fadeUp .7s ease forwards;}
-    .d1{animation-delay:.1s;opacity:0;}.d2{animation-delay:.2s;opacity:0;}.d3{animation-delay:.3s;opacity:0;}
+  /* ── Testimonial mini ───────────────────────── */
+  .mini-testi {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.5rem; transition: all .25s;
+  }
+  .mini-testi:hover { border-color: rgba(235,94,40,.22); box-shadow: var(--shadow-md); }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero -->
-<section class="services-hero pt-40 pb-28">
-    <div class="blob w-[600px] h-[600px] opacity-10" style="background:radial-gradient(circle,#4f46e5,transparent);top:-200px;left:-100px;"></div>
-    <div class="blob w-[400px] h-[400px] opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);bottom:-100px;right:0;"></div>
-    <div class="container mx-auto px-6 lg:px-8 max-w-4xl text-center relative z-10">
-        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase fade-up">What I Offer</span>
-        <h1 class="font-display text-6xl lg:text-7xl text-white mt-3 leading-none fade-up d1">Professional<br><em class="text-amber-300">Services</em></h1>
-        <p class="text-slate-400 text-xl max-w-2xl mx-auto mt-6 leading-relaxed fade-up d2">Comprehensive solutions from concept to deployment. Built with precision, delivered with care.</p>
+{# ══ BREADCRUMB ═══════════════════════════════════════════════ #}
+<nav aria-label="Breadcrumb" style="background:var(--bg-subtle);border-bottom:1px solid var(--border);transition:background .3s;">
+  <div class="cx" style="padding-top:.75rem;padding-bottom:.75rem;">
+    <ol style="display:flex;align-items:center;gap:.5rem;list-style:none;flex-wrap:wrap;" itemscope itemtype="https://schema.org/BreadcrumbList">
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="{% url 'home' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'">
+          <i class="fas fa-house" style="font-size:.7rem;" aria-hidden="true"></i>
+          <span itemprop="name" class="sr-only">Home</span>
+        </a>
+        <meta itemprop="position" content="1">
+      </li>
+      <li aria-hidden="true" style="color:var(--border-strong);font-size:.75rem;">/</li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:#eb5e28;font-weight:600;">Services</span>
+        <meta itemprop="position" content="2">
+      </li>
+    </ol>
+  </div>
+</nav>
+
+{# ══ HERO ══════════════════════════════════════════════════════ #}
+<section style="padding:3.75rem 0 2.5rem;background:var(--bg-base);position:relative;overflow:hidden;transition:background .3s;">
+  <div style="position:absolute;top:-100px;right:-60px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(235,94,40,.07) 0%,transparent 70%);pointer-events:none;" aria-hidden="true"></div>
+  <div class="cx">
+    <div style="max-width:660px;" data-reveal>
+      <p class="eyebrow" style="margin-bottom:.9rem;">What I Offer</p>
+      <h1 style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.06;color:var(--text-primary);margin-bottom:1rem;transition:color .3s;">
+        Services Built for<br><em style="font-style:italic;color:#eb5e28;">Real Results</em>
+      </h1>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.98rem;color:var(--text-muted);line-height:1.8;max-width:540px;margin-bottom:1.75rem;">
+        From strategy to deployment — I deliver full-stack web solutions with clean code, great UX, and long-term maintainability in mind.
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:.75rem;">
+        <a href="{% url 'contact' %}" class="btn btn-primary"><i class="fas fa-paper-plane" style="font-size:.72rem;" aria-hidden="true"></i> Start a Project</a>
+        <a href="#process" class="btn btn-outline">How I Work <i class="fas fa-arrow-down" style="font-size:.7rem;" aria-hidden="true"></i></a>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- Services Grid -->
-<section class="py-20" style="background:var(--cream)">
-    <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-        {% if services %}
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for service in services %}
-            <a href="{{ service.get_absolute_url }}" class="service-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:80 }}">
-                <div class="service-icon"><i class="{{ service.icon_class|default:'fas fa-code' }}"></i></div>
-                <h3 class="service-title">{{ service.title }}</h3>
-                <p class="service-desc">{{ service.short_description|default:service.description|truncatewords:20 }}</p>
-                {% if service.features %}
-                <ul class="feature-list">
-                    {% for feat in service.feature_list|slice:":3" %}
-                    <li><i class="fas fa-check-circle"></i>{{ feat }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                <div class="service-footer">
-                    <div>
-                        {% if service.price %}<span class="service-price-label">Starting at</span><span class="service-price">${{ service.price }}</span>{% else %}<span class="service-price-label">Pricing</span><span class="service-price" style="font-size:1.1rem">Custom Quote</span>{% endif %}
-                    </div>
-                    <span class="link-arrow">Learn More <i class="fas fa-arrow-right text-xs"></i></span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-center py-20"><div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center" style="background:var(--cream-dark)"><i class="fas fa-briefcase text-4xl" style="color:var(--muted)"></i></div><h3 class="font-display text-3xl mb-3" style="color:var(--navy)">Services Coming Soon</h3><p style="color:var(--muted)">Check back soon for available services.</p></div>
+{# ══ STATS STRIP ═══════════════════════════════════════════════ #}
+<div style="background:var(--bg-surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);transition:background .3s;">
+  <div class="cx">
+    <div id="svc-stats" style="display:grid;grid-template-columns:repeat(2,1fr);">
+      {% for stat in "Projects Shipped:40+||Happy Clients:20+||Years Experience:4+||On-time Delivery:98%"|split:"||" %}
+      {% with parts=stat|split:":" %}
+      <div style="padding:1.6rem 0;text-align:center;position:relative;">
+        <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,3.5vw,2.5rem);color:#eb5e28;display:block;line-height:1;">{{ parts.1 }}</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-top:.35rem;display:block;">{{ parts.0 }}</span>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<style>@media(min-width:640px){#svc-stats{grid-template-columns:repeat(4,1fr)!important;}}</style>
+
+{# ══ SERVICES GRID ═════════════════════════════════════════════ #}
+<section style="padding:4.5rem 0;" id="services-grid-section" aria-labelledby="svc-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:3rem;text-align:center;">
+      <p class="eyebrow" style="justify-content:center;margin-bottom:.8rem;">Capabilities</p>
+      <h2 id="svc-heading" style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,2.75rem);color:var(--text-primary);transition:color .3s;">
+        What I <em style="font-style:italic;color:#eb5e28;">Specialise In</em>
+      </h2>
+    </div>
+
+    <div id="svc-grid" style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+      {% for service in services %}
+      <article class="svc-card {% if service.is_featured %}featured{% endif %}" data-reveal data-reveal-delay="{{ forloop.counter }}">
+
+        {% if service.is_featured %}
+        <div style="position:absolute;top:1.1rem;right:1.1rem;font-family:'Courier Prime',monospace;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .65rem;border-radius:6px;background:#eb5e28;color:#fff;">Popular</div>
         {% endif %}
+
+        <div class="svc-icon"><i class="{{ service.icon|default:'fas fa-code' }}" aria-hidden="true"></i></div>
+
+        <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.25rem;color:var(--text-primary);margin-bottom:.7rem;transition:color .3s;">{{ service.title }}</h3>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.25rem;flex:1;">{{ service.short_description }}</p>
+
+        {# Feature list #}
+        {% if service.features %}
+        <ul style="list-style:none;margin-bottom:1.4rem;" aria-label="Service features">
+          {% for feature in service.features|split:"\n" %}
+          {% if feature|trim %}
+          <li class="svc-feature">
+            <i class="fas fa-check svc-feature-check" aria-hidden="true"></i>
+            {{ feature|trim }}
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {# Pricing + CTA #}
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;padding-top:1.1rem;border-top:1px solid var(--border);">
+          <div>
+            {% if service.starting_price %}
+            <p class="pricing-tag" style="margin:0;padding:0;">from ${{ service.starting_price }}</p>
+            {% endif %}
+            {% if service.delivery_time %}
+            <p style="font-family:'DM Sans',sans-serif;font-size:.75rem;color:var(--text-faint);margin-top:.18rem;">
+              <i class="fas fa-clock" style="font-size:.62rem;color:#eb5e28;" aria-hidden="true"></i> {{ service.delivery_time }}
+            </p>
+            {% endif %}
+          </div>
+          <div style="display:flex;gap:.55rem;">
+            <a href="{{ service.get_absolute_url }}" class="btn btn-outline btn-sm">Details</a>
+            <a href="{% url 'contact' %}?service={{ service.slug }}" class="btn btn-primary btn-sm">Hire Me</a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      {# Fallback cards #}
+      {% for svc in "Full Stack Web Development:fas fa-laptop-code:Django & React apps — from wireframe to deployment:5,Django REST API:fas fa-server:Scalable APIs with auth, docs &amp; tests:3,React Frontend:fas fa-paintbrush:Pixel-perfect UIs with modern React:2,E-Commerce:fas fa-shopping-cart:WooCommerce / custom Django shops:7,UI/UX Consulting:fas fa-eye:User research, prototypes &amp; design systems:1,DevOps &amp; Deployment:fas fa-cloud:CI/CD, Docker, VPS &amp; AWS setup:4"|split:"," %}
+      {% with parts=svc|split:":" %}
+      <article class="svc-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div class="svc-icon"><i class="{{ parts.1 }}" aria-hidden="true"></i></div>
+        <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.25rem;color:var(--text-primary);margin-bottom:.7rem;">{{ parts.0 }}</h3>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.25rem;flex:1;">{{ parts.2 }}</p>
+        <div style="padding-top:1.1rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+          <a href="{% url 'contact' %}" class="btn btn-primary btn-sm">Get Quote</a>
+        </div>
+      </article>
+      {% endwith %}
+      {% endfor %}
+      {% endfor %}
     </div>
+  </div>
+</section>
+<style>
+  @media(min-width:640px)  { #svc-grid { grid-template-columns: repeat(2,1fr) !important; } }
+  @media(min-width:1024px) { #svc-grid { grid-template-columns: repeat(3,1fr) !important; } }
+</style>
+
+{# ══ TECH STACK ════════════════════════════════════════════════ #}
+<section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s;" aria-labelledby="tech-heading">
+  <div class="cx">
+    <div data-reveal style="text-align:center;margin-bottom:2.5rem;">
+      <p class="eyebrow" style="justify-content:center;margin-bottom:.8rem;">Technology</p>
+      <h2 id="tech-heading" style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,2.75rem);color:var(--text-primary);transition:color .3s;">
+        Tools of the <em style="font-style:italic;color:#eb5e28;">Trade</em>
+      </h2>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text-muted);max-width:460px;margin:.75rem auto 0;line-height:1.75;">Technologies I reach for daily — chosen for reliability, performance, and developer experience.</p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:.65rem;justify-content:center;" data-reveal>
+      {% for tech in "Python:fab fa-python,Django:fas fa-server,React:fab fa-react,JavaScript:fab fa-js,TypeScript:fas fa-code,PostgreSQL:fas fa-database,Redis:fas fa-database,Celery:fas fa-gears,Docker:fab fa-docker,AWS:fab fa-aws,Nginx:fas fa-server,Git:fab fa-git-alt,REST APIs:fas fa-plug,GraphQL:fas fa-project-diagram,Tailwind CSS:fas fa-palette,Next.js:fab fa-react"|split:"," %}
+      {% with parts=tech|split:":" %}
+      <span class="tech-badge"><i class="{{ parts.1 }}" aria-hidden="true"></i>{{ parts.0 }}</span>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
-<!-- Pricing -->
-{% if pricing_tiers %}
-<section class="py-20 lg:py-28 bg-white">
-    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <div class="text-center mb-16" data-aos="fade-up">
-            <div class="section-label">Transparent Pricing</div>
-            <h2 class="font-display text-5xl" style="color:var(--navy)">Choose Your <em style="color:var(--gold-muted)">Plan</em></h2>
-            <p class="mt-4 text-lg" style="color:var(--muted)">Flexible pricing designed to fit your needs and budget</p>
-        </div>
-        <div class="grid md:grid-cols-3 gap-6 items-start">
-            {% for tier in pricing_tiers %}
-            <div class="pricing-card {% if tier.featured %}featured{% endif %}" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|mul:80 }}">
-                {% if tier.featured %}<div class="featured-badge">Most Popular</div>{% endif %}
-                <div class="mt-4">
-                    <div class="plan-name">{{ tier.name }}</div>
-                    <p class="plan-desc">{{ tier.description }}</p>
-                    <div class="flex items-baseline gap-1">
-                        <span class="plan-price">${{ tier.price }}</span>
-                        {% if tier.billing_period %}<span class="plan-period">/{{ tier.billing_period }}</span>{% endif %}
-                    </div>
-                    {% if tier.original_price %}<span class="plan-original">${{ tier.original_price }}</span>{% endif %}
-                </div>
-                <ul class="plan-features">
-                    {% for feature in tier.feature_list %}
-                    <li class="plan-feature"><div class="plan-check"><i class="fas fa-check"></i></div><span>{{ feature }}</span></li>
-                    {% endfor %}
-                </ul>
-                <a href="{% url 'contact' %}?service={{ tier.slug }}" class="btn-plan {% if tier.featured %}primary{% else %}secondary{% endif %}">
-                    {{ tier.cta_text|default:"Get Started" }}
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-        <p class="text-center mt-10 text-sm" style="color:var(--muted)" data-aos="fade-up">Need something custom? <a href="{% url 'contact' %}" style="color:var(--gold-muted);font-weight:600;text-decoration:none">Contact me</a> for a tailored quote.</p>
+{# ══ PROCESS ═══════════════════════════════════════════════════ #}
+<section id="process" style="padding:4.5rem 0;" aria-labelledby="process-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:3rem;">
+      <p class="eyebrow" style="margin-bottom:.8rem;">How I Work</p>
+      <h2 id="process-heading" style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,2.75rem);color:var(--text-primary);transition:color .3s;">
+        My <em style="font-style:italic;color:#eb5e28;">Process</em>
+      </h2>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-muted);max-width:500px;margin-top:.75rem;line-height:1.75;">A transparent, collaborative workflow designed to keep you in the loop at every stage.</p>
     </div>
-</section>
-{% endif %}
 
-<!-- Process -->
-<section class="py-20 lg:py-28" style="background:var(--cream)">
-    <div class="container mx-auto px-6 lg:px-8 max-w-5xl">
-        <div class="text-center mb-16" data-aos="fade-up">
-            <div class="section-label">Methodology</div>
-            <h2 class="font-display text-5xl" style="color:var(--navy)">How I <em style="color:var(--gold-muted)">Work</em></h2>
-            <p class="mt-4 text-lg" style="color:var(--muted)">A proven, collaborative process designed to deliver exceptional results</p>
+    <div id="process-grid" style="display:grid;grid-template-columns:1fr;gap:.85rem;">
+      {% for step in "Discovery &amp; Planning:fas fa-magnifying-glass:We align on goals, scope, timeline, and success metrics. I listen more than I talk.:1,Design &amp; Architecture:fas fa-pen-ruler:Wireframes, system design, database schema — the blueprint before any code.:2,Development:fas fa-code:Clean, well-tested code with regular check-ins and demos. No surprises.:3,Quality Assurance:fas fa-circle-check:Thorough testing — unit, integration, manual UAT — before anything goes live.:4,Deployment:fas fa-rocket:Zero-downtime deployment to your chosen infrastructure with full documentation.:5,Ongoing Support:fas fa-headset:Post-launch monitoring, bug fixes, and feature iterations whenever you need them.:6"|split:"," %}
+      {% with parts=step|split:":" %}
+      <div class="process-step" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div class="step-num" aria-hidden="true">{{ parts.3 }}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.4rem;">
+            <i class="{{ parts.1 }}" style="color:#eb5e28;font-size:.88rem;" aria-hidden="true"></i>
+            <h3 style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;color:var(--text-primary);transition:color .3s;">{{ parts.0 }}</h3>
+          </div>
+          <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.7;">{{ parts.2 }}</p>
         </div>
-        <div class="process-timeline">
-            {% for step in process_steps %}
-            <div class="process-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:80 }}">
-                <div class="process-num">{{ forloop.counter }}</div>
-                <div class="process-body">
-                    <h3>{{ step.title }}</h3>
-                    <p>{{ step.description }}</p>
-                    {% if step.duration %}<span class="process-dur"><i class="fas fa-clock"></i>{{ step.duration }}</span>{% endif %}
-                </div>
-            </div>
-            {% empty %}
-            {% for step in "1234"|make_list %}
-            {% with i=forloop.counter %}
-            <div class="process-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:80 }}">
-                <div class="process-num">{{ i }}</div>
-                <div class="process-body">
-                    <h3>{% if i == 1 %}Discovery &amp; Planning{% elif i == 2 %}Design &amp; Prototyping{% elif i == 3 %}Development &amp; Testing{% else %}Launch &amp; Support{% endif %}</h3>
-                    <p>{% if i == 1 %}We discuss your goals, requirements, and vision. I'll analyze your needs and create a detailed project plan that sets us up for success.{% elif i == 2 %}I create wireframes and interactive prototypes. You'll see your vision come to life before development begins.{% elif i == 3 %}Clean, efficient code following best practices. Rigorous testing ensures everything works perfectly across all devices.{% else %}Smooth deployment to production. Ongoing support and maintenance to keep everything running at peak performance.{% endif %}</p>
-                    <span class="process-dur"><i class="fas fa-clock"></i>{% if i == 1 %}1–2 weeks{% elif i == 2 %}1–3 weeks{% elif i == 3 %}3–8 weeks{% else %}Ongoing{% endif %}</span>
-                </div>
-            </div>
-            {% endwith %}
-            {% endfor %}
-            {% endfor %}
-        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
     </div>
+  </div>
 </section>
+<style>@media(min-width:768px){#process-grid{grid-template-columns:repeat(2,1fr)!important;}}@media(min-width:1024px){#process-grid{grid-template-columns:repeat(3,1fr)!important;}}</style>
 
-<!-- Testimonials -->
+{# ══ TESTIMONIALS ══════════════════════════════════════════════ #}
 {% if testimonials %}
-<section class="py-20 bg-white">
-    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <div class="section-label">Client Testimonials</div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {% for t in testimonials|slice:":6" %}
-            <div class="testimonial-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:60 }}">
-                <div class="stars">{% for i in "12345"|make_list %}<i class="fas fa-star"></i>{% endfor %}</div>
-                <p class="testimonial-text">"{{ t.content }}"</p>
-                <div class="flex items-center gap-3">
-                    {% if t.avatar %}<img src="{{ t.avatar.url }}" alt="{{ t.name }}" class="testimonial-avatar">
-                    {% else %}<div class="testimonial-avatar">{{ t.name|first }}</div>{% endif %}
-                    <div>
-                        <div class="testimonial-name">{{ t.name }}</div>
-                        <div class="testimonial-role">{{ t.position }}, {{ t.company }}</div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+<section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s;" aria-labelledby="testi-svc-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:2.5rem;text-align:center;">
+      <p class="eyebrow" style="justify-content:center;margin-bottom:.8rem;">Client Words</p>
+      <h2 id="testi-svc-heading" style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,2.75rem);color:var(--text-primary);transition:color .3s;">
+        Trusted by <em style="font-style:italic;color:#eb5e28;">Real Clients</em>
+      </h2>
     </div>
+    <div id="testi-svc-grid" style="display:grid;grid-template-columns:1fr;gap:1.25rem;">
+      {% for t in testimonials|slice:":3" %}
+      <div class="mini-testi" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div style="font-family:'Playfair Display',serif;font-size:3rem;line-height:.9;color:#eb5e28;opacity:.3;margin-bottom:-.25rem;" aria-hidden="true">"</div>
+        {% if t.rating %}<div style="color:#eb5e28;font-size:.72rem;margin-bottom:.7rem;" aria-label="{{ t.rating }} stars">{% for i in "12345" %}{% if forloop.counter <= t.rating %}<i class="fas fa-star" aria-hidden="true"></i>{% else %}<i class="far fa-star" style="opacity:.3;" aria-hidden="true"></i>{% endif %}{% endfor %}</div>{% endif %}
+        <blockquote style="font-family:'Playfair Display',serif;font-size:.95rem;font-style:italic;color:var(--text-secondary);line-height:1.8;margin-bottom:1.1rem;">"{{ t.testimonial|truncatewords:40 }}"</blockquote>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          {% if t.avatar %}<img src="{{ t.avatar.url }}" alt="{{ t.name }}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(235,94,40,.22);flex-shrink:0;" loading="lazy">{% else %}<div style="width:38px;height:38px;border-radius:50%;background:#eb5e28;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;color:#fff;font-size:.88rem;flex-shrink:0;">{{ t.name|first }}</div>{% endif %}
+          <div>
+            <p style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.86rem;color:var(--text-primary);">{{ t.name }}</p>
+            <p style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">{{ t.role }}{% if t.company %} · {{ t.company }}{% endif %}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
+<style>@media(min-width:768px){#testi-svc-grid{grid-template-columns:repeat(2,1fr)!important;}}@media(min-width:1024px){#testi-svc-grid{grid-template-columns:repeat(3,1fr)!important;}}</style>
 {% endif %}
 
-<!-- CTA -->
-<section class="cta-section py-28">
-    <div class="blob w-96 h-96 opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);top:50%;left:-100px;transform:translateY(-50%)"></div>
-    <div class="container mx-auto px-6 lg:px-8 max-w-3xl text-center relative z-10" data-aos="fade-up">
-        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase">Let's Collaborate</span>
-        <h2 class="font-display text-5xl text-white mt-4 mb-5 leading-tight">Ready to<br><em class="text-amber-300">Get Started?</em></h2>
-        <p class="text-slate-400 text-lg mb-10 leading-relaxed">Let's discuss your project and create a custom solution that exceeds your expectations.</p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'contact' %}" class="btn-white"><i class="fas fa-paper-plane text-xs"></i>Start a Project</a>
-            <a href="{% url 'projects' %}" class="btn-ghost"><i class="fas fa-folder text-xs"></i>View Portfolio</a>
-        </div>
+{# ══ FAQ ═══════════════════════════════════════════════════════ #}
+<section style="padding:4.5rem 0;{% if not testimonials %}background:var(--bg-subtle);{% endif %}transition:background .3s;" aria-labelledby="faq-svc-heading">
+  <div class="cx">
+    <div data-reveal style="text-align:center;margin-bottom:2.5rem;">
+      <p class="eyebrow" style="justify-content:center;margin-bottom:.8rem;">FAQ</p>
+      <h2 id="faq-svc-heading" style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,2.75rem);color:var(--text-primary);transition:color .3s;">Common <em style="font-style:italic;color:#eb5e28;">Questions</em></h2>
     </div>
+    <div style="display:flex;flex-direction:column;gap:.6rem;max-width:760px;margin:0 auto;">
+      {% for faq in faqs %}
+      <div class="faq-item" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="sfaq-{{ forloop.counter }}" data-faq="s{{ forloop.counter }}">
+          <span>{{ faq.question }}</span>
+          <i class="fas fa-plus faq-icon" aria-hidden="true"></i>
+        </button>
+        <div class="faq-body" id="sfaq-{{ forloop.counter }}" role="region">
+          <p>{{ faq.answer }}</p>
+        </div>
+      </div>
+      {% empty %}
+      {# Built-in FAQ fallback #}
+      {% for qa in "What's your typical project timeline?:Timelines vary by scope — a landing page might take 1–2 weeks; a full SaaS product can take 2–4 months. We'll agree on a clear schedule upfront.,Do you work with international clients?:Absolutely. I work with clients across the US, UK, EU, and beyond. Remote-first is my default mode.,What information do you need to give me a quote?:A brief description of the project, rough timeline, and your budget range are enough to start. We'll refine scope together.,Do you offer maintenance after launch?:Yes — I offer monthly retainers for ongoing maintenance, updates, and feature additions.,What are your payment terms?:I typically require 50% upfront and 50% on delivery. Milestones can be arranged for larger projects.,Can I see your previous work?:Of course! Browse my Projects page for case studies with live demos and source code links."|split:"," %}
+      {% with parts=qa|split:":" %}
+      <div class="faq-item" data-reveal>
+        <button class="faq-trigger" aria-expanded="false" aria-controls="sfaq-d-{{ forloop.counter }}" data-faq="sd{{ forloop.counter }}">
+          <span>{{ parts.0 }}</span>
+          <i class="fas fa-plus faq-icon" aria-hidden="true"></i>
+        </button>
+        <div class="faq-body" id="sfaq-d-{{ forloop.counter }}" role="region">
+          <p>{{ parts.1 }}</p>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ══ CTA BANNER ════════════════════════════════════════════════ #}
+<section style="padding:5rem 0;background:var(--bg-base);transition:background .3s;" aria-labelledby="cta-svc-heading">
+  <div class="cx">
+    <div style="background:linear-gradient(135deg,rgba(235,94,40,.08) 0%,rgba(202,71,19,.04) 100%);border:1px solid rgba(235,94,40,.18);border-radius:24px;padding:3.5rem 2.5rem;text-align:center;" data-reveal>
+      <p class="eyebrow" style="justify-content:center;margin-bottom:.9rem;">Ready to Start?</p>
+      <h2 id="cta-svc-heading" style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.9rem,4vw,3rem);color:var(--text-primary);margin-bottom:1rem;transition:color .3s;">
+        Let's Build Something<br><em style="font-style:italic;color:#eb5e28;">Exceptional</em>
+      </h2>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.96rem;color:var(--text-muted);max-width:480px;margin:0 auto 2rem;line-height:1.8;">
+        Share your idea and I'll come back with a clear scope, timeline, and quote — no obligation, no fluff.
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;">
+        <a href="{% url 'contact' %}" class="btn btn-primary" style="padding:.9rem 2rem;font-size:.95rem;">
+          <i class="fas fa-paper-plane" style="font-size:.75rem;" aria-hidden="true"></i> Start a Conversation
+        </a>
+        <a href="{% url 'projects' %}" class="btn btn-outline" style="padding:.9rem 2rem;font-size:.95rem;">
+          View My Work <i class="fas fa-arrow-right" style="font-size:.72rem;" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-AOS.init({duration:900,once:true,offset:80});
+document.addEventListener('DOMContentLoaded', function () {
+  /* FAQ accordion */
+  document.querySelectorAll('.faq-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id   = btn.dataset.faq;
+      var body = document.getElementById('sfaq-' + id) || document.getElementById('sfaq-d-' + id.replace('sd',''));
+      /* find the matching body by aria-controls */
+      var ctrl = btn.getAttribute('aria-controls');
+      var actualBody = document.getElementById(ctrl);
+      var icon = btn.querySelector('.faq-icon');
+      var wasOpen = actualBody && actualBody.classList.contains('open');
+      /* collapse all */
+      document.querySelectorAll('.faq-body').forEach(function (b) { b.classList.remove('open'); });
+      document.querySelectorAll('.faq-trigger').forEach(function (t) {
+        t.setAttribute('aria-expanded', 'false');
+        var ic = t.querySelector('.faq-icon');
+        if (ic) { ic.className = 'fas fa-plus faq-icon'; ic.style.transform = ''; }
+      });
+      /* open clicked */
+      if (!wasOpen && actualBody) {
+        actualBody.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        if (icon) { icon.className = 'fas fa-minus faq-icon'; icon.style.transform = 'rotate(45deg)'; }
+      }
+    });
+  });
+});
 </script>
 {% endblock %}

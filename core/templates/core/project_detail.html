@@ -1,332 +1,271 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load math_filters %}
+{% load custom_filters %}
 
-{% block title %}{{ project.title }} - Projects - {{ site_settings.site_name }}{% endblock %}
-{% block meta_description %}{{ project.short_description|default:project.description|truncatewords:30 }}{% endblock %}
+{% block title %}{{ project.title }} — {{ site_settings.site_name|default:"Brian Getenga" }}{% endblock %}
+{% block meta_description %}{{ project.description|truncatewords:30 }}{% endblock %}
+{% block meta_image %}{% if project.featured_image %}{{ project.featured_image.url }}{% endif %}{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-    :root{--navy:#0a0f2e;--navy-mid:#141b4d;--gold:#c9932a;--gold-light:#e8b84b;--gold-muted:#8a6520;--cream:#f8f4ef;--cream-dark:#ede8e0;--charcoal:#2c2c3e;--muted:#6b6b7f;}
-    *{font-family:'DM Sans',sans-serif;}
-    .font-display{font-family:'Playfair Display',Georgia,serif;}
-    .font-mono{font-family:'DM Mono',monospace;}
-    body{background:var(--cream);color:var(--charcoal);}
-
-    .project-hero{background:var(--navy);position:relative;overflow:hidden;}
-    .project-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
-    .blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
-
-    .breadcrumb-item{color:rgba(255,255,255,.45);font-size:.8rem;letter-spacing:.05em;}
-    .breadcrumb-item a{color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s;}
-    .breadcrumb-item a:hover{color:var(--gold-light);}
-    .breadcrumb-sep{color:rgba(255,255,255,.2);margin:0 .5rem;font-size:.7rem;}
-    .breadcrumb-active{color:var(--gold-light);}
-
-    .category-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,147,42,.3);padding:.35rem .875rem;margin-bottom:1.25rem;}
-
-    .meta-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(4px);padding:.5rem 1rem;font-size:.8rem;color:rgba(255,255,255,.7);}
-    .meta-pill i{color:var(--gold);font-size:.75rem;}
-
-    .btn-white{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:#fff;color:var(--navy);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid #fff;transition:all .25s ease;}
-    .btn-white:hover{background:var(--cream);border-color:var(--cream);}
-    .btn-ghost{display:inline-flex;align-items:center;gap:.625rem;padding:.875rem 1.75rem;background:transparent;color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.35);transition:all .25s ease;}
-    .btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.6);}
-
-    .featured-image-wrap{background:#fff;border-bottom:3px solid var(--gold);}
-
-    .content-section{padding:3.5rem 0;}
-    .content-h2{font-family:'Playfair Display',serif;font-size:1.75rem;color:var(--navy);display:flex;align-items:center;gap:.875rem;margin-bottom:1.75rem;}
-    .content-icon{width:44px;height:44px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .content-icon i{color:var(--gold);font-size:.95rem;}
-
-    .prose{color:var(--charcoal);line-height:1.8;font-size:.95rem;}
-    .prose h2,.prose h3{font-family:'Playfair Display',serif;color:var(--navy);margin:2rem 0 .75rem;}
-    .prose p{margin-bottom:1.25rem;}
-    .prose blockquote{border-left:3px solid var(--gold);padding:.75rem 1.25rem;background:rgba(201,147,42,.04);margin:1.5rem 0;}
-
-    .feature-item{display:flex;align-items:flex-start;gap:.875rem;padding:.875rem;background:#fff;border:1px solid var(--cream-dark);transition:all .2s ease;}
-    .feature-item:hover{border-color:rgba(201,147,42,.25);background:rgba(201,147,42,.02);}
-    .feature-check{width:28px;height:28px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-    .feature-check i{color:var(--gold);font-size:.65rem;}
-    .feature-item span{font-size:.875rem;line-height:1.5;color:var(--charcoal);}
-
-    .tech-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.75rem;color:var(--navy);background:var(--cream);border:1px solid var(--cream-dark);padding:.4rem .875rem;transition:all .2s ease;cursor:default;}
-    .tech-tag:hover{border-color:var(--gold);background:#fff;}
-
-    .gallery-item{overflow:hidden;cursor:pointer;position:relative;}
-    .gallery-item::after{content:'\f00e';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;inset:0;background:rgba(10,15,46,.5);color:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease;}
-    .gallery-item:hover::after{opacity:1;}
-    .gallery-item img{width:100%;height:220px;object-fit:cover;display:block;transition:transform .5s ease;}
-    .gallery-item:hover img{transform:scale(1.05);}
-
-    .challenge-box,.solution-box{padding:1.75rem;border-left:3px solid;}
-    .challenge-box{background:#fff8f0;border-color:#f97316;}
-    .solution-box{background:#f0fff4;border-color:#22c55e;}
-
-    /* Sidebar */
-    .sidebar-card{background:#fff;border:1px solid rgba(201,147,42,.15);padding:2rem;position:relative;}
-    .sidebar-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));}
-    .info-row{display:flex;align-items:center;gap:.875rem;padding:.875rem 0;border-bottom:1px solid var(--cream-dark);}
-    .info-row:last-of-type{border-bottom:none;}
-    .info-icon{width:36px;height:36px;background:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .info-icon i{color:var(--gold);font-size:.875rem;}
-    .info-label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;display:block;}
-    .info-value{font-size:.9rem;font-weight:600;color:var(--navy);}
-
-    .btn-primary-sm{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:var(--navy);color:var(--gold-light);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--navy);transition:all .25s;}
-    .btn-primary-sm:hover{background:#1e2a6e;border-color:var(--gold);}
-    .btn-dark-sm{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:var(--charcoal);color:#fff;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--charcoal);transition:all .25s;}
-    .btn-dark-sm:hover{background:#1a1a2e;}
-
-    .share-btn{flex:1;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--cream-dark);color:var(--charcoal);text-decoration:none;font-size:.9rem;transition:all .2s;min-height:44px;}
-    .share-btn:hover{border-color:var(--gold);color:var(--gold);}
-
-    /* Related */
-    .related-card{background:#fff;border:1px solid var(--cream-dark);transition:all .35s ease;display:block;text-decoration:none;color:inherit;}
-    .related-card:hover{transform:translateY(-6px);border-color:rgba(201,147,42,.3);box-shadow:0 12px 40px rgba(10,15,46,.1);}
-    .related-card img{width:100%;height:180px;object-fit:cover;display:block;transition:transform .5s ease;}
-    .related-card:hover img{transform:scale(1.05);}
-
-    .section-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
-    .section-label::before{content:'';width:3rem;height:1px;background:var(--cream-dark);}
-    .section-label::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
-
-    /* CTA */
-    .cta-section{background:var(--navy);position:relative;overflow:hidden;}
-    .cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,147,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,147,42,.04) 1px,transparent 1px);background-size:60px 60px;}
-
-    /* Lightbox */
-    #lightbox{backdrop-filter:blur(12px);}
-
-    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-    .fade-up{animation:fadeUp .7s ease forwards;}
-    .d1{animation-delay:.1s;opacity:0;}.d2{animation-delay:.2s;opacity:0;}.d3{animation-delay:.3s;opacity:0;}
+  .prose h2{font-family:'Playfair Display',serif;font-weight:700;font-size:1.45rem;color:var(--text-primary);margin:2.25rem 0 .85rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);transition:color .3s;}
+  .prose h3{font-family:'Playfair Display',serif;font-weight:700;font-size:1.15rem;color:var(--text-primary);margin:1.75rem 0 .65rem;}
+  .prose p{font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-muted);line-height:1.9;margin-bottom:1.2rem;}
+  .prose a{color:#eb5e28;text-decoration:underline;text-decoration-color:rgba(235,94,40,.4);text-underline-offset:.2em;}
+  .prose a:hover{text-decoration-color:#eb5e28;}
+  .prose blockquote{border-left:4px solid #eb5e28;padding:1rem 1.25rem;margin:1.5rem 0;background:rgba(235,94,40,.05);border-radius:0 10px 10px 0;}
+  .prose blockquote p{font-family:'Playfair Display',serif;font-style:italic;font-size:1.02rem;color:var(--text-secondary);margin:0;}
+  .prose code{font-family:'Courier Prime',monospace;font-size:.85em;padding:.2em .45em;border-radius:5px;background:var(--bg-muted);color:#eb5e28;border:1px solid var(--border);}
+  .prose pre{background:var(--bg-subtle);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;overflow-x:auto;margin:1.5rem 0;}
+  .prose pre code{background:none;border:none;padding:0;color:var(--text-secondary);font-size:.88rem;line-height:1.7;}
+  .prose ul,.prose ol{font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-muted);line-height:1.85;margin:1rem 0 1.25rem 1.25rem;}
+  .prose li{margin-bottom:.4rem;}
+  .prose img{border-radius:12px;border:1px solid var(--border);max-width:100%;margin:1.5rem 0;}
+  .prose hr{border:none;border-top:1px solid var(--border);margin:2rem 0;}
+  .prose table{width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:.88rem;margin:1.5rem 0;}
+  .prose th{background:var(--bg-muted);font-weight:700;color:var(--text-primary);padding:.65rem .9rem;border:1px solid var(--border);text-align:left;}
+  .prose td{padding:.6rem .9rem;border:1px solid var(--border);color:var(--text-muted);}
+  .toc-link{font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-muted);text-decoration:none;padding:.35rem .65rem;border-radius:6px;border-left:2px solid transparent;display:block;transition:all .2s;}
+  .toc-link:hover,.toc-link.active{color:#eb5e28;border-left-color:#eb5e28;background:rgba(235,94,40,.05);padding-left:.85rem;}
+  .toc-link.toc-h3{padding-left:1.5rem;font-size:.78rem;}
+  .share-btn{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.82rem;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;text-decoration:none;}
+  .share-btn:hover{border-color:#eb5e28;color:#eb5e28;background:rgba(235,94,40,.06);}
+  .rel-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .25s;}
+  .rel-card:hover{border-color:rgba(235,94,40,.25);box-shadow:var(--shadow-md);transform:translateY(-3px);}
+  .stat-pill{display:flex;align-items:center;gap:.45rem;padding:.45rem .9rem;border-radius:999px;background:var(--bg-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-muted);}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero -->
-<section class="project-hero pt-40 pb-20">
-    <div class="blob w-[500px] h-[500px] opacity-10" style="background:radial-gradient(circle,#3b82f6,transparent);top:-100px;left:-100px;"></div>
-    <div class="blob w-[400px] h-[400px] opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);bottom:-80px;right:0;"></div>
+{# ══ BREADCRUMB ════════════════════════ #}
+<nav aria-label="Breadcrumb" style="background:var(--bg-subtle);border-bottom:1px solid var(--border);transition:background .3s;">
+  <div class="cx" style="padding-top:.75rem;padding-bottom:.75rem;">
+    <ol style="display:flex;align-items:center;gap:.5rem;list-style:none;flex-wrap:wrap;" itemscope itemtype="https://schema.org/BreadcrumbList">
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemprop="item" href="{% url 'home' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'"><i class="fas fa-house" style="font-size:.7rem;"></i><span itemprop="name" class="sr-only">Home</span></a><meta itemprop="position" content="1"></li>
+      <li aria-hidden="true" style="color:var(--border-strong);font-size:.75rem;">/</li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemprop="item" href="{% url 'projects' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'"><span itemprop="name">Projects</span></a><meta itemprop="position" content="2"></li>
+      <li aria-hidden="true" style="color:var(--border-strong);font-size:.75rem;">/</li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><span itemprop="name" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:#eb5e28;font-weight:600;">{{ project.title|truncatewords:5 }}</span><meta itemprop="position" content="3"></li>
+    </ol>
+  </div>
+</nav>
 
-    <div class="container mx-auto px-6 lg:px-8 max-w-5xl relative z-10">
-        <!-- Breadcrumb -->
-        <nav class="mb-10 fade-up" aria-label="Breadcrumb">
-            <ol class="flex flex-wrap items-center gap-1">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                <li class="breadcrumb-sep">›</li>
-                <li class="breadcrumb-item"><a href="{% url 'projects' %}">Projects</a></li>
-                <li class="breadcrumb-sep">›</li>
-                <li class="breadcrumb-active text-sm font-mono text-amber-300">{{ project.title|truncatewords:5 }}</li>
-            </ol>
-        </nav>
+{# ══ HERO ══════════════════════════════ #}
+<section style="padding:3.5rem 0 2rem;background:var(--bg-base);transition:background .3s;">
+  <div class="cx" style="max-width:900px;margin:0 auto;">
 
-        <div class="max-w-3xl">
-            <span class="category-tag fade-up d1">{{ project.category.name|default:'Project' }}</span>
-            <h1 class="font-display text-5xl lg:text-6xl text-white leading-tight mb-6 fade-up d1">{{ project.title }}</h1>
-            <p class="text-slate-300 text-lg leading-relaxed mb-10 fade-up d2">{{ project.short_description|default:project.description|truncatewords:30 }}</p>
-
-            <!-- Meta pills -->
-            <div class="flex flex-wrap gap-3 mb-10 fade-up d2">
-                {% if project.completion_date %}<span class="meta-pill"><i class="fas fa-calendar-alt"></i>{{ project.completion_date|date:"M Y" }}</span>{% endif %}
-                {% if project.client %}<span class="meta-pill"><i class="fas fa-building"></i>{{ project.client }}</span>{% endif %}
-                <span class="meta-pill"><i class="fas fa-eye"></i>{{ project.views }} views</span>
-                <span class="meta-pill"><i class="fas fa-heart"></i>{{ project.likes }} likes</span>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex flex-wrap gap-4 fade-up d3">
-                {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" class="btn-white"><i class="fas fa-external-link-alt text-xs"></i>Live Demo</a>{% endif %}
-                {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" class="btn-ghost"><i class="fab fa-github"></i>Source Code</a>{% endif %}
-            </div>
-        </div>
+    {# Category + status badges #}
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-bottom:1.25rem;" data-reveal>
+      <span style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .65rem;border-radius:6px;background:rgba(235,94,40,.1);color:#eb5e28;border:1px solid rgba(235,94,40,.2);">{{ project.get_category_display }}</span>
+      {% if project.is_featured %}<span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .65rem;border-radius:6px;background:#eb5e28;color:#fff;">Featured</span>{% endif %}
+      {% if project.status %}<span class="tag">{{ project.get_status_display }}</span>{% endif %}
     </div>
+
+    <h1 style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2rem,5.5vw,3.5rem);line-height:1.05;color:var(--text-primary);margin-bottom:1rem;transition:color .3s;" data-reveal>{{ project.title }}</h1>
+
+    <p style="font-family:'DM Sans',sans-serif;font-size:1.05rem;color:var(--text-muted);line-height:1.8;max-width:780px;margin-bottom:1.75rem;" data-reveal>{{ project.description }}</p>
+
+    {# Meta row #}
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.65rem;padding:1.1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:2rem;" data-reveal>
+      <div class="stat-pill"><i class="fas fa-eye" style="font-size:.68rem;color:#eb5e28;" aria-hidden="true"></i>{{ project.views }} views</div>
+      <button id="like-btn" data-like-project="{{ project.slug }}" class="stat-pill" style="border:none;cursor:pointer;transition:all .2s;background:var(--bg-muted);" onmouseover="this.style.background='rgba(235,94,40,.1)';this.style.borderColor='rgba(235,94,40,.25)';this.style.color='#eb5e28'" onmouseout="this.style.background='var(--bg-muted)';this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" aria-label="Like this project">
+        <i class="fas fa-heart" style="font-size:.68rem;color:#eb5e28;" aria-hidden="true"></i><span id="like-count">{{ project.likes }}</span> likes
+      </button>
+      {% if project.year %}<div class="stat-pill"><i class="fas fa-calendar" style="font-size:.65rem;color:#eb5e28;" aria-hidden="true"></i>{{ project.year }}</div>{% endif %}
+      {% if project.duration %}<div class="stat-pill"><i class="fas fa-clock" style="font-size:.65rem;color:#eb5e28;" aria-hidden="true"></i>{{ project.duration }}</div>{% endif %}
+
+      {# Share buttons #}
+      <div style="display:flex;gap:.4rem;margin-left:auto;">
+        <a href="https://twitter.com/intent/tweet?text={{ project.title|urlencode }}&url={{ request.build_absolute_uri }}" target="_blank" rel="noopener noreferrer" class="share-btn" title="Share on X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" rel="noopener noreferrer" class="share-btn" title="Share on LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+        <button class="share-btn" id="copy-link-btn" title="Copy link" aria-label="Copy link to clipboard"><i class="fas fa-link" aria-hidden="true"></i></button>
+      </div>
+    </div>
+
+    {# Action buttons #}
+    <div style="display:flex;flex-wrap:wrap;gap:.75rem;" data-reveal>
+      {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary"><i class="fas fa-globe" style="font-size:.72rem;" aria-hidden="true"></i> Live Demo</a>{% endif %}
+      {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline"><i class="fab fa-github" style="font-size:.72rem;" aria-hidden="true"></i> View Code</a>{% endif %}
+      <a href="{% url 'projects' %}" class="btn btn-ghost"><i class="fas fa-arrow-left" style="font-size:.7rem;" aria-hidden="true"></i> All Projects</a>
+    </div>
+  </div>
 </section>
 
-<!-- Featured Image -->
+{# ══ FEATURED IMAGE ════════════════════ #}
 {% if project.featured_image %}
-<div class="featured-image-wrap">
-    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <img src="{{ project.featured_image.url }}" alt="{{ project.title }}" class="w-full max-h-[600px] object-cover" loading="eager">
-    </div>
+<div class="cx" style="max-width:900px;margin:0 auto;padding-bottom:2.5rem;">
+  <div style="border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-lg);aspect-ratio:16/9;" data-reveal>
+    <img src="{{ project.featured_image.url }}" alt="{{ project.title }}" style="width:100%;height:100%;object-fit:cover;" loading="eager">
+  </div>
 </div>
 {% endif %}
 
-<!-- Main Content -->
-<section class="py-20" style="background:var(--cream)">
-    <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-        <div class="grid lg:grid-cols-3 gap-12">
-            <!-- Content -->
-            <div class="lg:col-span-2 space-y-16">
+{# ══ CONTENT + SIDEBAR ════════════════ #}
+<section style="padding:0 0 5rem;">
+  <div class="cx">
+    <div id="detail-layout" style="display:grid;grid-template-columns:1fr;gap:3rem;align-items:start;">
 
-                <!-- Overview -->
-                <div data-aos="fade-up">
-                    <div class="content-h2"><div class="content-icon"><i class="fas fa-align-left"></i></div>Project Overview</div>
-                    <div class="prose">{{ project.description|safe }}</div>
-                </div>
-
-                <!-- Features -->
-                {% if project.features %}
-                <div data-aos="fade-up">
-                    <div class="content-h2"><div class="content-icon"><i class="fas fa-check"></i></div>Key Features</div>
-                    <div class="grid md:grid-cols-2 gap-2">
-                        {% for feature in project.feature_list %}
-                        <div class="feature-item">
-                            <div class="feature-check"><i class="fas fa-check"></i></div>
-                            <span>{{ feature }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Technologies -->
-                {% if project.technologies %}
-                <div data-aos="fade-up">
-                    <div class="content-h2"><div class="content-icon"><i class="fas fa-code"></i></div>Technologies Used</div>
-                    <div class="flex flex-wrap gap-2">
-                        {% for tech in project.tech_list %}<span class="tech-tag">{{ tech }}</span>{% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Gallery -->
-                {% if project.images.all %}
-                <div data-aos="fade-up">
-                    <div class="content-h2"><div class="content-icon"><i class="fas fa-images"></i></div>Gallery</div>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        {% for image in project.images.all %}
-                        <div class="gallery-item" onclick="openLightbox({{ forloop.counter0 }})">
-                            <img src="{{ image.image.url }}" alt="{{ image.caption }}" loading="lazy">
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Challenges & Solutions -->
-                {% if project.challenges or project.solutions %}
-                <div data-aos="fade-up">
-                    <div class="content-h2"><div class="content-icon"><i class="fas fa-lightbulb"></i></div>Challenges &amp; Solutions</div>
-                    {% if project.challenges %}
-                    <div class="challenge-box mb-4">
-                        <h3 class="font-semibold mb-3 flex items-center gap-2 text-orange-700"><i class="fas fa-exclamation-triangle text-sm"></i>Challenges</h3>
-                        <div class="prose text-sm">{{ project.challenges|safe }}</div>
-                    </div>
-                    {% endif %}
-                    {% if project.solutions %}
-                    <div class="solution-box">
-                        <h3 class="font-semibold mb-3 flex items-center gap-2 text-green-700"><i class="fas fa-check-circle text-sm"></i>Solutions</h3>
-                        <div class="prose text-sm">{{ project.solutions|safe }}</div>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                <!-- Results -->
-                {% if project.outcome %}
-                <div data-aos="fade-up">
-                    <div class="content-h2"><div class="content-icon"><i class="fas fa-chart-line"></i></div>Results &amp; Impact</div>
-                    <div class="prose" style="background:#fff;border:1px solid var(--cream-dark);border-left:3px solid var(--gold);padding:1.75rem;">{{ project.outcome|safe }}</div>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Sidebar -->
-            <div data-aos="fade-left">
-                <div class="sidebar-card sticky top-28">
-                    <h3 class="font-display text-xl mb-6" style="color:var(--navy)">Project Info</h3>
-                    {% if project.client %}
-                    <div class="info-row"><div class="info-icon"><i class="fas fa-building"></i></div><div><span class="info-label">Client</span><span class="info-value">{{ project.client }}</span></div></div>
-                    {% endif %}
-                    {% if project.completion_date %}
-                    <div class="info-row"><div class="info-icon"><i class="fas fa-calendar-check"></i></div><div><span class="info-label">Completed</span><span class="info-value">{{ project.completion_date|date:"F Y" }}</span></div></div>
-                    {% endif %}
-                    {% if project.duration %}
-                    <div class="info-row"><div class="info-icon"><i class="fas fa-clock"></i></div><div><span class="info-label">Duration</span><span class="info-value">{{ project.duration }}</span></div></div>
-                    {% endif %}
-                    <div class="info-row mb-6"><div class="info-icon"><i class="fas fa-folder"></i></div><div><span class="info-label">Category</span><span class="info-value">{{ project.category.name }}</span></div></div>
-
-                    <div class="flex flex-col gap-2 mb-6">
-                        {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" class="btn-primary-sm"><i class="fas fa-external-link-alt text-xs"></i>Visit Website</a>{% endif %}
-                        {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" class="btn-dark-sm"><i class="fab fa-github"></i>View Code</a>{% endif %}
-                    </div>
-
-                    <div class="pt-5" style="border-top:1px solid var(--cream-dark)">
-                        <p class="font-mono text-xs tracking-widest uppercase mb-3" style="color:var(--muted)">Share</p>
-                        <div class="flex gap-2">
-                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ project.title|urlencode }}" target="_blank" class="share-btn"><i class="fab fa-twitter"></i></a>
-                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="share-btn"><i class="fab fa-linkedin-in"></i></a>
-                            <button onclick="copyLink()" class="share-btn"><i class="fas fa-link"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      {# ── MAIN CONTENT ── #}
+      <div style="min-width:0;">
+        {# Project info cards #}
+        <div id="info-cards" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.85rem;margin-bottom:2.5rem;" data-reveal>
+          {% if project.client %}<div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:background .3s;"><p style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.3rem;">Client</p><p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">{{ project.client }}</p></div>{% endif %}
+          {% if project.year %}<div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:background .3s;"><p style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.3rem;">Year</p><p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">{{ project.year }}</p></div>{% endif %}
+          {% if project.role %}<div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:background .3s;"><p style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.3rem;">My Role</p><p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">{{ project.role }}</p></div>{% endif %}
+          {% if project.duration %}<div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:background .3s;"><p style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.3rem;">Duration</p><p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">{{ project.duration }}</p></div>{% endif %}
         </div>
-    </div>
-</section>
+        <style>@media(min-width:640px){#info-cards{grid-template-columns:repeat(4,1fr)!important;}}</style>
 
-<!-- Related Projects -->
-{% if related_projects %}
-<section class="py-20 bg-white">
-    <div class="container mx-auto px-6 lg:px-8 max-w-6xl">
-        <div class="section-label">Related Projects</div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for related in related_projects %}
-            <a href="{{ related.get_absolute_url }}" class="related-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:80 }}">
-                {% if related.featured_image or related.thumbnail %}
-                <div class="overflow-hidden"><img src="{% if related.thumbnail %}{{ related.thumbnail.url }}{% else %}{{ related.featured_image.url }}{% endif %}" alt="{{ related.title }}"></div>
-                {% endif %}
-                <div class="p-6">
-                    <h3 class="font-semibold mb-2 leading-snug" style="color:var(--navy)">{{ related.title }}</h3>
-                    <p class="text-sm mb-3 line-clamp-2" style="color:var(--muted)">{{ related.short_description }}</p>
-                    <span class="link-gold text-xs font-mono tracking-widest uppercase" style="color:var(--gold-muted)">View Project →</span>
-                </div>
+        {# Rich content #}
+        {% if project.content %}
+        <div class="prose" id="proj-content" data-reveal>{{ project.content|safe }}</div>
+        {% endif %}
+
+        {# Gallery #}
+        {% if project.gallery_images.all %}
+        <div style="margin-top:2.5rem;" data-reveal>
+          <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.4rem;color:var(--text-primary);margin-bottom:1.25rem;">Gallery</h2>
+          <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.85rem;">
+            {% for img in project.gallery_images.all %}
+            <a href="{{ img.image.url }}" target="_blank" rel="noopener noreferrer" style="border-radius:12px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9;display:block;transition:all .25s;" onmouseover="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='rgba(235,94,40,.25)'" onmouseout="this.style.boxShadow='none';this.style.borderColor='var(--border)'">
+              <img src="{{ img.image.url }}" alt="{{ img.caption|default:'Gallery image' }}" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'" loading="lazy">
             </a>
             {% endfor %}
+          </div>
         </div>
+        <style>@media(min-width:640px){#gallery-grid{grid-template-columns:repeat(3,1fr)!important;}}</style>
+        {% endif %}
+
+        {# Tech stack full list #}
+        {% if project.tech_list %}
+        <div style="margin-top:2.5rem;" data-reveal>
+          <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.4rem;color:var(--text-primary);margin-bottom:1rem;">Tech Stack</h2>
+          <div style="display:flex;flex-wrap:wrap;gap:.45rem;">
+            {% for tech in project.tech_list %}<span style="font-family:'Courier Prime',monospace;font-size:.72rem;font-weight:700;padding:.35rem .75rem;border-radius:7px;background:var(--bg-surface);color:var(--text-muted);border:1px solid var(--border);transition:all .2s;" onmouseover="this.style.background='rgba(235,94,40,.1)';this.style.borderColor='rgba(235,94,40,.25)';this.style.color='#eb5e28'" onmouseout="this.style.background='var(--bg-surface)';this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">{{ tech }}</span>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {# ── SIDEBAR ── #}
+      <aside id="proj-sidebar" style="position:sticky;top:88px;">
+
+        {# ToC #}
+        <div id="toc-wrap" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.25rem;display:none;transition:background .3s;">
+          <h3 style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.9rem;">On This Page</h3>
+          <nav id="toc-nav" aria-label="Table of contents"></nav>
+        </div>
+
+        {# Project links #}
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.25rem;transition:background .3s;">
+          <h3 style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.9rem;">Links</h3>
+          <div style="display:flex;flex-direction:column;gap:.55rem;">
+            {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="justify-content:center;"><i class="fas fa-globe" style="font-size:.7rem;" aria-hidden="true"></i> Live Demo</a>{% endif %}
+            {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="justify-content:center;"><i class="fab fa-github" style="font-size:.7rem;" aria-hidden="true"></i> Source Code</a>{% endif %}
+          </div>
+        </div>
+
+        {# CTA #}
+        <div style="background:linear-gradient(135deg,rgba(235,94,40,.07) 0%,transparent 100%);border:1px solid rgba(235,94,40,.18);border-radius:16px;padding:1.4rem;text-align:center;">
+          <p style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:.5rem;">Like this project?</p>
+          <p style="font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-muted);margin-bottom:1.1rem;line-height:1.65;">Let's build something similar for your business.</p>
+          <a href="{% url 'contact' %}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;"><i class="fas fa-paper-plane" style="font-size:.7rem;" aria-hidden="true"></i> Get in Touch</a>
+        </div>
+
+      </aside>
+
     </div>
+  </div>
 </section>
+<style>
+  @media(min-width:1024px){ #detail-layout{grid-template-columns:1fr 280px!important;} #proj-sidebar{display:block!important;} }
+  @media(max-width:1023px){ #proj-sidebar{position:static!important;} }
+</style>
+
+{# ══ RELATED PROJECTS ══════════════════ #}
+{% if related_projects %}
+<section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s;">
+  <div class="cx">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+      <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.5rem,3vw,2rem);color:var(--text-primary);transition:color .3s;">Related <em style="font-style:italic;color:#eb5e28;">Projects</em></h2>
+      <a href="{% url 'projects' %}" class="btn btn-outline btn-sm">All Projects <i class="fas fa-arrow-right" style="font-size:.7rem;" aria-hidden="true"></i></a>
+    </div>
+    <div id="rel-grid" style="display:grid;grid-template-columns:1fr;gap:1.25rem;">
+      {% for rp in related_projects|slice:":3" %}
+      <article class="rel-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div style="aspect-ratio:16/9;overflow:hidden;">
+          {% if rp.featured_image %}<img src="{{ rp.featured_image.url }}" alt="{{ rp.title }}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" loading="lazy">
+          {% else %}<div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(235,94,40,.14),rgba(202,71,19,.06));display:flex;align-items:center;justify-content:center;"><i class="fas fa-code" style="font-size:1.75rem;color:rgba(235,94,40,.35);" aria-hidden="true"></i></div>{% endif %}
+        </div>
+        <div style="padding:1.1rem;">
+          <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:.35rem;"><a href="{{ rp.get_absolute_url }}" style="text-decoration:none;color:inherit;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='inherit'">{{ rp.title }}</a></h3>
+          <p style="font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ rp.description }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>@media(min-width:640px){#rel-grid{grid-template-columns:repeat(2,1fr)!important;}}@media(min-width:1024px){#rel-grid{grid-template-columns:repeat(3,1fr)!important;}}</style>
 {% endif %}
-
-<!-- CTA -->
-<section class="cta-section py-28">
-    <div class="blob w-96 h-96 opacity-10" style="background:radial-gradient(circle,var(--gold),transparent);top:50%;left:-100px;transform:translateY(-50%)"></div>
-    <div class="container mx-auto px-6 lg:px-8 max-w-3xl text-center relative z-10" data-aos="fade-up">
-        <span class="font-mono text-xs tracking-widest text-amber-400 uppercase">Let's Work Together</span>
-        <h2 class="font-display text-5xl text-white mt-4 mb-5 leading-tight">Like What<br><em class="text-amber-300">You See?</em></h2>
-        <p class="text-slate-400 text-lg mb-10 leading-relaxed">Let's collaborate on your next project and create something extraordinary together.</p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'contact' %}" class="btn-white"><i class="fas fa-envelope text-xs"></i>Start a Project</a>
-            <a href="{% url 'projects' %}" class="btn-ghost"><i class="fas fa-folder text-xs"></i>View All Projects</a>
-        </div>
-    </div>
-</section>
-
-<!-- Lightbox -->
-<div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox()">
-    <button class="absolute top-6 right-6 text-white text-3xl hover:text-amber-300 transition-colors" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
-    <button class="absolute left-6 text-white text-2xl hover:text-amber-300 transition-colors" onclick="prevImage();event.stopPropagation()"><i class="fas fa-chevron-left"></i></button>
-    <button class="absolute right-16 text-white text-2xl hover:text-amber-300 transition-colors" onclick="nextImage();event.stopPropagation()"><i class="fas fa-chevron-right"></i></button>
-    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain" onclick="event.stopPropagation()">
-</div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-AOS.init({duration:900,once:true,offset:80});
-const images=[{% for image in project.images.all %}'{{ image.image.url }}',{% endfor %}];
-let ci=0;
-function openLightbox(i){ci=i;const l=document.getElementById('lightbox');l.classList.remove('hidden');l.classList.add('flex');document.getElementById('lightbox-image').src=images[ci];document.body.style.overflow='hidden';}
-function closeLightbox(){const l=document.getElementById('lightbox');l.classList.add('hidden');l.classList.remove('flex');document.body.style.overflow='';}
-function nextImage(){ci=(ci+1)%images.length;document.getElementById('lightbox-image').src=images[ci];}
-function prevImage(){ci=(ci-1+images.length)%images.length;document.getElementById('lightbox-image').src=images[ci];}
-document.addEventListener('keydown',e=>{const l=document.getElementById('lightbox');if(!l.classList.contains('hidden')){if(e.key==='Escape')closeLightbox();if(e.key==='ArrowRight')nextImage();if(e.key==='ArrowLeft')prevImage();}});
-function copyLink(){navigator.clipboard.writeText(window.location.href).then(()=>{const t=document.createElement('div');t.className='fixed bottom-6 right-6 text-sm px-5 py-3 z-50';t.style.cssText='background:var(--navy);color:var(--gold-light);border:1px solid var(--gold);font-family:DM Mono,monospace;letter-spacing:.05em;';t.innerHTML='<i class="fas fa-check mr-2"></i>Link copied';document.body.appendChild(t);setTimeout(()=>t.remove(),2500);});}
+document.addEventListener('DOMContentLoaded', function () {
+  /* Like button */
+  var likeBtn = document.getElementById('like-btn');
+  if (likeBtn) {
+    likeBtn.addEventListener('click', function () {
+      window.fetchWithCSRF('/project/{{ project.slug }}/like/', { method: 'POST' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var c = document.getElementById('like-count'); if (c && d.likes !== undefined) c.textContent = d.likes;
+          likeBtn.style.color = '#eb5e28'; showToast('❤️ Liked!', 'success', 2000);
+        }).catch(function () {});
+    });
+  }
+  /* Copy link */
+  var copyBtn = document.getElementById('copy-link-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      navigator.clipboard.writeText(window.location.href).then(function () {
+        showToast('🔗 Link copied!', 'success', 2000);
+      });
+    });
+  }
+  /* Auto-generate ToC from prose headings */
+  var content = document.getElementById('proj-content');
+  var tocNav  = document.getElementById('toc-nav');
+  var tocWrap = document.getElementById('toc-wrap');
+  if (content && tocNav) {
+    var headings = content.querySelectorAll('h2, h3');
+    if (headings.length > 1) {
+      tocWrap.style.display = '';
+      headings.forEach(function (h, i) {
+        if (!h.id) h.id = 'proj-h-' + i;
+        var a = document.createElement('a');
+        a.href = '#' + h.id; a.textContent = h.textContent;
+        a.className = 'toc-link' + (h.tagName === 'H3' ? ' toc-h3' : '');
+        tocNav.appendChild(a);
+      });
+      /* Scroll spy */
+      var tocLinks = tocNav.querySelectorAll('.toc-link');
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            tocLinks.forEach(function (l) { l.classList.remove('active'); });
+            var active = tocNav.querySelector('a[href="#' + e.target.id + '"]');
+            if (active) active.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-68px 0px -70% 0px', threshold: 0 });
+      headings.forEach(function (h) { observer.observe(h); });
+    }
+  }
+});
 </script>
 {% endblock %}

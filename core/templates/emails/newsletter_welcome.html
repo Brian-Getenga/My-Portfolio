@@ -1,175 +1,159 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to My Newsletter</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            padding: 40px 30px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0 0 10px;
-            font-size: 32px;
-            font-weight: 700;
-        }
-        .header p {
-            margin: 0;
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        .content {
-            padding: 40px 30px;
-            color: #333333;
-        }
-        .content p {
-            margin: 0 0 15px;
-            font-size: 16px;
-        }
-        .welcome-box {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            margin: 25px 0;
-            text-align: center;
-        }
-        .welcome-box h2 {
-            margin: 0 0 15px;
-            font-size: 24px;
-        }
-        .benefits {
-            background-color: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-        }
-        .benefit-item {
-            margin: 15px 0;
-            padding-left: 30px;
-            position: relative;
-        }
-        .benefit-item:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            font-weight: bold;
-        }
-        .button {
-            display: inline-block;
-            padding: 16px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 16px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 30px;
-            text-align: center;
-            color: #6c757d;
-            font-size: 14px;
-        }
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Welcome to {{ site_settings.site_name }} Newsletter!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #f5f3f1; font-family: 'DM Sans', Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+    .email-wrapper { background-color: #f5f3f1; padding: 32px 16px; }
+    .email-container { max-width: 600px; margin: 0 auto; }
+    /* Header */
+    .header { background: linear-gradient(135deg, #252422 0%, #403d39 100%); border-radius: 16px 16px 0 0; padding: 48px 40px 40px; text-align: center; position: relative; overflow: hidden; }
+    .header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: rgba(235,94,40,0.12); border-radius: 50%; }
+    .header::after { content: ''; position: absolute; bottom: -40px; left: -40px; width: 150px; height: 150px; background: rgba(235,94,40,0.08); border-radius: 50%; }
+    .logo-mark { display: inline-block; width: 56px; height: 56px; background: #eb5e28; border-radius: 14px; line-height: 56px; text-align: center; font-size: 26px; font-weight: 900; color: #fff; font-family: Georgia, serif; font-style: italic; margin-bottom: 20px; position: relative; z-index: 1; }
+    .header h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 26px; color: #fffcf2; margin-bottom: 8px; position: relative; z-index: 1; }
+    .header p { font-size: 14px; color: rgba(255,252,242,0.65); position: relative; z-index: 1; }
+    /* Body */
+    .body { background: #ffffff; padding: 44px 40px; }
+    .greeting { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #252422; margin-bottom: 16px; }
+    .greeting em { font-style: italic; color: #eb5e28; }
+    .body-text { font-size: 15px; color: #5a5650; line-height: 1.78; margin-bottom: 20px; }
+    /* What you'll get */
+    .feature-list { margin: 28px 0; }
+    .feature-item { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f0ede8; }
+    .feature-item:last-child { border-bottom: none; }
+    .feature-icon { width: 36px; height: 36px; background: rgba(235,94,40,0.1); border: 1px solid rgba(235,94,40,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .feature-title { font-size: 14px; font-weight: 700; color: #252422; margin-bottom: 2px; }
+    .feature-desc { font-size: 13px; color: #807d76; line-height: 1.5; }
+    /* Verify CTA */
+    .verify-box { background: linear-gradient(135deg, rgba(235,94,40,0.07) 0%, transparent 100%); border: 1px solid rgba(235,94,40,0.18); border-radius: 16px; padding: 32px; text-align: center; margin: 32px 0; }
+    .verify-box h3 { font-family: Georgia, serif; font-size: 18px; color: #252422; margin-bottom: 8px; }
+    .verify-box p { font-size: 13px; color: #807d76; margin-bottom: 22px; line-height: 1.6; }
+    .verify-btn { display: inline-block; background: #eb5e28; color: #ffffff !important; text-decoration: none; font-size: 15px; font-weight: 700; padding: 16px 40px; border-radius: 12px; letter-spacing: 0.02em; }
+    .verify-btn:hover { background: #ca4713; }
+    .verify-link { font-size: 12px; color: #9b9590; margin-top: 14px; word-break: break-all; }
+    .verify-link a { color: #eb5e28; text-decoration: none; }
+    /* Stats row */
+    .stats-row { display: flex; gap: 0; border: 1px solid #e5e2dc; border-radius: 12px; overflow: hidden; margin: 28px 0; }
+    .stat-cell { flex: 1; padding: 18px 12px; text-align: center; border-right: 1px solid #e5e2dc; }
+    .stat-cell:last-child { border-right: none; }
+    .stat-num { font-family: Georgia, serif; font-size: 22px; font-weight: 700; color: #eb5e28; display: block; }
+    .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9b9590; margin-top: 3px; display: block; }
+    /* Footer */
+    .footer { background: #f5f3f1; border-radius: 0 0 16px 16px; padding: 24px 40px; border-top: 1px solid #e5e2dc; text-align: center; }
+    .footer-text { font-size: 12px; color: #9b9590; line-height: 1.7; }
+    .footer-text a { color: #eb5e28; text-decoration: none; }
+    @media (max-width: 480px) {
+      .header, .body, .footer { padding-left: 24px !important; padding-right: 24px !important; }
+      .stats-row { flex-direction: column; }
+      .stat-cell { border-right: none; border-bottom: 1px solid #e5e2dc; }
+      .stat-cell:last-child { border-bottom: none; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎉 Welcome Aboard!</h1>
-            <p>You're now part of an exclusive community</p>
-        </div>
-        
-        <div class="content">
-            <p>Hi there! 👋</p>
-            
-            <p>Thank you for subscribing to my newsletter! I'm excited to have you join our growing community of developers, designers, and tech enthusiasts.</p>
-            
-            <div class="welcome-box">
-                <h2>Please Verify Your Email</h2>
-                <p style="margin: 15px 0;">Click the button below to confirm your subscription and start receiving updates.</p>
-                <a href="{{ verification_url }}" class="button">✅ Verify Email Address</a>
-            </div>
-            
-            <h3 style="color: #667eea; margin-top: 30px;">What You'll Receive:</h3>
-            
-            <div class="benefits">
-                <div class="benefit-item">
-                    <strong>Latest Blog Posts</strong><br>
-                    <span style="color: #6c757d;">Be the first to read new articles and tutorials</span>
-                </div>
-                <div class="benefit-item">
-                    <strong>Project Updates</strong><br>
-                    <span style="color: #6c757d;">See my latest work and case studies</span>
-                </div>
-                <div class="benefit-item">
-                    <strong>Tech Tips & Tricks</strong><br>
-                    <span style="color: #6c757d;">Exclusive development insights and best practices</span>
-                </div>
-                <div class="benefit-item">
-                    <strong>Industry News</strong><br>
-                    <span style="color: #6c757d;">Curated updates about web development and technology</span>
-                </div>
-                <div class="benefit-item">
-                    <strong>Exclusive Content</strong><br>
-                    <span style="color: #6c757d;">Special offers and early access to new projects</span>
-                </div>
-            </div>
-            
-            <p><strong>📬 Frequency:</strong> I send updates 2-3 times per month. No spam, I promise!</p>
-            
-            <p style="margin-top: 30px;">
-                If you have any questions or suggestions, feel free to reply to this email. I'd love to hear from you!
-            </p>
-            
-            <p style="font-weight: 600; margin-top: 30px;">
-                Cheers,<br>
-                {{ site_settings.site_name }}
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p>{{ site_settings.site_name }}</p>
-            <p>{{ site_settings.email }} | {{ site_settings.location }}</p>
-            <p style="margin-top: 15px;">
-                <a href="{{ unsubscribe_url }}">Unsubscribe</a> | 
-                <a href="{{ site_url }}">Visit Website</a>
-            </p>
-        </div>
+<div class="email-wrapper">
+  <div class="email-container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo-mark">B</div>
+      <h1>Welcome to the Newsletter! 🎉</h1>
+      <p>{{ site_settings.site_name }} · Web Development Insights</p>
     </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <h2 class="greeting">
+        Hey {% if newsletter.name %}{{ newsletter.name|title }}{% else %}there{% endif %}, <em>great to have you!</em>
+      </h2>
+
+      <p class="body-text">
+        Thank you for subscribing to <strong>{{ site_settings.site_name }}</strong>. You've joined a community of developers, founders, and tech enthusiasts who love clean code and great design.
+      </p>
+
+      <!-- Stats strip -->
+      <div class="stats-row">
+        <div class="stat-cell">
+          <span class="stat-num">40+</span>
+          <span class="stat-label">Projects</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-num">4+</span>
+          <span class="stat-label">Years</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-num">Weekly</span>
+          <span class="stat-label">Articles</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-num">0</span>
+          <span class="stat-label">Spam</span>
+        </div>
+      </div>
+
+      <p style="font-size:14px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9b9590;margin-bottom:4px;">What's coming your way</p>
+
+      <!-- Feature list -->
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">📝</div>
+          <div><p class="feature-title">In-depth Articles</p><p class="feature-desc">Django, React, system design, and fullstack best practices with real code examples.</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🚀</div>
+          <div><p class="feature-title">Project Showcases</p><p class="feature-desc">Behind-the-scenes breakdowns of how I build real products from scratch.</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div><p class="feature-title">Dev Tips & Tricks</p><p class="feature-desc">Weekly shortcuts, tools, and patterns that make you a faster developer.</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🌍</div>
+          <div><p class="feature-title">Industry Insights</p><p class="feature-desc">Curated news from the web dev world — filtered for signal, not noise.</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🎁</div>
+          <div><p class="feature-title">Subscriber Exclusives</p><p class="feature-desc">Templates, code snippets, and resources only available to newsletter readers.</p></div>
+        </div>
+      </div>
+
+      <!-- Verify email CTA -->
+      <div class="verify-box">
+        <h3>One Last Step ✅</h3>
+        <p>Please verify your email address to activate your subscription and start receiving content.</p>
+        <a href="{{ verification_url }}" class="verify-btn">Verify My Email →</a>
+        <p class="verify-link">Or copy this link: <a href="{{ verification_url }}">{{ verification_url }}</a></p>
+        <p style="font-size:12px;color:#9b9590;margin-top:12px;">This link expires in 48 hours.</p>
+      </div>
+
+      <p class="body-text">
+        If you have any questions, ideas, or just want to say hi — hit reply. I read every email personally.
+      </p>
+
+      <p style="font-size:15px;color:#252422;margin-top:8px;">
+        — Brian Getenga<br>
+        <span style="font-size:13px;color:#9b9590;">Full Stack Developer · Nairobi, Kenya 🇰🇪</span>
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p class="footer-text">
+        You're receiving this because you signed up at <a href="{{ site_settings.site_url|default:'#' }}">{{ site_settings.site_name }}</a>.<br>
+        Don't want to receive emails? <a href="{{ unsubscribe_url }}">Unsubscribe here</a>.
+      </p>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>

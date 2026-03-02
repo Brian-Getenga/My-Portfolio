@@ -1,101 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Reply to Your Comment</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            padding: 30px;
-            text-align: center;
-        }
-        .content {
-            padding: 30px;
-        }
-        .comment-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .your-comment {
-            background-color: #fff7e6;
-            border-left-color: #ffa940;
-        }
-        .button {
-            display: inline-block;
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            margin: 20px 0;
-        }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            color: #6c757d;
-            font-size: 13px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ comment.name }} replied to you — {{ site_settings.site_name }}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #f5f3f1; font-family: 'DM Sans', Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+    .email-wrapper { background-color: #f5f3f1; padding: 32px 16px; }
+    .email-container { max-width: 580px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #252422 0%, #403d39 100%); border-radius: 16px 16px 0 0; padding: 40px; text-align: center; }
+    .logo-mark { display: inline-block; width: 50px; height: 50px; background: #eb5e28; border-radius: 12px; line-height: 50px; text-align: center; font-size: 22px; font-weight: 900; color: #fff; font-family: Georgia, serif; font-style: italic; margin-bottom: 18px; }
+    .header h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #fffcf2; margin-bottom: 6px; }
+    .header p { font-size: 13px; color: rgba(255,252,242,0.6); }
+    .body { background: #ffffff; padding: 40px; }
+    .intro-text { font-size: 15px; color: #5a5650; line-height: 1.75; margin-bottom: 26px; }
+    .intro-text strong { color: #252422; }
+    /* Thread */
+    .thread-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #9b9590; margin-bottom: 12px; }
+    .original-comment { background: #faf9f7; border: 1px solid #e5e2dc; border-radius: 12px; padding: 18px 20px; margin-bottom: 8px; }
+    .comment-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .comment-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 14px; color: #fff; flex-shrink: 0; }
+    .comment-name { font-size: 14px; font-weight: 700; color: #252422; }
+    .comment-time { font-size: 11px; color: #9b9590; }
+    .comment-body { font-size: 14px; color: #5a5650; line-height: 1.72; }
+    .reply-arrow { text-align: center; padding: 6px 0; color: #eb5e28; font-size: 18px; }
+    .new-reply { background: linear-gradient(135deg, rgba(235,94,40,0.06) 0%, transparent 100%); border: 1.5px solid rgba(235,94,40,0.2); border-radius: 12px; padding: 18px 20px; margin-bottom: 28px; }
+    /* Post reference */
+    .post-chip { display: inline-flex; align-items: center; gap: 7px; background: #f0ede8; border: 1px solid #e0dbd3; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; color: #5a5650; text-decoration: none; margin-bottom: 24px; }
+    .post-chip:hover { background: rgba(235,94,40,0.08); border-color: rgba(235,94,40,0.2); color: #eb5e28; }
+    /* CTA */
+    .cta-box { text-align: center; padding: 28px; background: #faf9f7; border: 1px solid #e5e2dc; border-radius: 14px; }
+    .cta-box p { font-size: 14px; color: #807d76; margin-bottom: 18px; line-height: 1.6; }
+    .cta-btn { display: inline-block; background: #eb5e28; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 700; padding: 14px 32px; border-radius: 10px; }
+    /* Footer */
+    .footer { background: #f5f3f1; border-radius: 0 0 16px 16px; padding: 22px 40px; border-top: 1px solid #e5e2dc; text-align: center; }
+    .footer-text { font-size: 12px; color: #9b9590; line-height: 1.65; }
+    .footer-text a { color: #eb5e28; text-decoration: none; }
+    @media (max-width: 480px) {
+      .header, .body, .footer { padding-left: 24px !important; padding-right: 24px !important; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💬 Someone Replied to Your Comment!</h1>
-        </div>
-        
-        <div class="content">
-            <p>Hi {{ parent_comment.name }},</p>
-            
-            <p>Great news! Someone has replied to your comment on "<strong>{{ post.title }}</strong>"</p>
-            
-            <h3 style="color: #667eea;">Your Comment:</h3>
-            <div class="comment-box your-comment">
-                {{ parent_comment.content }}
-            </div>
-            
-            <h3 style="color: #667eea;">New Reply:</h3>
-            <div class="comment-box">
-                <p style="margin: 0 0 10px; color: #6c757d; font-size: 14px;">
-                    <strong>{{ reply.name }}</strong> replied:
-                </p>
-                {{ reply.content }}
-            </div>
-            
-            <center>
-                <a href="{{ site_url }}{{ post.get_absolute_url }}#comment-{{ reply.id }}" class="button">💬 View Conversation</a>
-            </center>
-            
-            <p style="margin-top: 30px; font-size: 14px; color: #6c757d;">
-                You're receiving this because you commented on this post. 
-                <a href="{{ site_url }}{{ post.get_absolute_url }}">View full discussion</a>
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p>{{ site_settings.site_name }}</p>
-        </div>
+<div class="email-wrapper">
+  <div class="email-container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo-mark">B</div>
+      <h1>Someone replied to your comment 💬</h1>
+      <p>{{ comment.created_at|date:"N j, Y · g:i A" }}</p>
     </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <p class="intro-text">
+        Hey <strong>{{ parent_comment.name|title }}</strong>, <strong>{{ comment.name }}</strong> just replied to your comment on
+        <strong>"{{ comment.post.title }}"</strong>.
+      </p>
+
+      <!-- Post reference -->
+      <a href="{{ post_url }}" class="post-chip">
+        📄 {{ comment.post.title|truncatechars:55 }} →
+      </a>
+
+      <!-- Comment thread -->
+      <p class="thread-label">The Conversation</p>
+
+      <!-- Original comment -->
+      <div class="original-comment">
+        <div class="comment-meta">
+          <div class="comment-avatar" style="background:#807d76;">{{ parent_comment.name|first }}</div>
+          <div>
+            <p class="comment-name">{{ parent_comment.name }} <span style="font-weight:400;color:#9b9590;font-size:12px;">(you)</span></p>
+            <p class="comment-time">{{ parent_comment.created_at|date:"N j, Y" }}</p>
+          </div>
+        </div>
+        <p class="comment-body">{{ parent_comment.content|truncatewords:60 }}</p>
+      </div>
+
+      <div class="reply-arrow">↓</div>
+
+      <!-- New reply -->
+      <div class="new-reply">
+        <div class="comment-meta">
+          <div class="comment-avatar" style="background:#eb5e28;">{{ comment.name|first }}</div>
+          <div>
+            <p class="comment-name" style="color:#eb5e28;">{{ comment.name }}</p>
+            <p class="comment-time">{{ comment.created_at|date:"N j · g:i A" }} · <span style="color:#22c55e;font-weight:700;">New Reply</span></p>
+          </div>
+        </div>
+        <p class="comment-body">{{ comment.content }}</p>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-box">
+        <p>Want to continue the conversation? Click below to join the discussion.</p>
+        <a href="{{ post_url }}" class="cta-btn">Read & Reply →</a>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p class="footer-text">
+        You're receiving this because you left a comment on <strong>{{ site_settings.site_name }}</strong>.<br>
+        <a href="{{ site_settings.site_url|default:'#' }}">Visit website</a> ·
+        <a href="{{ site_settings.site_url|default:'#' }}/contact/">Contact</a>
+      </p>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>

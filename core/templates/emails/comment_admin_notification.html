@@ -1,117 +1,139 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Comment Notification</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 30px;
-        }
-        .comment-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .comment-meta {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 15px;
-        }
-        .comment-content {
-            font-size: 16px;
-            color: #333333;
-            line-height: 1.8;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            margin: 10px 5px;
-        }
-        .button.approve {
-            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
-        }
-        .button.delete {
-            background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
-        }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            color: #6c757d;
-            font-size: 13px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>New Comment Pending — {{ site_settings.site_name }}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #f5f3f1; font-family: 'DM Sans', Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+    .email-wrapper { background-color: #f5f3f1; padding: 32px 16px; }
+    .email-container { max-width: 580px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #252422 0%, #403d39 100%); border-radius: 16px 16px 0 0; padding: 36px 40px; display: flex; align-items: center; gap: 16px; }
+    .header-icon { width: 52px; height: 52px; background: #eb5e28; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .header h1 { font-family: Georgia, serif; font-weight: 700; font-size: 20px; color: #fffcf2; margin-bottom: 4px; }
+    .header p { font-size: 13px; color: rgba(255,252,242,0.55); }
+    .body { background: #ffffff; padding: 40px; }
+    .alert-strip { background: rgba(235,94,40,0.06); border: 1px solid rgba(235,94,40,0.16); border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+    .alert-dot { width: 10px; height: 10px; background: #eb5e28; border-radius: 50%; flex-shrink: 0; }
+    .alert-text { font-size: 13px; font-weight: 600; color: #eb5e28; }
+    /* Post reference */
+    .post-ref { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #faf9f7; border: 1px solid #e5e2dc; border-radius: 10px; margin-bottom: 22px; text-decoration: none; }
+    .post-ref-icon { width: 32px; height: 32px; background: rgba(235,94,40,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .post-ref-title { font-size: 14px; font-weight: 700; color: #252422; }
+    .post-ref-sub { font-size: 12px; color: #9b9590; margin-top: 2px; }
+    /* Commenter card */
+    .commenter-card { border: 1px solid #e5e2dc; border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+    .commenter-header { background: #faf9f7; padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e5e2dc; }
+    .commenter-avatar { width: 40px; height: 40px; background: #eb5e28; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 16px; color: #fff; flex-shrink: 0; }
+    .commenter-name { font-size: 15px; font-weight: 700; color: #252422; }
+    .commenter-email { font-size: 12px; color: #807d76; margin-top: 2px; }
+    .commenter-body { padding: 20px; }
+    .comment-text { font-size: 14px; color: #5a5650; line-height: 1.78; padding: 16px; background: #faf9f7; border-left: 3px solid #eb5e28; border-radius: 0 10px 10px 0; margin-bottom: 16px; }
+    .meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .meta-chip { display: inline-block; background: #f0ede8; border: 1px solid #e0dbd3; color: #807d76; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+    /* Parent comment if reply */
+    .parent-box { background: rgba(235,94,40,0.04); border: 1px solid rgba(235,94,40,0.14); border-radius: 10px; padding: 14px 16px; margin-bottom: 22px; }
+    .parent-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9b9590; margin-bottom: 8px; }
+    .parent-text { font-size: 13px; color: #807d76; line-height: 1.65; }
+    /* Actions */
+    .action-row { display: flex; gap: 12px; margin-top: 24px; }
+    .btn-approve { flex: 1; display: block; text-align: center; background: #22c55e; color: #fff !important; text-decoration: none; font-size: 14px; font-weight: 700; padding: 13px; border-radius: 10px; }
+    .btn-reject  { flex: 1; display: block; text-align: center; background: #f0ede8; color: #5a5650 !important; text-decoration: none; font-size: 14px; font-weight: 700; padding: 13px; border-radius: 10px; border: 1px solid #e0dbd3; }
+    .btn-admin   { display: block; text-align: center; background: #eb5e28; color: #fff !important; text-decoration: none; font-size: 13px; font-weight: 700; padding: 11px; border-radius: 10px; margin-top: 10px; }
+    .footer { background: #f5f3f1; border-radius: 0 0 16px 16px; padding: 22px 40px; border-top: 1px solid #e5e2dc; text-align: center; }
+    .footer-text { font-size: 12px; color: #9b9590; line-height: 1.65; }
+    .footer-text a { color: #eb5e28; text-decoration: none; }
+    @media (max-width: 480px) {
+      .header, .body, .footer { padding-left: 24px !important; padding-right: 24px !important; }
+      .action-row { flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💬 New Comment on "{{ post.title }}"</h1>
-        </div>
-        
-        <div class="content">
-            <p>A new comment has been posted on your blog:</p>
-            
-            <div class="comment-box">
-                <div class="comment-meta">
-                    <strong>{{ comment.name }}</strong> ({{ comment.email }})
-                    <br>
-                    {{ comment.created_at|date:"F d, Y at g:i A" }}
-                    {% if comment.website %}
-                    <br>
-                    Website: <a href="{{ comment.website }}">{{ comment.website }}</a>
-                    {% endif %}
-                </div>
-                <div class="comment-content">
-                    {{ comment.content }}
-                </div>
-            </div>
-            
-            <p><strong>Post:</strong> <a href="{{ site_url }}{{ post.get_absolute_url }}">{{ post.title }}</a></p>
-            
-            <center style="margin-top: 30px;">
-                <a href="{{ admin_url }}/core/blogcomment/{{ comment.id }}/change/" class="button approve">✓ Approve</a>
-                <a href="{{ admin_url }}/core/blogcomment/{{ comment.id }}/delete/" class="button delete">✗ Delete</a>
-                <a href="{{ site_url }}{{ post.get_absolute_url }}#comment-{{ comment.id }}" class="button">👁️ View on Site</a>
-            </center>
-        </div>
-        
-        <div class="footer">
-            <p>{{ site_settings.site_name }} Admin Notification</p>
-        </div>
+<div class="email-wrapper">
+  <div class="email-container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-icon">💬</div>
+      <div>
+        <h1>Comment Pending Approval</h1>
+        <p>{{ comment.created_at|date:"N j, Y · g:i A" }}</p>
+      </div>
     </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="alert-strip">
+        <div class="alert-dot"></div>
+        <span class="alert-text">1 new comment needs your review</span>
+      </div>
+
+      <!-- Post reference -->
+      <a href="{{ post_url }}" class="post-ref">
+        <div class="post-ref-icon">📄</div>
+        <div>
+          <p class="post-ref-title">{{ comment.post.title }}</p>
+          <p class="post-ref-sub">{{ comment.post.published_date|date:"N j, Y" }} · {{ comment.post.reading_time }} min read</p>
+        </div>
+        <span style="margin-left:auto;font-size:13px;color:#eb5e28;font-weight:700;">View →</span>
+      </a>
+
+      {% if comment.parent %}
+      <!-- Parent comment context -->
+      <div class="parent-box">
+        <p class="parent-label">↩ Replying to {{ comment.parent.name }}</p>
+        <p class="parent-text">{{ comment.parent.content|truncatewords:30 }}</p>
+      </div>
+      {% endif %}
+
+      <!-- New comment card -->
+      <div class="commenter-card">
+        <div class="commenter-header">
+          <div class="commenter-avatar">{{ comment.name|first }}</div>
+          <div>
+            <p class="commenter-name">{{ comment.name }}</p>
+            <p class="commenter-email">{{ comment.email }}{% if comment.website %} · <a href="{{ comment.website }}" style="color:#eb5e28;text-decoration:none;">{{ comment.website }}</a>{% endif %}</p>
+          </div>
+        </div>
+        <div class="commenter-body">
+          <div class="comment-text">{{ comment.content }}</div>
+          <div class="meta-row">
+            <span class="meta-chip">📅 {{ comment.created_at|date:"N j, Y" }}</span>
+            <span class="meta-chip">🕐 {{ comment.created_at|date:"g:i A" }}</span>
+            {% if comment.ip_address %}<span class="meta-chip">🌐 {{ comment.ip_address }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      {% if admin_url %}
+      <div class="action-row">
+        <a href="{{ admin_url }}?approve={{ comment.id }}" class="btn-approve">✅ Approve Comment</a>
+        <a href="{{ admin_url }}?reject={{ comment.id }}"  class="btn-reject">🗑 Delete</a>
+      </div>
+      <a href="{{ admin_url }}" class="btn-admin">Open in Admin Panel</a>
+      {% else %}
+      <div style="text-align:center;padding:18px;background:#faf9f7;border:1px solid #e5e2dc;border-radius:12px;margin-top:18px;">
+        <p style="font-size:14px;color:#5a5650;">Please open your admin panel to approve or reject this comment.</p>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p class="footer-text">
+        Notification from <strong>{{ site_settings.site_name }}</strong> blog system.<br>
+        <a href="{{ site_settings.site_url|default:'#' }}">Visit website</a>
+      </p>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>

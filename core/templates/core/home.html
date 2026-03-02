@@ -1,964 +1,1713 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load math_filters %}
+{% load custom_filters %}
 
-{% block title %}{{ site_settings.site_name }} — {{ site_settings.tagline }}{% endblock %}
-{% block meta_description %}{{ site_settings.meta_description }}{% endblock %}
+{# ════════════════════════════════════════════════════════════════
+   HOME PAGE — Brian Getenga Portfolio
+   Warm editorial palette · Dark-mode-safe CSS variables · All features
+   SVG decorative connector lines → HERO SECTION ONLY
+   ════════════════════════════════════════════════════════════════ #}
 
-{% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-<style>
-    /* ===================== HERO ===================== */
-    .hero-section {
-        background: #0a0f2e;
-        position: relative;
-        overflow: hidden;
+{% block title %}{{ site_settings.site_name|default:"Brian Getenga — Full Stack Developer" }}{% endblock %}
+
+{% block meta_description %}{{ site_settings.meta_description|default:"Brian Getenga — Full Stack Developer in Nairobi, Kenya. Building premium Django &amp; React web applications." }}{% endblock %}
+
+{# ────────────────────────────────────────────────────────────────
+   EXTRA HEAD: Third-party libraries + page styles
+   ──────────────────────────────────────────────────────────────── #}
+{% block extra_head %}
+
+  {# tsParticles — lightweight, warm paprika-themed particles #}
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js" defer></script>
+  {# Typed.js — hero role typewriter #}
+  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.1.0/dist/typed.umd.js" defer></script>
+  {# CountUp.js — animated stat numbers #}
+  <script src="https://cdn.jsdelivr.net/npm/countup.js@2.8.0/dist/countUp.umd.js" defer></script>
+  {# Swiper — testimonials carousel #}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+
+  <style>
+    /* ══════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════ */
+    #hero {
+      position: relative;
+      min-height: calc(100vh - 68px);
+      display: flex;
+      align-items: center;
+      background: var(--bg-base);
+      overflow: hidden;
     }
 
-    /* Geometric grid background */
-    .hero-grid {
-        position: absolute; inset: 0;
-        background-image:
-            linear-gradient(rgba(201,147,42,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(201,147,42,0.04) 1px, transparent 1px);
-        background-size: 80px 80px;
+    /* Warm radial glows (light) */
+    .hero-glow-a {
+      position: absolute; top: -180px; right: -140px;
+      width: 680px; height: 680px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(235,94,40,.09) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    .hero-glow-b {
+      position: absolute; bottom: -140px; left: -80px;
+      width: 460px; height: 460px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(202,71,19,.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    html.dark .hero-glow-a { background: radial-gradient(circle, rgba(235,94,40,.13) 0%, transparent 68%); }
+    html.dark .hero-glow-b { background: radial-gradient(circle, rgba(202,71,19,.09) 0%, transparent 65%); }
+
+    /* Dot-grid pattern */
+    .hero-dotgrid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(235,94,40,.2) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: .45;
+    }
+    html.dark .hero-dotgrid { opacity: .2; }
+
+    /* ── SVG CONNECTOR LINES — HERO ONLY ─────────────────
+       These decorative architectural lines only exist here.
+       Animated stroke-dashoffset + delayed fades.
+    ──────────────────────────────────────────────────── */
+    #hero-svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; overflow: visible;
     }
 
-    /* Radial spotlight */
-    .hero-spotlight {
-        position: absolute;
-        width: 900px; height: 900px;
-        top: -200px; right: -200px;
-        background: radial-gradient(circle, rgba(201,147,42,0.08) 0%, transparent 65%);
-        pointer-events: none;
+    /* Shared stroke tokens */
+    .svg-line {
+      fill: none;
+      stroke: #eb5e28;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
-    .hero-spotlight-2 {
-        position: absolute;
-        width: 600px; height: 600px;
-        bottom: -100px; left: -100px;
-        background: radial-gradient(circle, rgba(63,72,202,0.12) 0%, transparent 65%);
-        pointer-events: none;
+    .svg-arc        { stroke-width: 1.5; stroke-dasharray: 600; stroke-dashoffset: 600; opacity: 0; animation: svgDraw 1.6s cubic-bezier(.4,0,.2,1) forwards; }
+    .svg-short      { stroke-width: 1;   stroke-dasharray: 180; stroke-dashoffset: 180; opacity: 0; animation: svgDraw 1s cubic-bezier(.4,0,.2,1) forwards; }
+    .svg-bracket    { stroke-width: 1;   stroke-dasharray: 80;  stroke-dashoffset: 80;  opacity: 0; animation: svgDraw .8s cubic-bezier(.4,0,.2,1) forwards; }
+    .svg-node       { fill: #eb5e28; opacity: 0; transform-origin: center center; animation: svgNode .5s cubic-bezier(.34,1.56,.64,1) forwards; }
+    .svg-ring       { fill: none; stroke: #eb5e28; opacity: 0; animation: svgRing .6s ease forwards; }
+
+    @keyframes svgDraw {
+      0%   { opacity: 0; stroke-dashoffset: attr(stroke-dasharray px); }
+      15%  { opacity: .6; }
+      100% { opacity: .32; stroke-dashoffset: 0; }
+    }
+    @keyframes svgNode {
+      0%   { opacity: 0; transform: scale(0); }
+      100% { opacity: .55; transform: scale(1); }
+    }
+    @keyframes svgRing {
+      0%   { opacity: 0; r: 0; }
+      100% { opacity: .28; }
     }
 
-    /* Hero floating badge */
+    html.dark .svg-arc   { animation-name: svgDrawDark; }
+    html.dark .svg-short { animation-name: svgDrawDark; }
+    html.dark .svg-bracket { animation-name: svgDrawDark; }
+    html.dark .svg-node  { animation-name: svgNodeDark; }
+    html.dark .svg-ring  { animation-name: svgRingDark; }
+
+    @keyframes svgDrawDark  { 0%{opacity:0;stroke-dashoffset:inherit;} 15%{opacity:.5;} 100%{opacity:.18;stroke-dashoffset:0;} }
+    @keyframes svgNodeDark  { 0%{opacity:0;transform:scale(0);} 100%{opacity:.3;transform:scale(1);} }
+    @keyframes svgRingDark  { 0%{opacity:0;} 100%{opacity:.15;} }
+
+    /* ── Hero avatar ring ─────────────────────────── */
+    .avatar-ring-outer {
+      position: absolute; inset: -7px; border-radius: 50%;
+      background: conic-gradient(from 0deg, #eb5e28 0%, #f39f7e 40%, #fffcf2 60%, #eb5e28 100%);
+      animation: ringRotate 12s linear infinite;
+    }
+    html.dark .avatar-ring-outer { background: conic-gradient(from 0deg, #eb5e28 0%, #ca4713 40%, #403d39 60%, #eb5e28 100%); }
+    .avatar-ring-mask {
+      position: absolute; inset: 5px; border-radius: 50%;
+      background: var(--bg-base); transition: background .3s ease;
+    }
+    @keyframes ringRotate { to { transform: rotate(360deg); } }
+
+    /* ── Floating stat badges ─────────────────────── */
     .hero-badge {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        padding: 0.4rem 1rem;
-        border: 1px solid rgba(201,147,42,0.3);
-        background: rgba(201,147,42,0.06);
-        border-radius: 100px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: #fbbf24;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-md);
+      padding: .6rem .95rem;
+      display: flex; align-items: center; gap: .6rem;
+      transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+      white-space: nowrap;
+    }
+    .hero-badge-icon {
+      width: 32px; height: 32px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .hero-badge-eyebrow {
+      font-family: 'Courier Prime', monospace; font-size: .58rem;
+      font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-faint); display: block; margin-bottom: 2px;
+    }
+    .hero-badge-val {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: .92rem; line-height: 1; color: var(--text-primary);
+      transition: color .3s ease;
+    }
+    .float-a { animation: floatA 6s ease-in-out infinite; }
+    .float-b { animation: floatB 7s ease-in-out infinite .4s; }
+    .float-c { animation: floatA 8s ease-in-out infinite .8s; }
+    @keyframes floatA { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes floatB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+    /* ── Typed cursor ─────────────────────────────── */
+    .typed-cursor { color: #eb5e28; animation: typedBlink .7s step-end infinite; }
+    @keyframes typedBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ══════════════════════════════════════════════
+       STATS BAR
+    ══════════════════════════════════════════════ */
+    #stats-bar { background: var(--bg-surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); transition: background .3s ease; }
+    .stat-col {
+      padding: 1.75rem 0;
+      text-align: center;
+      position: relative;
+    }
+    .stat-col + .stat-col::before {
+      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+      width: 1px; background: var(--border);
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif; font-weight: 900; line-height: 1;
+      font-size: clamp(2rem, 4vw, 2.8rem); color: #eb5e28;
+    }
+    .stat-suffix { font-family: 'Courier Prime', monospace; font-size: 1rem; color: var(--text-faint); }
+    .stat-lbl {
+      font-family: 'Courier Prime', monospace; font-size: .62rem;
+      font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--text-faint); margin-top: .4rem; display: block;
     }
 
-    /* Hero headline */
-    .hero-headline {
-        font-family: 'Playfair Display', serif;
-        font-size: clamp(3rem, 7vw, 6.5rem);
-        font-weight: 800;
-        line-height: 1.0;
-        letter-spacing: -0.03em;
-        color: white;
+    /* ══════════════════════════════════════════════
+       SECTION CHROME
+    ══════════════════════════════════════════════ */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .55rem;
+      font-family: 'Courier Prime', monospace; font-size: .7rem;
+      font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #eb5e28;
     }
-    .hero-headline em {
-        font-style: italic;
-        color: transparent;
-        -webkit-text-stroke: 1px rgba(201,147,42,0.6);
+    .eyebrow::before { content: ''; width: 18px; height: 2px; background: #eb5e28; flex-shrink: 0; }
+
+    .section-h2 {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      color: var(--text-primary); line-height: 1.08; transition: color .3s ease;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+    }
+    .section-h2 em { font-style: italic; color: #eb5e28; -webkit-text-fill-color: #eb5e28; }
+
+    .section-sub {
+      font-family: 'DM Sans', sans-serif; font-size: .95rem;
+      color: var(--text-muted); line-height: 1.75; transition: color .3s ease;
     }
 
-    /* Typing cursor */
-    .typed-cursor {
-        display: inline-block;
-        width: 3px; height: 1em;
-        background: #c9932a;
-        margin-left: 2px;
-        vertical-align: middle;
-        animation: blink 1s infinite;
-        border-radius: 1px;
-    }
-    @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+    /* Zebra alternating sections */
+    .section-alt { background: var(--bg-subtle); transition: background .3s ease; }
 
-    /* Profile image ring */
-    .profile-ring {
-        position: relative;
+    /* ══════════════════════════════════════════════
+       PROJECT CARDS
+    ══════════════════════════════════════════════ */
+    .proj-card {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px;
+      overflow: hidden; transition: box-shadow .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s ease;
     }
-    .profile-ring::before {
-        content: '';
-        position: absolute; inset: -8px;
-        border-radius: 50%;
-        background: conic-gradient(from 0deg, #c9932a, #fbbf24, transparent 60%, transparent 90%, #c9932a);
-        animation: spin-slow 8s linear infinite;
-    }
-    .profile-ring::after {
-        content: '';
-        position: absolute; inset: -4px;
-        border-radius: 50%;
-        background: #0a0f2e;
-    }
-    @keyframes spin-slow { to { transform: rotate(360deg); } }
+    .proj-card:hover { box-shadow: var(--shadow-xl); transform: translateY(-5px); border-color: rgba(235,94,40,.28); }
+    .proj-img { position: relative; aspect-ratio: 16/9; overflow: hidden; }
+    .proj-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .proj-card:hover .proj-img img { transform: scale(1.06); }
 
-    /* Floating stat cards */
-    .stat-float {
-        position: absolute;
-        animation: floatCard 6s ease-in-out infinite;
+    .proj-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(37,36,34,.88) 0%, rgba(37,36,34,.45) 50%, transparent 100%);
+      opacity: 0; transition: opacity .3s ease;
     }
-    @keyframes floatCard {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+    .proj-card:hover .proj-overlay { opacity: 1; }
+
+    .proj-actions {
+      position: absolute; bottom: .9rem; left: .9rem; right: .9rem;
+      display: flex; gap: .45rem;
+      transform: translateY(8px); opacity: 0;
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .proj-card:hover .proj-actions { transform: none; opacity: 1; }
+
+    .proj-cat-badge {
+      position: absolute; top: .8rem; left: .8rem;
+      font-family: 'Courier Prime', monospace; font-size: .6rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .28rem .65rem; border-radius: 6px;
+      background: rgba(255,252,242,.12); backdrop-filter: blur(8px);
+      color: rgba(255,252,242,.88); border: 1px solid rgba(255,252,242,.15);
     }
 
-    /* Scroll indicator */
-    .scroll-indicator {
-        width: 1.5px; height: 60px;
-        background: linear-gradient(to bottom, rgba(201,147,42,0.8), transparent);
-        margin: 0 auto;
-        animation: scrollPulse 2s ease-in-out infinite;
+    /* ══════════════════════════════════════════════
+       SKILL CARDS
+    ══════════════════════════════════════════════ */
+    .skill-card {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1rem .8rem; text-align: center;
+      transition: border-color .22s ease, background .22s ease, box-shadow .22s ease;
     }
-    @keyframes scrollPulse {
-        0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
-        50% { opacity: 1; }
-        100% { opacity: 0; transform: scaleY(1); transform-origin: top; }
+    .skill-card:hover {
+      border-color: rgba(235,94,40,.32); background: rgba(235,94,40,.03);
+      box-shadow: var(--shadow-sm);
     }
+    .skill-card[data-hidden="1"] { display: none; }
 
-    /* ===================== MARQUEE ===================== */
-    .marquee-track {
-        display: flex; gap: 3rem; width: max-content;
-        animation: marquee 30s linear infinite;
+    .skill-icon-wrap {
+      width: 38px; height: 38px; border-radius: 10px; margin: 0 auto .6rem;
+      background: rgba(235,94,40,.1); border: 1px solid rgba(235,94,40,.2);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s ease, border-color .2s ease;
     }
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .marquee-track:hover { animation-play-state: paused; }
+    .skill-card:hover .skill-icon-wrap { background: #eb5e28; border-color: #eb5e28; }
+    .skill-card:hover .skill-icon-wrap i,
+    .skill-card:hover .skill-icon-wrap img { filter: brightness(100); }
 
-    /* ===================== SECTIONS ===================== */
-    .section-number {
-        font-family: 'DM Mono', monospace;
-        font-size: 0.7rem;
-        color: rgba(201,147,42,0.5);
-        letter-spacing: 0.1em;
-    }
-
-    /* ===================== SERVICE CARD ===================== */
-    .service-card {
-        padding: 2rem;
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.06);
-        border-radius: 4px;
-        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
-    .dark .service-card {
-        background: rgba(255,255,255,0.03);
-        border-color: rgba(255,255,255,0.07);
-    }
-    .service-card::after {
-        content: '';
-        position: absolute; inset: 0;
-        background: linear-gradient(135deg, rgba(201,147,42,0.06), rgba(63,72,202,0.04));
-        opacity: 0;
-        transition: opacity 0.4s ease;
-    }
-    .service-card:hover { transform: translateY(-6px); box-shadow: 0 24px 64px rgba(0,0,0,0.1); }
-    .dark .service-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
-    .service-card:hover::after { opacity: 1; }
-    .service-icon {
-        width: 3rem; height: 3rem;
-        background: linear-gradient(135deg, #c9932a, #fbbf24);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.125rem; color: #0a0f2e;
-        border-radius: 4px;
-        margin-bottom: 1.25rem;
-        transition: transform 0.3s ease;
-    }
-    .service-card:hover .service-icon { transform: scale(1.1) rotate(-3deg); }
-
-    /* ===================== PROJECT CARD ===================== */
-    .project-card {
-        border-radius: 4px; overflow: hidden;
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.06);
-        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-    }
-    .dark .project-card {
-        background: rgba(255,255,255,0.03);
-        border-color: rgba(255,255,255,0.07);
-    }
-    .project-card:hover { transform: translateY(-6px); box-shadow: 0 24px 64px rgba(0,0,0,0.12); }
-    .dark .project-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
-    .project-image { overflow: hidden; aspect-ratio: 16/10; position: relative; }
-    .project-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.4,0,0.2,1); }
-    .project-card:hover .project-image img { transform: scale(1.08); }
-    .project-overlay {
-        position: absolute; inset: 0;
-        background: linear-gradient(to top, rgba(10,15,46,0.95) 0%, rgba(10,15,46,0.4) 50%, transparent 100%);
-        opacity: 0; transition: opacity 0.4s ease;
-        display: flex; align-items: flex-end; padding: 1.5rem;
-    }
-    .project-card:hover .project-overlay { opacity: 1; }
-
-    /* ===================== SKILL BAR ===================== */
-    .skill-bar-bg {
-        height: 3px;
-        background: rgba(0,0,0,0.06);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-    .dark .skill-bar-bg { background: rgba(255,255,255,0.06); }
+    .skill-bar-track { height: 3px; background: var(--bg-muted); border-radius: 99px; overflow: hidden; margin-top: .55rem; }
     .skill-bar-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #c9932a, #fbbf24);
-        border-radius: 2px;
-        width: 0%;
-        transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
+      height: 100%; border-radius: 99px; width: 0%;
+      background: linear-gradient(90deg, #eb5e28, #ca4713);
+      transition: width 1s cubic-bezier(.22,1,.36,1);
     }
 
-    /* ===================== TESTIMONIAL ===================== */
-    .testimonial-card {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 4px;
-        padding: 2.5rem;
+    /* Skill tab buttons */
+    .s-tab {
+      padding: .42rem .95rem; border-radius: 8px; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: .8rem; font-weight: 600;
+      border: 1.5px solid var(--border); background: transparent; color: var(--text-muted);
+      transition: all .2s ease; white-space: nowrap;
     }
-    .quote-mark {
-        font-family: 'Playfair Display', serif;
-        font-size: 5rem;
-        line-height: 1;
-        color: rgba(201,147,42,0.2);
-        margin-bottom: -1rem;
-        display: block;
-    }
+    .s-tab:hover { border-color: rgba(235,94,40,.3); color: #eb5e28; }
+    .s-tab.active { background: #eb5e28; border-color: #eb5e28; color: #fff; }
 
-    /* ===================== CTA SECTION ===================== */
-    .cta-section {
-        background: #0a0f2e;
-        position: relative; overflow: hidden;
+    /* ══════════════════════════════════════════════
+       SERVICE CARDS
+    ══════════════════════════════════════════════ */
+    .svc-card {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 2rem 1.75rem; position: relative; overflow: hidden;
+      transition: box-shadow .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s ease;
     }
-    .cta-glow {
-        position: absolute;
-        width: 600px; height: 400px;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background: radial-gradient(ellipse, rgba(201,147,42,0.12) 0%, transparent 65%);
+    .svc-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: rgba(235,94,40,.22); }
+    .svc-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #eb5e28, #ca4713);
+      transform: scaleX(0); transform-origin: left; transition: transform .35s ease;
     }
+    .svc-card:hover::before { transform: scaleX(1); }
+    .svc-icon {
+      width: 52px; height: 52px; border-radius: 14px; margin-bottom: 1.25rem;
+      background: rgba(235,94,40,.1); border: 1px solid rgba(235,94,40,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: #eb5e28;
+      transition: background .2s ease, color .2s ease, transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .svc-card:hover .svc-icon { background: #eb5e28; color: #fff; transform: scale(1.1); }
 
-    /* ===================== EXPERIENCE TIMELINE ===================== */
-    .timeline-line {
-        position: absolute; left: 0; top: 0; bottom: 0;
-        width: 1px;
-        background: linear-gradient(to bottom, transparent, #c9932a 20%, #c9932a 80%, transparent);
+    /* ══════════════════════════════════════════════
+       EXPERIENCE TIMELINE
+    ══════════════════════════════════════════════ */
+    .timeline-wrap { position: relative; padding-left: 2.5rem; display: flex; flex-direction: column; gap: 2.25rem; }
+    .timeline-rail {
+      position: absolute; left: 16px; top: 6px; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, #eb5e28, rgba(235,94,40,.08));
     }
     .timeline-dot {
-        width: 10px; height: 10px;
-        background: #c9932a; border-radius: 50%;
-        border: 2px solid white;
-        box-shadow: 0 0 0 4px rgba(201,147,42,0.15);
-        position: absolute; left: -5px; top: 6px;
+      position: absolute; left: 10px; top: .4rem;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #eb5e28; border: 3px solid var(--bg-subtle);
+      box-shadow: 0 0 0 3px rgba(235,94,40,.22);
+      transition: border-color .3s ease;
     }
-    .dark .timeline-dot { border-color: #0a0f2e; }
+    html.dark .timeline-dot { border-color: var(--bg-subtle); }
 
-    /* ===================== COUNTER ===================== */
-    .stat-value {
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        line-height: 1;
+    /* ══════════════════════════════════════════════
+       ACHIEVEMENT BADGES
+    ══════════════════════════════════════════════ */
+    .ach-badge {
+      display: flex; align-items: center; gap: .85rem;
+      padding: 1rem 1.1rem; border-radius: 14px;
+      background: var(--bg-surface); border: 1px solid var(--border);
+      transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
     }
-</style>
+    .ach-badge:hover { border-color: rgba(235,94,40,.28); transform: translateX(4px); box-shadow: var(--shadow-sm); }
+
+    /* ══════════════════════════════════════════════
+       TESTIMONIAL CARDS
+    ══════════════════════════════════════════════ */
+    .testi-card {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 2rem; height: 100%;
+      transition: background .3s ease, border-color .3s ease;
+    }
+    .testi-quote {
+      font-family: 'Playfair Display', serif; font-size: 3.5rem; line-height: .9;
+      color: #eb5e28; opacity: .3; margin-bottom: -.4rem;
+    }
+    .stars { color: #eb5e28; font-size: .75rem; letter-spacing: .08em; }
+
+    /* ══════════════════════════════════════════════
+       BLOG CARDS
+    ══════════════════════════════════════════════ */
+    .blog-card {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 18px;
+      overflow: hidden;
+      transition: box-shadow .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s ease;
+    }
+    .blog-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: rgba(235,94,40,.22); }
+
+    /* ══════════════════════════════════════════════
+       FAQ ACCORDION
+    ══════════════════════════════════════════════ */
+    .faq-item {
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+      background: var(--bg-surface); transition: border-color .2s ease;
+    }
+    .faq-item:hover { border-color: rgba(235,94,40,.22); }
+    .faq-trigger {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.1rem 1.25rem; background: none; border: none; cursor: pointer; text-align: left;
+      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .92rem; color: var(--text-primary);
+      transition: color .2s ease;
+    }
+    .faq-trigger:hover { color: #eb5e28; }
+    .faq-icon { color: #eb5e28; font-size: .7rem; flex-shrink: 0; transition: transform .28s cubic-bezier(.34,1.56,.64,1); }
+    .faq-body {
+      overflow: hidden; max-height: 0;
+      transition: max-height .38s cubic-bezier(.22,1,.36,1), padding .38s ease;
+      padding: 0 1.25rem;
+    }
+    .faq-body.open { padding: 0 1.25rem 1.1rem; max-height: 400px; }
+    .faq-body p { font-family: 'DM Sans', sans-serif; font-size: .875rem; color: var(--text-muted); line-height: 1.75; }
+
+    /* ══════════════════════════════════════════════
+       CONTACT FORM
+    ══════════════════════════════════════════════ */
+    .form-wrap {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 22px;
+      padding: 2.25rem 2rem; transition: background .3s ease, border-color .3s ease;
+    }
+    .form-label {
+      display: block; font-family: 'Courier Prime', monospace; font-size: .62rem;
+      font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--text-faint); margin-bottom: .4rem;
+    }
+    .form-ctrl {
+      width: 100%; padding: .72rem 1rem;
+      background: var(--bg-subtle); border: 1.5px solid var(--border); border-radius: 9px;
+      font-family: 'DM Sans', sans-serif; font-size: .875rem; color: var(--text-primary);
+      outline: none; transition: border-color .2s ease, box-shadow .2s ease, background .3s ease;
+    }
+    .form-ctrl::placeholder { color: var(--text-faint); }
+    .form-ctrl:focus { border-color: #eb5e28; box-shadow: 0 0 0 3px rgba(235,94,40,.1); background: var(--bg-surface); }
+    textarea.form-ctrl { resize: vertical; min-height: 112px; }
+    select.form-ctrl { cursor: pointer; }
+    .form-error { display: none; font-size: .75rem; color: #dc2626; margin-top: .28rem; }
+
+    /* ══════════════════════════════════════════════
+       NEWSLETTER STRIP
+    ══════════════════════════════════════════════ */
+    .nl-strip {
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(235,94,40,.07) 0%, rgba(202,71,19,.03) 100%);
+      border: 1px solid rgba(235,94,40,.16);
+      padding: 2.75rem 2.25rem;
+      transition: background .3s ease, border-color .3s ease;
+    }
+    html.dark .nl-strip {
+      background: linear-gradient(135deg, rgba(235,94,40,.11) 0%, rgba(202,71,19,.06) 100%);
+      border-color: rgba(235,94,40,.22);
+    }
+
+    /* ══════════════════════════════════════════════
+       CTA SECTION
+    ══════════════════════════════════════════════ */
+    #cta-wrap { position: relative; overflow: hidden; }
+    #cta-wrap::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(235,94,40,.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    html.dark #cta-wrap::before {
+      background: linear-gradient(135deg, rgba(235,94,40,.1) 0%, transparent 65%);
+    }
+
+    /* ══════════════════════════════════════════════
+       AVAILABILITY PULSE (reuse from base)
+    ══════════════════════════════════════════════ */
+    .avail-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #22c55e;
+      animation: availPing 2.2s cubic-bezier(0,0,.2,1) infinite; flex-shrink: 0;
+    }
+    @keyframes availPing {
+      0%  { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+      70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+      100%{ box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    /* ══════════════════════════════════════════════
+       LAYOUT HELPERS
+    ══════════════════════════════════════════════ */
+    .page-sec { padding: 5rem 0; }
+    .page-sec-sm { padding: 3.5rem 0; }
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+    @media(min-width:640px)  { .grid-2 { grid-template-columns: repeat(2,1fr); } }
+    @media(min-width:768px)  { .grid-3 { grid-template-columns: repeat(2,1fr); } }
+    @media(min-width:1024px) { .grid-3 { grid-template-columns: repeat(3,1fr); } }
+
+    /* Section header flex row */
+    .sec-hdr { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 3rem; }
+    .sec-hdr-left { flex: 1; min-width: 0; }
+
+    /* Swiper overrides */
+    .swiper-pagination-bullet { background: var(--border-strong) !important; opacity: 1 !important; width: 8px; height: 8px; }
+    .swiper-pagination-bullet-active { background: #eb5e28 !important; }
+  </style>
 {% endblock %}
 
+
+{# ════════════════════════════════════════════════════════════════
+   MAIN CONTENT
+   ════════════════════════════════════════════════════════════════ #}
 {% block content %}
 
-<!-- ==================== HERO ==================== -->
-<section class="hero-section min-h-screen flex flex-col justify-center pt-16 relative">
-    <div class="hero-grid"></div>
-    <div class="hero-spotlight"></div>
-    <div class="hero-spotlight-2"></div>
-    
-    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 w-full">
-        <div class="grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-5rem)] py-20">
-            
-            <!-- Hero Content -->
-            <div class="order-2 lg:order-1 space-y-8">
-                <!-- Badge -->
-                <div class="hero-badge" data-aos="fade-up" data-aos-delay="0">
-                    {% if site_settings.available_for_work %}
-                    <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-                    Available for Projects
-                    {% else %}
-                    <span class="w-1.5 h-1.5 bg-gold-400 rounded-full"></span>
-                    Full Stack Developer
-                    {% endif %}
-                </div>
-                
-                <!-- Headline -->
-                <div data-aos="fade-up" data-aos-delay="80">
-                    <h1 class="hero-headline">
-                        Hi, I'm<br>
-                        <em>{{ site_settings.site_name|truncatewords:2 }}</em>
-                    </h1>
-                </div>
 
-                <!-- Typed role -->
-                <div class="flex items-center gap-3" data-aos="fade-up" data-aos-delay="160">
-                    <div class="w-8 h-px bg-gold-500"></div>
-                    <p class="text-slate-400 font-mono text-sm">
-                        <span id="typed-text"></span><span class="typed-cursor"></span>
-                    </p>
-                </div>
-                
-                <!-- Description -->
-                <p class="text-slate-400 text-lg leading-relaxed max-w-lg" data-aos="fade-up" data-aos-delay="200">
-                    {{ site_settings.tagline|default:site_settings.site_description }}
-                </p>
-                
-                <!-- Stats row -->
-                <div class="flex gap-10 py-4 border-y border-white/5" data-aos="fade-up" data-aos-delay="240">
-                    <div>
-                        <div class="stat-value text-3xl text-white counter" data-target="{{ site_settings.years_experience|default:5 }}">0</div>
-                        <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">Years Exp</div>
-                    </div>
-                    <div class="w-px bg-white/5"></div>
-                    <div>
-                        <div class="stat-value text-3xl text-white counter" data-target="{{ stats.total_projects|default:100 }}">0</div>
-                        <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">Projects</div>
-                    </div>
-                    <div class="w-px bg-white/5"></div>
-                    <div>
-                        <div class="stat-value text-3xl text-white counter" data-target="{{ site_settings.happy_clients|default:50 }}">0</div>
-                        <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">Clients</div>
-                    </div>
-                </div>
-                
-                <!-- CTAs -->
-                <div class="flex flex-wrap gap-4" data-aos="fade-up" data-aos-delay="280">
-                    <a href="{% url 'contact' %}" class="group inline-flex items-center gap-2.5 px-7 py-3.5 bg-gold-500 hover:bg-gold-400 text-navy-900 font-semibold text-sm rounded-sm transition-all duration-300 hover:shadow-gold">
-                        Start a Project
-                        <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                    <a href="{% url 'projects' %}" class="btn-outline text-white border-white/20 hover:bg-white/10 hover:border-white/40">
-                        View Portfolio
-                    </a>
-                    {% if site_settings.resume_file %}
-                    <a href="{% url 'download_resume' %}" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors" download>
-                        <i class="fas fa-download text-xs"></i> Resume
-                    </a>
-                    {% endif %}
-                </div>
+<section id="hero" aria-label="Hero introduction">
 
-                <!-- Social -->
-                <div class="flex items-center gap-5" data-aos="fade-up" data-aos-delay="320">
-                    {% if site_settings.github_url %}
-                    <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-white transition-colors" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                    {% endif %}
-                    {% if site_settings.linkedin_url %}
-                    <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-white transition-colors" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                    {% endif %}
-                    {% if site_settings.twitter_url %}
-                    <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-600 hover:text-white transition-colors" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    {% endif %}
-                    <a href="mailto:{{ site_settings.email }}" class="text-slate-600 hover:text-white transition-colors" aria-label="Email"><i class="fas fa-envelope"></i></a>
-                </div>
-            </div>
-            
-            <!-- Hero Visual -->
-            <div class="order-1 lg:order-2 relative flex justify-center items-center" data-aos="fade-left" data-aos-delay="100">
-                <div class="relative w-[340px] h-[340px] lg:w-[420px] lg:h-[420px]">
-                    <!-- Profile Ring -->
-                    <div class="profile-ring w-full h-full">
-                        <div style="position:relative;z-index:1;width:100%;height:100%;border-radius:50%;overflow:hidden;background:#1e2a5e;">
-                            {% if site_settings.profile_image %}
-                            <img src="{{ site_settings.profile_image.url }}" alt="{{ site_settings.site_name }}" class="w-full h-full object-cover">
-                            {% else %}
-                            <div class="w-full h-full flex items-center justify-center text-7xl text-white/20">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Floating tech badges -->
-                    <div class="stat-float absolute -top-6 -right-6 bg-white dark:bg-navy-800 shadow-xl rounded-sm border border-slate-100 dark:border-white/10 px-4 py-3 z-20" style="animation-delay: 0s;">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 bg-blue-500 rounded-sm flex items-center justify-center"><i class="fab fa-python text-white text-sm"></i></div>
-                            <div>
-                                <div class="text-xs font-semibold text-slate-800 dark:text-white">Python</div>
-                                <div class="text-xs text-slate-400">Expert Level</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-float absolute -bottom-4 -left-6 bg-white dark:bg-navy-800 shadow-xl rounded-sm border border-slate-100 dark:border-white/10 px-4 py-3 z-20" style="animation-delay: 2s;">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 bg-cyan-500 rounded-sm flex items-center justify-center"><i class="fab fa-react text-white text-sm"></i></div>
-                            <div>
-                                <div class="text-xs font-semibold text-slate-800 dark:text-white">React</div>
-                                <div class="text-xs text-slate-400">Advanced</div>
-                            </div>
-                        </div>
-                    </div>
+  {# Background layers #}
+  <div class="hero-glow-a" aria-hidden="true"></div>
+  <div class="hero-glow-b" aria-hidden="true"></div>
+  <div class="hero-dotgrid" aria-hidden="true"></div>
 
-                    <div class="stat-float absolute top-1/2 -right-10 bg-white dark:bg-navy-800 shadow-xl rounded-sm border border-slate-100 dark:border-white/10 px-4 py-3 z-20" style="animation-delay: 4s;">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 bg-emerald-500 rounded-sm flex items-center justify-center"><i class="fab fa-django text-white text-sm"></i></div>
-                            <div>
-                                <div class="text-xs font-semibold text-slate-800 dark:text-white">Django</div>
-                                <div class="text-xs text-slate-400">Expert Level</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Scroll indicator -->
-    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10">
-        <div class="scroll-indicator"></div>
-        <span class="text-xs text-slate-600 uppercase tracking-widest">Scroll</span>
-    </div>
-</section>
+  {# tsParticles canvas #}
+  <div id="hero-particles" style="position:absolute;inset:0;z-index:0;" aria-hidden="true"></div>
 
-<!-- ==================== SKILLS MARQUEE ==================== -->
-{% if skills %}
-<div class="py-6 border-y border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-navy-900/50 overflow-hidden relative">
-    <div class="absolute inset-y-0 left-0 w-32 z-10 pointer-events-none" style="background: linear-gradient(90deg, white, transparent)"></div>
-    <div class="absolute inset-y-0 right-0 w-32 z-10 pointer-events-none" style="background: linear-gradient(-90deg, white, transparent)"></div>
-    <div class="dark:hidden"></div>
-    <div class="marquee-track">
-        {% for skill in skills %}
-        <div class="flex items-center gap-3 text-slate-500 dark:text-slate-500 whitespace-nowrap">
-            {% if skill.icon_class %}<i class="{{ skill.icon_class }} text-base text-slate-400 dark:text-slate-600"></i>{% endif %}
-            <span class="text-sm font-medium">{{ skill.name }}</span>
-        </div>
-        {% endfor %}
-        {% for skill in skills %}
-        <div class="flex items-center gap-3 text-slate-500 dark:text-slate-500 whitespace-nowrap">
-            {% if skill.icon_class %}<i class="{{ skill.icon_class }} text-base text-slate-400 dark:text-slate-600"></i>{% endif %}
-            <span class="text-sm font-medium">{{ skill.name }}</span>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+  <svg id="hero-svg" aria-hidden="true" focusable="false"
+       xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 1280 700" preserveAspectRatio="xMidYMid slice">
 
-<!-- ==================== ABOUT SNAPSHOT ==================== -->
-<section id="about" class="py-28 lg:py-36 bg-white dark:bg-navy-950">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="grid lg:grid-cols-2 gap-20 items-center">
-            
-            <!-- Left: Text -->
-            <div data-aos="fade-right">
-                <div class="section-label mb-6">About Me</div>
-                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
-                    Crafting digital<br>experiences with<br><span class="text-gold">purpose & precision</span>
-                </h2>
-                <div class="divider mb-8"></div>
-                <div class="text-slate-600 dark:text-slate-400 leading-relaxed space-y-4 text-lg">
-                    {{ site_settings.about_me|safe|truncatewords_html:60 }}
-                </div>
-                <div class="flex gap-4 mt-10">
-                    <a href="{% url 'about' %}" class="btn-primary"><span>More About Me</span> <i class="fas fa-arrow-right text-xs"></i></a>
-                    <a href="{% url 'contact' %}" class="btn-outline">Hire Me</a>
-                </div>
-            </div>
-            
-            <!-- Right: Stats grid -->
-            <div class="grid grid-cols-2 gap-6" data-aos="fade-left">
-                {% for stat in hero_stats %}
-                {% endfor %}
-                <div class="card p-8">
-                    <i class="fas fa-briefcase text-gold-500 text-2xl mb-4"></i>
-                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ site_settings.years_experience|default:5 }}">0</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-widest">Years Experience</div>
-                </div>
-                <div class="card p-8">
-                    <i class="fas fa-layer-group text-gold-500 text-2xl mb-4"></i>
-                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ stats.total_projects|default:100 }}">0</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-widest">Projects Delivered</div>
-                </div>
-                <div class="card p-8">
-                    <i class="fas fa-face-smile text-gold-500 text-2xl mb-4"></i>
-                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ site_settings.happy_clients|default:50 }}">0</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-widest">Happy Clients</div>
-                </div>
-                <div class="card p-8">
-                    <i class="fas fa-mug-hot text-gold-500 text-2xl mb-4"></i>
-                    <div class="stat-value text-4xl text-slate-900 dark:text-white counter mb-2" data-target="{{ site_settings.coffee_consumed|default:1000 }}">0</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-widest">Cups of Coffee</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    {# ── Long flowing arcs ── #}
+    <path class="svg-line svg-arc" style="animation-delay:.25s;stroke-dasharray:600;stroke-dashoffset:600"
+          d="M -20 120 C 120 20 380 80 560 260"/>
+    <path class="svg-line svg-arc" style="animation-delay:.5s;stroke-dasharray:580;stroke-dashoffset:580"
+          d="M 1300 60 C 1100 30 950 180 820 320"/>
+    <path class="svg-line svg-arc" style="animation-delay:.75s;stroke-dasharray:540;stroke-dashoffset:540"
+          d="M 60 680 C 200 600 380 640 540 560"/>
 
-<!-- ==================== SERVICES ==================== -->
-{% if featured_services %}
-<section class="py-28 lg:py-36 bg-slate-50 dark:bg-navy-900/40 relative overflow-hidden">
-    <div class="absolute inset-0 pointer-events-none" style="background-image: radial-gradient(circle at 1px 1px, rgba(201,147,42,0.04) 1px, transparent 0); background-size: 48px 48px;"></div>
-    
-    <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16" data-aos="fade-up">
-            <div>
-                <div class="section-label mb-5">Services</div>
-                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
-                    What I <span class="text-gold">specialize</span> in
-                </h2>
-            </div>
-            <a href="{% url 'services' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-gold-600 dark:hover:text-gold-400 transition-colors group">
-                All Services <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
-            </a>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for service in featured_services %}
-            <div class="service-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
-                <div class="relative z-10">
-                    <div class="service-icon">
-                        <i class="{{ service.icon|default:'fas fa-code' }}"></i>
-                    </div>
-                    <div class="text-xs font-mono text-gold-500 mb-2">0{{ forloop.counter }}</div>
-                    <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-3">{{ service.title }}</h3>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-5">{{ service.short_description }}</p>
-                    {% if service.starting_price %}
-                    <div class="flex items-baseline gap-1 mb-5">
-                        <span class="text-xs text-slate-400">from</span>
-                        <span class="font-display text-2xl font-bold text-gold-500">${{ service.starting_price }}</span>
-                    </div>
-                    {% endif %}
-                    <a href="{% url 'service_detail' service.slug %}" class="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors">
-                        Learn More <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
+    {# ── Diagonal tension lines ── #}
+    <line class="svg-line svg-short" style="animation-delay:.9s;stroke-dasharray:180;stroke-dashoffset:180"
+          x1="820" y1="320" x2="980" y2="240"/>
+    <line class="svg-line svg-short" style="animation-delay:1.05s;stroke-dasharray:160;stroke-dashoffset:160"
+          x1="540" y1="260" x2="560" y2="420"/>
+    <line class="svg-line svg-short" style="animation-delay:1.15s;stroke-dasharray:120;stroke-dashoffset:120"
+          x1="980" y1="240" x2="1060" y2="380"/>
 
-<!-- ==================== FEATURED PROJECTS ==================== -->
-{% if featured_projects %}
-<section id="projects" class="py-28 lg:py-36 bg-white dark:bg-navy-950">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16" data-aos="fade-up">
-            <div>
-                <div class="section-label mb-5">Portfolio</div>
-                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
-                    Selected <span class="text-gold">work</span>
-                </h2>
-            </div>
-            <a href="{% url 'projects' %}" class="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-gold-600 dark:hover:text-gold-400 transition-colors group">
-                All Projects <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
-            </a>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for project in featured_projects %}
-            <article class="project-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
-                <!-- Image -->
-                <div class="project-image">
-                    {% if project.thumbnail or project.featured_image %}
-                    <img src="{% if project.thumbnail %}{{ project.thumbnail.url }}{% else %}{{ project.featured_image.url }}{% endif %}" alt="{{ project.title }}" loading="lazy">
-                    {% else %}
-                    <div class="w-full h-full bg-gradient-to-br from-navy-800 to-navy-900 flex items-center justify-center aspect-video">
-                        <i class="fas fa-image text-4xl text-white/20"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Overlay -->
-                    <div class="project-overlay">
-                        <div class="flex gap-3">
-                            {% if project.live_url %}
-                            <a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"
-                               class="flex items-center gap-1.5 px-3.5 py-2 bg-white text-navy-900 rounded-sm text-xs font-semibold hover:bg-gold-400 transition-colors">
-                                <i class="fas fa-external-link-alt"></i> Live
-                            </a>
-                            {% endif %}
-                            {% if project.github_url %}
-                            <a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"
-                               class="flex items-center gap-1.5 px-3.5 py-2 bg-white/10 border border-white/20 text-white rounded-sm text-xs font-semibold hover:bg-white/20 transition-colors">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Category badge -->
-                    <div class="absolute top-4 left-4">
-                        <span class="text-xs font-semibold uppercase tracking-widest px-2.5 py-1 bg-black/60 backdrop-blur-sm text-gold-400 rounded-sm">
-                            {{ project.get_category_display|default:'Project' }}
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Content -->
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
-                            <span><i class="fas fa-eye mr-1"></i>{{ project.views|default:0 }}</span>
-                            <span><i class="fas fa-heart mr-1"></i>{{ project.likes|default:0 }}</span>
-                        </div>
-                        <div class="w-5 h-px bg-gold-500"></div>
-                    </div>
-                    <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug">{{ project.title }}</h3>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ project.description }}</p>
-                    
-                    {% if project.technologies %}
-                    <div class="flex flex-wrap gap-1.5 mb-5">
-                        {% for tech in project.technologies.split|slice:":4" %}
-                        <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-sm font-mono">{{ tech }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
-                    <a href="{% url 'project_detail' project.slug %}" class="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors">
-                        View Details <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
-            </article>
-            {% endfor %}
-        </div>
-        
-        <div class="text-center mt-12 md:hidden">
-            <a href="{% url 'projects' %}" class="btn-primary mx-auto"><span>All Projects</span> <i class="fas fa-arrow-right text-xs"></i></a>
-        </div>
-    </div>
-</section>
-{% endif %}
+    {# ── Corner bracket ornaments ── #}
+    <path class="svg-line svg-bracket" style="animation-delay:1.25s;stroke-dasharray:80;stroke-dashoffset:80"
+          d="M 1230 30 L 1260 30 L 1260 72"/>
+    <path class="svg-line svg-bracket" style="animation-delay:1.35s;stroke-dasharray:80;stroke-dashoffset:80"
+          d="M 50 670 L 20 670 L 20 628"/>
+    <path class="svg-line svg-bracket" style="animation-delay:1.42s;stroke-dasharray:60;stroke-dashoffset:60"
+          d="M 20 30 L 50 30 L 50 62"/>
 
-<!-- ==================== SKILLS ==================== -->
-{% if featured_skills %}
-<section id="skills" class="py-28 lg:py-36 bg-slate-50 dark:bg-navy-900/40">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="grid lg:grid-cols-2 gap-20 items-start">
-            
-            <!-- Left: Header -->
-            <div data-aos="fade-right">
-                <div class="section-label mb-5">Expertise</div>
-                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
-                    Skills &<br><span class="text-gold">Technologies</span>
-                </h2>
-                <div class="divider mb-8"></div>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
-                    Over {{ site_settings.years_experience|default:5 }}+ years, I've developed expertise in a wide range of technologies and frameworks that enable me to build robust, scalable solutions.
-                </p>
-                
-                <!-- Skill categories summary -->
-                {% regroup skills by category as skills_by_category %}
-                <div class="mt-10 flex flex-wrap gap-2">
-                    {% for category in skills_by_category %}
-                    <span class="px-3 py-1.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-400 text-xs font-semibold rounded-sm">{{ category.grouper|default:'Other' }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-            
-            <!-- Right: Skill bars -->
-            <div class="space-y-6" data-aos="fade-left">
-                {% for skill in featured_skills %}
-                <div class="group">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-3">
-                            {% if skill.icon_class %}
-                            <i class="{{ skill.icon_class }} text-sm text-gold-500"></i>
-                            {% endif %}
-                            <span class="text-sm font-semibold text-slate-800 dark:text-white">{{ skill.name }}</span>
-                        </div>
-                        <span class="font-mono text-xs text-gold-500">{{ skill.proficiency|default:90 }}%</span>
-                    </div>
-                    <div class="skill-bar-bg">
-                        <div class="skill-bar-fill" data-width="{{ skill.proficiency|default:90 }}"></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
+    {# ── Crosshair data-point markers ── #}
+    <line class="svg-line svg-bracket" style="animation-delay:1.5s;stroke-dasharray:20;stroke-dashoffset:20;stroke-width:1"
+          x1="560" y1="253" x2="560" y2="267"/>
+    <line class="svg-line svg-bracket" style="animation-delay:1.5s;stroke-dasharray:20;stroke-dashoffset:20;stroke-width:1"
+          x1="553" y1="260" x2="567" y2="260"/>
+    <line class="svg-line svg-bracket" style="animation-delay:1.55s;stroke-dasharray:20;stroke-dashoffset:20;stroke-width:1"
+          x1="820" y1="313" x2="820" y2="327"/>
+    <line class="svg-line svg-bracket" style="animation-delay:1.55s;stroke-dasharray:20;stroke-dashoffset:20;stroke-width:1"
+          x1="813" y1="320" x2="827" y2="320"/>
 
-<!-- ==================== EXPERIENCE TIMELINE ==================== -->
-{% if experiences %}
-<section id="experience" class="py-28 lg:py-36 bg-white dark:bg-navy-950">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="text-center mb-16" data-aos="fade-up">
-            <div class="section-label mb-5">Career</div>
-            <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white">
-                Professional <span class="text-gold">Journey</span>
-            </h2>
-        </div>
-        
-        <div class="max-w-3xl mx-auto">
-            <div class="relative pl-8">
-                <div class="timeline-line"></div>
-                
-                {% for exp in experiences %}
-                <div class="relative mb-12 last:mb-0" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
-                    <div class="timeline-dot"></div>
-                    
-                    <div class="card p-7">
-                        <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                            <div>
-                                <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white">{{ exp.title }}</h3>
-                                <p class="text-gold-600 dark:text-gold-400 font-semibold text-sm mt-0.5">{{ exp.company }}</p>
-                            </div>
-                            {% if exp.is_current %}
-                            <span class="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>Current
-                            </span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-500 mb-4 font-mono">
-                            <span>{{ exp.start_date|date:"M Y" }} — {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}</span>
-                            {% if exp.location %}<span>{{ exp.location }}</span>{% endif %}
-                        </div>
-                        
-                        <div class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ exp.description|safe|truncatewords_html:40 }}</div>
-                        
-                        {% if exp.technologies %}
-                        <div class="flex flex-wrap gap-1.5 mt-4">
-                            {% for tech in exp.tech_list|slice:":6" %}
-                            <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-sm font-mono">{{ tech }}</span>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
+    {# ── Arrows on tension lines ── #}
+    <defs>
+      <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L7,3 z" fill="#eb5e28" opacity=".5"/>
+      </marker>
+    </defs>
+    <line class="svg-line svg-short" style="animation-delay:1.6s;stroke-dasharray:120;stroke-dashoffset:120"
+          x1="1060" y1="380" x2="1150" y2="480" marker-end="url(#arrowhead)"/>
 
-<!-- ==================== TESTIMONIALS ==================== -->
-{% if testimonials %}
-<section class="py-28 lg:py-36 bg-navy-900 relative overflow-hidden">
-    <!-- Background dots -->
-    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 32px 32px;"></div>
-    <!-- Gold glow -->
-    <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl"></div>
-    
-    <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-        <div class="text-center mb-16" data-aos="fade-up">
-            <div class="section-label mb-5" style="color: rgba(201,147,42,0.6);">
-                <span>Testimonials</span>
-            </div>
-            <h2 class="font-display text-4xl lg:text-5xl font-bold text-white">
-                Client <span class="text-gold">Stories</span>
-            </h2>
-        </div>
-        
-        <div class="swiper testimonials-swiper">
-            <div class="swiper-wrapper pb-12">
-                {% for testimonial in testimonials %}
-                <div class="swiper-slide">
-                    <div class="testimonial-card" data-aos="fade-up">
-                        <span class="quote-mark">"</span>
-                        <!-- Stars -->
-                        <div class="flex gap-1 mb-5">
-                            {% for i in "12345" %}
-                            <i class="fas fa-star text-xs {% if forloop.counter <= testimonial.rating|default:5 %}text-gold-400{% else %}text-white/20{% endif %}"></i>
-                            {% endfor %}
-                        </div>
-                        <p class="text-slate-300 italic leading-relaxed mb-8 text-lg">{{ testimonial.content }}</p>
-                        <div class="flex items-center gap-4">
-                            {% if testimonial.image %}
-                            <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" class="w-12 h-12 rounded-full object-cover">
-                            {% else %}
-                            <div class="w-12 h-12 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center text-gold-400 font-bold">{{ testimonial.name|first }}</div>
-                            {% endif %}
-                            <div>
-                                <div class="font-semibold text-white text-sm">{{ testimonial.name }}</div>
-                                <div class="text-slate-500 text-xs">{{ testimonial.position }}{% if testimonial.company %}, {{ testimonial.company }}{% endif %}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="swiper-pagination"></div>
-        </div>
-    </div>
-</section>
-{% endif %}
+    {# ── Node circles at intersections ── #}
+    <circle class="svg-node" style="animation-delay:1.05s" cx="560"  cy="260" r="4.5"/>
+    <circle class="svg-node" style="animation-delay:1.2s"  cx="820"  cy="320" r="4.5"/>
+    <circle class="svg-node" style="animation-delay:1.3s"  cx="980"  cy="240" r="3.5"/>
+    <circle class="svg-node" style="animation-delay:1.4s"  cx="1060" cy="380" r="3"/>
+    <circle class="svg-node" style="animation-delay:1.5s"  cx="540"  cy="560" r="3"/>
+    <circle class="svg-node" style="animation-delay:1.6s"  cx="1150" cy="480" r="2.5"/>
 
-<!-- ==================== BLOG POSTS ==================== -->
-{% if recent_posts %}
-<section class="py-28 lg:py-36 bg-white dark:bg-navy-950">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16" data-aos="fade-up">
-            <div>
-                <div class="section-label mb-5">Insights</div>
-                <h2 class="font-display text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white">
-                    Latest <span class="text-gold">Articles</span>
-                </h2>
-            </div>
-            <a href="{% url 'blog' %}" class="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-gold-600 dark:hover:text-gold-400 transition-colors group">
-                All Articles <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
-            </a>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for post in recent_posts %}
-            <article class="project-card group" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
-                <a href="{% url 'blog_detail' post.slug %}">
-                    <div class="project-image h-52">
-                        {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
-                        {% else %}
-                        <div class="w-full h-full bg-gradient-to-br from-navy-800 to-navy-900 flex items-center justify-center">
-                            <i class="fas fa-newspaper text-4xl text-white/20"></i>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500 font-mono mb-3">
-                            <span>{{ post.published_date|date:"M d, Y" }}</span>
-                            <span>{{ post.reading_time|default:5 }} min</span>
-                            <span>{{ post.views|default:0 }} views</span>
-                        </div>
-                        <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors line-clamp-2">{{ post.title }}</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ post.excerpt|default:post.content|striptags|truncatewords:15 }}</p>
-                        <span class="group/link inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 transition-colors">
-                            Read More <i class="fas fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i>
-                        </span>
-                    </div>
-                </a>
-            </article>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
+    {# ── Outer rings on major nodes ── #}
+    <circle class="svg-ring" style="animation-delay:1.1s;stroke-width:1;stroke-dasharray:999" cx="560" cy="260" r="11"/>
+    <circle class="svg-ring" style="animation-delay:1.25s;stroke-width:1;stroke-dasharray:999" cx="820" cy="320" r="9"/>
 
-<!-- ==================== CTA SECTION ==================== -->
-<section class="cta-section py-28 lg:py-36">
-    <div class="cta-glow"></div>
-    <!-- Geometric lines -->
-    <div class="absolute inset-0" style="background-image: linear-gradient(rgba(201,147,42,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,147,42,0.03) 1px, transparent 1px); background-size: 80px 80px;"></div>
-    
-    <div class="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 text-center" data-aos="fade-up">
-        <div class="section-label mb-8" style="color: rgba(201,147,42,0.5);">Get In Touch</div>
-        <h2 class="font-display text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            Let's build<br>something <span class="text-gold italic">remarkable</span>
-        </h2>
-        <p class="text-slate-400 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
-            Have a project in mind? I'm available for freelance projects, collaborations, and consulting.
+    {# ── Floating data labels ── #}
+    <text style="font-family:'Courier Prime',monospace;font-size:9px;fill:#eb5e28;opacity:0;animation:svgNode .5s ease 1.65s forwards"
+          x="572" y="255">v2.1</text>
+    <text style="font-family:'Courier Prime',monospace;font-size:9px;fill:#eb5e28;opacity:0;animation:svgNode .5s ease 1.75s forwards"
+          x="832" y="315">API</text>
+    <text style="font-family:'Courier Prime',monospace;font-size:9px;fill:#eb5e28;opacity:0;animation:svgNode .5s ease 1.85s forwards"
+          x="992" y="235">UI</text>
+
+  </svg>
+
+  {# ── Hero Content ─────────────────────────────────────── #}
+  <div class="cx" style="position:relative;z-index:2;padding-top:4.5rem;padding-bottom:4.5rem;width:100%;">
+    <div id="hero-layout" style="display:grid;grid-template-columns:1fr;gap:3.5rem;align-items:center;">
+
+      {# ── LEFT: Copy ── #}
+      <div style="max-width:640px;" data-reveal>
+
+        {# Availability pill #}
+        {% if site_settings.available_for_work %}
+        <div style="display:inline-flex;align-items:center;gap:.55rem;padding:.38rem .95rem;border-radius:999px;border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.07);margin-bottom:1.9rem;">
+          <span class="avail-dot"></span>
+          <span style="font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;color:#15803d;">Available for new projects</span>
+          <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;color:var(--text-faint);padding:.14rem .55rem;border-radius:999px;background:var(--bg-muted);white-space:nowrap;">Nairobi · Remote-ready</span>
+        </div>
+        {% endif %}
+
+        {# Headline #}
+        <div style="margin-bottom:1.5rem;">
+          <p style="font-family:'Courier Prime',monospace;font-size:.68rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.65rem;">Crafting Digital</p>
+          <h1 style="font-family:'Playfair Display',serif;font-weight:900;line-height:1.04;letter-spacing:-.01em;color:var(--text-primary);font-size:clamp(2.4rem,5.5vw,4.4rem);transition:color .3s ease;">
+            Excellence<br>in <em style="font-style:italic;color:#eb5e28;">Code</em> &amp; Craft
+          </h1>
+        </div>
+
+        {# Typed role line #}
+        <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.3rem;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#eb5e28;flex-shrink:0;"></span>
+          <span style="font-family:'Courier Prime',monospace;font-size:.92rem;color:var(--text-muted);">I'm a</span>
+          <span id="hero-typed" style="font-family:'Courier Prime',monospace;font-size:.92rem;font-weight:700;color:#eb5e28;min-width:4ch;"></span>
+        </div>
+
+        {# Tagline #}
+        <p class="section-sub" style="max-width:500px;margin-bottom:2.1rem;">
+          {{ site_settings.tagline|default:"Full Stack Developer from Nairobi — building premium web experiences with Django, React, and an obsessive focus on craft and performance." }}
         </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="{% url 'contact' %}" class="group inline-flex items-center gap-3 px-10 py-4 bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold rounded-sm transition-all duration-300 hover:shadow-gold-lg">
-                Start Conversation
-                <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
-            </a>
-            <a href="{% url 'services' %}" class="inline-flex items-center gap-3 px-10 py-4 border border-white/20 hover:border-white/40 text-white font-semibold rounded-sm transition-all hover:bg-white/5">
-                View Services
-            </a>
+
+        {# CTAs #}
+        <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:2.1rem;">
+          <a href="{% url 'projects' %}" class="btn btn-primary">
+            View My Work <i class="fas fa-arrow-right" style="font-size:.72rem;"></i>
+          </a>
+          {% if site_settings.resume_file %}
+          <a href="{% url 'download_resume' %}" class="btn btn-outline">
+            <i class="fas fa-file-arrow-down" style="font-size:.75rem;"></i> Download CV
+          </a>
+          {% endif %}
+          <a href="{% url 'contact' %}" class="btn btn-ghost">
+            Let's Talk <i class="fas fa-arrow-right" style="font-size:.7rem;"></i>
+          </a>
         </div>
-        
-        <!-- Contact methods -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-8 mt-16 pt-16 border-t border-white/5">
-            <div class="flex items-center gap-3 text-slate-500 text-sm">
-                <i class="fas fa-envelope text-gold-500"></i>
-                <a href="mailto:{{ site_settings.email }}" class="hover:text-white transition-colors">{{ site_settings.email }}</a>
-            </div>
-            {% if site_settings.phone %}
-            <div class="w-px h-4 bg-white/10 hidden sm:block"></div>
-            <div class="flex items-center gap-3 text-slate-500 text-sm">
-                <i class="fas fa-phone text-gold-500"></i>
-                <a href="tel:{{ site_settings.phone }}" class="hover:text-white transition-colors">{{ site_settings.phone }}</a>
+
+        {# Social row #}
+        <div style="display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;">
+          <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);">Follow</span>
+          <div style="display:flex;gap:.45rem;">
+            {% if site_settings.github_url %}
+            <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="GitHub">
+              <i class="fab fa-github"></i>
+            </a>
+            {% endif %}
+            {% if site_settings.linkedin_url %}
+            <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            {% endif %}
+            {% if site_settings.twitter_url %}
+            <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="X / Twitter">
+              <i class="fab fa-x-twitter"></i>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# ── RIGHT: Avatar + floating badges ── #}
+      <div id="hero-avatar-col" style="display:flex;justify-content:center;" data-reveal data-reveal-delay="2">
+        <div style="position:relative;width:min(300px,75vw);">
+
+          {# Rotating ring #}
+          <div style="position:absolute;inset:-8px;border-radius:50%;z-index:0;" aria-hidden="true">
+            <div class="avatar-ring-outer"></div>
+            <div class="avatar-ring-mask"></div>
+          </div>
+
+          {# Portrait #}
+          <div style="position:relative;z-index:1;border-radius:50%;overflow:hidden;aspect-ratio:1/1;background:var(--bg-muted);border:3px solid var(--bg-base);">
+            {% if site_settings.profile_image %}
+            <img src="{{ site_settings.profile_image.url }}" alt="Portrait of Brian Getenga"
+                 style="width:100%;height:100%;object-fit:cover;" loading="eager" fetchpriority="high">
+            {% else %}
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+              <span style="font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:3.75rem;color:#eb5e28;">BG</span>
             </div>
             {% endif %}
-            {% if site_settings.location %}
-            <div class="w-px h-4 bg-white/10 hidden sm:block"></div>
-            <div class="flex items-center gap-3 text-slate-500 text-sm">
-                <i class="fas fa-location-dot text-gold-500"></i>
-                <span>{{ site_settings.location }}</span>
+          </div>
+
+          {# Badge — experience (top-left) #}
+          <div class="hero-badge float-a"
+               style="position:absolute;top:-1rem;left:-2.25rem;z-index:2;">
+            <div class="hero-badge-icon" style="background:rgba(235,94,40,.12);">
+              <i class="fas fa-bolt" style="color:#eb5e28;font-size:.75rem;"></i>
             </div>
-            {% endif %}
+            <div>
+              <span class="hero-badge-eyebrow">Experience</span>
+              <span class="hero-badge-val">{{ stats.years_experience|default:4 }}+ yrs</span>
+            </div>
+          </div>
+
+          {# Badge — projects (bottom-right) #}
+          <div class="hero-badge float-b"
+               style="position:absolute;bottom:-.75rem;right:-2.25rem;z-index:2;">
+            <div class="hero-badge-icon" style="background:rgba(34,197,94,.1);">
+              <i class="fas fa-check-circle" style="color:#22c55e;font-size:.8rem;"></i>
+            </div>
+            <div>
+              <span class="hero-badge-eyebrow">Projects</span>
+              <span class="hero-badge-val">{{ stats.total_projects|default:40 }}+</span>
+            </div>
+          </div>
+
+          {# Badge — location (right-middle) #}
+          <div class="hero-badge float-c"
+               style="position:absolute;right:-2.5rem;top:50%;transform:translateY(-50%);z-index:2;padding:.5rem .8rem;">
+            <span style="font-size:1rem;">🇰🇪</span>
+            <span style="font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;color:var(--text-muted);">Nairobi</span>
+          </div>
+
         </div>
+      </div>
+
+    </div>{# /hero-layout #}
+  </div>
+
+</section>
+{# END HERO — SVG links only exist above this line #}
+
+<style>
+  @media(min-width:1024px) {
+    #hero-layout       { grid-template-columns: 3fr 2fr !important; }
+    #hero-avatar-col   { justify-content: flex-end !important; }
+  }
+</style>
+
+
+<div id="stats-bar" aria-label="Key statistics">
+  <div class="cx">
+    <div id="stats-grid" style="display:grid;grid-template-columns:repeat(2,1fr);">
+      <div class="stat-col" data-reveal data-reveal-delay="1">
+        <span class="stat-num">
+          <span data-countup="{{ stats.years_experience|default:4 }}">0</span><span class="stat-suffix">+</span>
+        </span>
+        <span class="stat-lbl">Years Experience</span>
+      </div>
+      <div class="stat-col" data-reveal data-reveal-delay="2">
+        <span class="stat-num">
+          <span data-countup="{{ stats.total_projects|default:40 }}">0</span><span class="stat-suffix">+</span>
+        </span>
+        <span class="stat-lbl">Projects Shipped</span>
+      </div>
+      <div class="stat-col" data-reveal data-reveal-delay="3">
+        <span class="stat-num">
+          <span data-countup="{{ stats.total_clients|default:20 }}">0</span><span class="stat-suffix">+</span>
+        </span>
+        <span class="stat-lbl">Happy Clients</span>
+      </div>
+      <div class="stat-col" data-reveal data-reveal-delay="4">
+        <span class="stat-num">
+          <span data-countup="{{ stats.coffee_consumed|default:1000 }}">0</span><span class="stat-suffix">☕</span>
+        </span>
+        <span class="stat-lbl">Coffees Brewed</span>
+      </div>
     </div>
+  </div>
+</div>
+<style> @media(min-width:768px){ #stats-grid { grid-template-columns:repeat(4,1fr) !important; } } </style>
+
+
+<section id="featured-projects" class="page-sec" aria-labelledby="proj-heading">
+  <div class="cx">
+
+    <div class="sec-hdr">
+      <div class="sec-hdr-left" data-reveal>
+        <p class="eyebrow" style="margin-bottom:.8rem;">Selected Work</p>
+        <h2 class="section-h2" id="proj-heading">Things I've <em>Built</em></h2>
+        <p class="section-sub" style="max-width:480px;margin-top:.75rem;">
+          A curated slice of products, platforms, and experiments that balance engineering depth with considered UX.
+        </p>
+      </div>
+      <a href="{% url 'projects' %}" class="btn btn-outline btn-sm" data-reveal data-reveal-delay="2"
+         aria-label="View all projects">
+        All Projects <i class="fas fa-arrow-right" style="font-size:.7rem;"></i>
+      </a>
+    </div>
+
+    <div class="grid-3" id="proj-grid">
+      {% for project in featured_projects %}
+      <article class="proj-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
+
+        {# Thumbnail #}
+        <div class="proj-img">
+          {% if project.featured_image %}
+          <img src="{{ project.featured_image.url }}" alt="{{ project.title }}" loading="lazy">
+          {% else %}
+          <div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(235,94,40,.14),rgba(202,71,19,.06));display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-code" style="font-size:2.25rem;color:rgba(235,94,40,.38);"></i>
+          </div>
+          {% endif %}
+          <div class="proj-overlay" aria-hidden="true"></div>
+          <span class="proj-cat-badge">{{ project.get_category_display }}</span>
+
+          {# Hover overlay actions #}
+          <div class="proj-actions">
+            {% if project.live_url %}
+            <a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer"
+               class="btn btn-primary btn-sm" style="flex:1;justify-content:center;padding:.5rem;"
+               aria-label="View live demo of {{ project.title }}">
+              <i class="fas fa-globe" style="font-size:.7rem;"></i> Live
+            </a>
+            {% endif %}
+            {% if project.github_url %}
+            <a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer"
+               class="btn btn-sm" style="flex:1;justify-content:center;padding:.5rem;background:rgba(37,36,34,.7);border:1px solid rgba(255,252,242,.2);color:#fffcf2;"
+               aria-label="View source code of {{ project.title }}">
+              <i class="fab fa-github" style="font-size:.7rem;"></i> Code
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Card body #}
+        <div style="padding:1.3rem;">
+
+          {# Tech stack chips #}
+          <div style="display:flex;flex-wrap:wrap;gap:.32rem;margin-bottom:.9rem;">
+            {% for tech in project.tech_list|slice:":4" %}
+            <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;padding:.22rem .52rem;border-radius:5px;background:var(--bg-muted);color:var(--text-muted);border:1px solid var(--border);">{{ tech }}</span>
+            {% endfor %}
+            {% if project.tech_list|length > 4 %}
+            <span style="font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--text-faint);align-self:center;">+{{ project.tech_list|length|add:"-4" }}</span>
+            {% endif %}
+          </div>
+
+          <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.15rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.2;">
+            <a href="{{ project.get_absolute_url }}"
+               style="text-decoration:none;color:inherit;transition:color .2s ease;"
+               onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='inherit'">
+              {{ project.title }}
+            </a>
+          </h3>
+
+          <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+            {{ project.description }}
+          </p>
+
+          {# Meta row #}
+          <div style="margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+            <div style="display:flex;gap:.9rem;">
+              <span style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);display:flex;align-items:center;gap:.3rem;">
+                <i class="fas fa-eye" style="font-size:.62rem;"></i>{{ project.views }}
+              </span>
+              <button data-like-project="{{ project.slug }}"
+                      style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);display:flex;align-items:center;gap:.3rem;background:none;border:none;cursor:pointer;transition:color .2s ease;padding:0;"
+                      onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'"
+                      aria-label="Like {{ project.title }}">
+                <i class="fas fa-heart" style="font-size:.62rem;"></i>
+                <span class="like-count">{{ project.likes }}</span>
+              </button>
+            </div>
+            <a href="{{ project.get_absolute_url }}"
+               style="font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;color:#eb5e28;text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:gap .2s ease;"
+               onmouseover="this.style.gap='.55rem'" onmouseout="this.style.gap='.3rem'">
+              Case Study <i class="fas fa-arrow-right" style="font-size:.62rem;"></i>
+            </a>
+          </div>
+        </div>
+
+      </article>
+      {% empty %}
+      <p style="font-family:'DM Sans',sans-serif;color:var(--text-muted);grid-column:span 3;">Featured projects coming soon.</p>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center;margin-top:2rem;" id="proj-more-mobile">
+      <a href="{% url 'projects' %}" class="btn btn-outline">All Projects <i class="fas fa-arrow-right" style="font-size:.7rem;"></i></a>
+    </div>
+  </div>
+</section>
+<style> @media(min-width:1024px){ #proj-more-mobile{display:none;} } </style>
+
+
+<section id="skills" class="page-sec section-alt" aria-labelledby="skills-heading">
+  <div class="cx">
+
+    <div data-reveal style="margin-bottom:2.5rem;">
+      <p class="eyebrow" style="margin-bottom:.8rem;">Expertise</p>
+      <h2 class="section-h2" id="skills-heading">Tools &amp; <em>Technologies</em></h2>
+      <p class="section-sub" style="max-width:460px;margin-top:.75rem;">
+        From elegant frontends to resilient backends — the technologies I reach for every day.
+      </p>
+    </div>
+
+    {# Tab bar #}
+    <div id="skill-tabs" style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:2rem;" role="tablist" aria-label="Filter skills by category">
+      <button class="s-tab active" data-cat="all"      role="tab" aria-selected="true">All</button>
+      <button class="s-tab"        data-cat="frontend" role="tab" aria-selected="false">Frontend</button>
+      <button class="s-tab"        data-cat="backend"  role="tab" aria-selected="false">Backend</button>
+      <button class="s-tab"        data-cat="database" role="tab" aria-selected="false">Database</button>
+      <button class="s-tab"        data-cat="devops"   role="tab" aria-selected="false">DevOps</button>
+      <button class="s-tab"        data-cat="design"   role="tab" aria-selected="false">Design</button>
+      <button class="s-tab"        data-cat="other"    role="tab" aria-selected="false">Other</button>
+    </div>
+
+    {# Skills grid #}
+    <div id="skills-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;">
+      {% for skill in featured_skills %}
+      <article class="skill-card" data-reveal data-skill-cat="{{ skill.category }}">
+        <div class="skill-icon-wrap">
+          {% if skill.icon_image %}
+          <img src="{{ skill.icon_image.url }}" alt="{{ skill.name }}" style="width:22px;height:22px;object-fit:contain;" loading="lazy">
+          {% else %}
+          <i class="{{ skill.icon_class|default:'fas fa-code' }}" style="color:#eb5e28;font-size:.85rem;"></i>
+          {% endif %}
+        </div>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:var(--text-primary);transition:color .3s ease;">{{ skill.name }}</p>
+        <div class="skill-bar-track">
+          <div class="skill-bar-fill" data-pct="{{ skill.proficiency }}"></div>
+        </div>
+        <p style="font-family:'Courier Prime',monospace;font-size:.58rem;color:var(--text-faint);margin-top:.28rem;">{{ skill.proficiency }}%</p>
+      </article>
+      {% empty %}
+      <p style="font-family:'DM Sans',sans-serif;color:var(--text-muted);grid-column:span 3;">Skills coming soon.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+<style>
+  @media(min-width:480px)  { #skills-grid { grid-template-columns:repeat(4,1fr) !important; } }
+  @media(min-width:768px)  { #skills-grid { grid-template-columns:repeat(5,1fr) !important; } }
+  @media(min-width:1024px) { #skills-grid { grid-template-columns:repeat(6,1fr) !important; } }
+</style>
+
+
+<section id="services" class="page-sec" aria-labelledby="svc-heading">
+  <div class="cx">
+
+    <div class="sec-hdr">
+      <div class="sec-hdr-left" data-reveal>
+        <p class="eyebrow" style="margin-bottom:.8rem;">What I Do</p>
+        <h2 class="section-h2" id="svc-heading">Services I <em>Offer</em></h2>
+        <p class="section-sub" style="max-width:460px;margin-top:.75rem;">
+          Opinionated yet flexible partnerships — from strategy to engineering, design to long-term support.
+        </p>
+      </div>
+      <a href="{% url 'services' %}" class="btn btn-outline btn-sm" data-reveal data-reveal-delay="2">
+        All Services <i class="fas fa-arrow-right" style="font-size:.7rem;"></i>
+      </a>
+    </div>
+
+    <div class="grid-3">
+      {% for service in featured_services %}
+      <article class="svc-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div class="svc-icon"><i class="{{ service.icon|default:'fas fa-code' }}"></i></div>
+        <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.22rem;color:var(--text-primary);margin-bottom:.6rem;transition:color .3s ease;">
+          {{ service.title }}
+        </h3>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);line-height:1.72;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:1.25rem;">
+          {{ service.short_description }}
+        </p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+          {% if service.starting_price %}
+          <span style="font-family:'Courier Prime',monospace;font-size:.82rem;font-weight:700;color:#eb5e28;">
+            from ${{ service.starting_price }}
+          </span>
+          {% endif %}
+          <a href="{{ service.get_absolute_url }}"
+             style="font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:.35rem;margin-left:auto;transition:color .2s ease;"
+             onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-muted)'">
+            Learn more <i class="fas fa-arrow-right" style="font-size:.65rem;"></i>
+          </a>
+        </div>
+      </article>
+      {% empty %}
+      <p style="font-family:'DM Sans',sans-serif;color:var(--text-muted);">Services coming soon.</p>
+      {% endfor %}
+    </div>
+
+  </div>
 </section>
 
-{% endblock %}
+
+{% if experiences %}
+<section id="experience" class="page-sec section-alt" aria-labelledby="exp-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:2.5rem;">
+      <p class="eyebrow" style="margin-bottom:.8rem;">Career</p>
+      <h2 class="section-h2" id="exp-heading">Work <em>Experience</em></h2>
+    </div>
+
+    <div class="timeline-wrap" style="max-width:860px;">
+      <div class="timeline-rail" aria-hidden="true"></div>
+
+      {% for exp in experiences %}
+      <article style="position:relative;" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div class="timeline-dot" aria-hidden="true"></div>
+
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.5rem;transition:background .3s ease,border-color .3s ease,box-shadow .25s ease;"
+             onmouseover="this.style.borderColor='rgba(235,94,40,.25)';this.style.boxShadow='var(--shadow-md)'"
+             onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.7rem;">
+            <div>
+              <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--text-primary);">{{ exp.title }}</h3>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.85rem;color:#eb5e28;font-weight:600;margin-top:.1rem;">{{ exp.company }}</p>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              {% if exp.is_current %}
+              <div class="badge badge-green" style="margin-bottom:.3rem;gap:.4rem;">
+                <span class="avail-dot" style="width:6px;height:6px;"></span>Current
+              </div>
+              {% endif %}
+              <p style="font-family:'Courier Prime',monospace;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">
+                {{ exp.start_date|date:"M Y" }} — {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}
+              </p>
+            </div>
+          </div>
+
+          {% if exp.description %}
+          <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);line-height:1.72;">{{ exp.description|truncatewords:45 }}</p>
+          {% endif %}
+
+          {% if exp.tech_used %}
+          <div style="display:flex;flex-wrap:wrap;gap:.32rem;margin-top:.85rem;">
+            {% for tech in exp.tech_used|split:"," %}
+            <span class="tag">{{ tech|trim }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+
+{% if achievements %}
+<section id="achievements" class="page-sec" aria-labelledby="ach-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:2.5rem;">
+      <p class="eyebrow" style="margin-bottom:.8rem;">Milestones</p>
+      <h2 class="section-h2" id="ach-heading">Achievements &amp; <em>Recognition</em></h2>
+    </div>
+
+    <div id="ach-grid" style="display:grid;grid-template-columns:1fr;gap:.9rem;">
+      {% for ach in achievements %}
+      <div class="ach-badge" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div style="width:46px;height:46px;border-radius:12px;background:rgba(235,94,40,.1);border:1px solid rgba(235,94,40,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;">
+          {{ ach.icon|default:"🏆" }}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <h4 style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.92rem;color:var(--text-primary);">{{ ach.title }}</h4>
+          {% if ach.description %}
+          <p style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ ach.description }}</p>
+          {% endif %}
+        </div>
+        {% if ach.date_achieved %}
+        <span style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);flex-shrink:0;">{{ ach.date_achieved|date:"Y" }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+  @media(min-width:640px)  { #ach-grid { grid-template-columns:repeat(2,1fr) !important; } }
+  @media(min-width:1024px) { #ach-grid { grid-template-columns:repeat(3,1fr) !important; } }
+</style>
+{% endif %}
+
+
+{% if testimonials %}
+<section id="testimonials" class="page-sec section-alt" aria-labelledby="testi-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:2.5rem;">
+      <p class="eyebrow" style="margin-bottom:.8rem;">Social Proof</p>
+      <h2 class="section-h2" id="testi-heading">What Clients <em>Say</em></h2>
+    </div>
+
+    <div class="swiper" id="testi-swiper" style="padding-bottom:3rem;" aria-label="Client testimonials carousel">
+      <div class="swiper-wrapper">
+        {% for t in testimonials %}
+        <div class="swiper-slide" style="height:auto;">
+          <div class="testi-card">
+            <div class="testi-quote" aria-hidden="true">"</div>
+
+            {% if t.rating %}
+            <div class="stars" aria-label="{{ t.rating }} out of 5 stars" style="margin-bottom:.8rem;">
+              {% for i in "12345" %}{% if forloop.counter <= t.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star" style="opacity:.35;"></i>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+
+            <blockquote style="font-family:'Playfair Display',serif;font-size:.98rem;font-style:italic;color:var(--text-secondary);line-height:1.8;margin-bottom:1.5rem;transition:color .3s ease;">
+              "{{ t.testimonial }}"
+            </blockquote>
+
+            <div style="display:flex;align-items:center;gap:.85rem;">
+              {% if t.avatar %}
+              <img src="{{ t.avatar.url }}" alt="{{ t.name }}"
+                   style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(235,94,40,.22);flex-shrink:0;" loading="lazy">
+              {% else %}
+              <div style="width:42px;height:42px;border-radius:50%;background:#eb5e28;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;color:#fff;font-size:.9rem;flex-shrink:0;">
+                {{ t.name|first }}
+              </div>
+              {% endif %}
+              <div>
+                <p style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;color:var(--text-primary);">{{ t.name }}</p>
+                <p style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">
+                  {{ t.role }}{% if t.company %} · {{ t.company }}{% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="swiper-pagination" style="bottom:0;"></div>
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
+
+{% if recent_posts %}
+<section id="recent-posts" class="page-sec" aria-labelledby="blog-heading">
+  <div class="cx">
+
+    <div class="sec-hdr">
+      <div class="sec-hdr-left" data-reveal>
+        <p class="eyebrow" style="margin-bottom:.8rem;">Writing</p>
+        <h2 class="section-h2" id="blog-heading">Recent <em>Articles</em></h2>
+      </div>
+      <a href="{% url 'blog' %}" class="btn btn-outline btn-sm" data-reveal data-reveal-delay="2">
+        All Articles <i class="fas fa-arrow-right" style="font-size:.7rem;"></i>
+      </a>
+    </div>
+
+    <div class="grid-3">
+      {% for post in recent_posts %}
+      <article class="blog-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
+
+        {% if post.featured_image %}
+        <div style="aspect-ratio:16/9;overflow:hidden;">
+          <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
+               style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;"
+               loading="lazy"
+               onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        </div>
+        {% endif %}
+
+        <div style="padding:1.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.85rem;">
+            {% for tag in post.tags.all|slice:":2" %}
+            <span class="tag">{{ tag.name }}</span>
+            {% endfor %}
+            <span style="font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--text-faint);margin-left:auto;white-space:nowrap;">
+              {{ post.published_date|date:"M d, Y" }}
+            </span>
+          </div>
+
+          <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;color:var(--text-primary);margin-bottom:.48rem;line-height:1.3;">
+            <a href="{{ post.get_absolute_url }}"
+               style="text-decoration:none;color:inherit;transition:color .2s ease;"
+               onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='inherit'">
+              {{ post.title }}
+            </a>
+          </h3>
+
+          <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:1rem;">
+            {{ post.excerpt }}
+          </p>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;padding-top:.85rem;border-top:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              {% if post.author.profile.avatar %}
+              <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.get_full_name }}"
+                   style="width:24px;height:24px;border-radius:50%;object-fit:cover;" loading="lazy">
+              {% endif %}
+              <span style="font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--text-muted);">{{ post.author.get_full_name|default:post.author.username }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.8rem;">
+              <span style="font-family:'Courier Prime',monospace;font-size:.62rem;color:var(--text-faint);">
+                <i class="fas fa-clock" style="font-size:.58rem;"></i> {{ post.reading_time }}m
+              </span>
+              <a href="{{ post.get_absolute_url }}"
+                 style="font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:700;color:#eb5e28;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+                Read <i class="fas fa-arrow-right" style="font-size:.6rem;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+{% if faqs %}
+<section id="faqs" class="page-sec section-alt" aria-labelledby="faq-heading">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:2.5rem;text-align:center;">
+      <p class="eyebrow" style="margin-bottom:.8rem;justify-content:center;">Questions</p>
+      <h2 class="section-h2" id="faq-heading" style="text-align:center;">Frequently <em>Asked</em></h2>
+      <p class="section-sub" style="max-width:500px;margin:.75rem auto 0;text-align:center;">
+        Answers to what clients typically ask before we start working together.
+      </p>
+    </div>
+
+    <div id="faq-list" style="display:flex;flex-direction:column;gap:.6rem;max-width:740px;margin:0 auto;">
+      {% for faq in faqs %}
+      <div class="faq-item" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <button class="faq-trigger"
+                aria-expanded="false"
+                aria-controls="faq-body-{{ forloop.counter }}"
+                data-faq="{{ forloop.counter }}">
+          <span>{{ faq.question }}</span>
+          <i class="fas fa-plus faq-icon" aria-hidden="true"></i>
+        </button>
+        <div class="faq-body" id="faq-body-{{ forloop.counter }}" role="region" aria-labelledby="faq-btn-{{ forloop.counter }}">
+          <p>{{ faq.answer }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section id="contact" class="page-sec" aria-labelledby="contact-heading">
+  <div id="cta-wrap">
+    <div class="cx" style="position:relative;z-index:1;">
+
+      <div id="contact-grid" style="display:grid;grid-template-columns:1fr;gap:3.5rem;align-items:center;">
+
+        {# ── Left copy ── #}
+        <div data-reveal>
+          <p class="eyebrow" style="margin-bottom:.8rem;">Let's Connect</p>
+          <h2 class="section-h2" id="contact-heading" style="margin-bottom:1rem;">
+            Ready to Build<br>Something <em>Amazing?</em>
+          </h2>
+          <p class="section-sub" style="max-width:420px;margin-bottom:1.75rem;">
+            Share a rough idea or a detailed brief — either way I'll help you shape a path from concept to launch.
+          </p>
+
+          {# Perks #}
+          <ul style="display:flex;flex-direction:column;gap:.7rem;list-style:none;margin-bottom:2rem;">
+            {% for perk in "Quick response within 24 h,Transparent &amp; competitive pricing,Expert-quality engineering output,Ongoing post-launch support"|split:"," %}
+            <li style="display:flex;align-items:center;gap:.75rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-secondary);">
+              <span style="width:22px;height:22px;border-radius:50%;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.24);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-check" style="color:#22c55e;font-size:.55rem;"></i>
+              </span>
+              {{ perk }}
+            </li>
+            {% endfor %}
+          </ul>
+
+          {# Contact details #}
+          <div style="display:flex;flex-direction:column;gap:.8rem;">
+            <a href="mailto:{{ site_settings.email|default:'briangetenga3@gmail.com' }}"
+               style="display:flex;align-items:center;gap:.75rem;text-decoration:none;">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(235,94,40,.1);border:1px solid rgba(235,94,40,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-envelope" style="color:#eb5e28;font-size:.75rem;"></i>
+              </div>
+              <span style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-muted);transition:color .2s ease;"
+                    onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-muted)'">
+                {{ site_settings.email|default:'briangetenga3@gmail.com' }}
+              </span>
+            </a>
+            <div style="display:flex;align-items:center;gap:.75rem;">
+              <div style="width:36px;height:36px;border-radius:9px;background:var(--bg-muted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-location-dot" style="color:#eb5e28;font-size:.75rem;"></i>
+              </div>
+              <span style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-muted);">
+                {{ site_settings.location|default:'Nairobi, Kenya' }} 🇰🇪
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {# ── Contact form ── #}
+        <div class="form-wrap" data-reveal data-reveal-delay="2">
+          <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.3rem;color:var(--text-primary);margin-bottom:1.5rem;">
+            Send a Message
+          </h3>
+
+          {# Success banner #}
+          <div id="cf-success"
+               style="display:none;padding:1rem 1.1rem;border-radius:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);margin-bottom:1.1rem;">
+            <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:#15803d;display:flex;align-items:center;gap:.5rem;">
+              <i class="fas fa-circle-check" aria-hidden="true"></i>
+              Message sent! I'll get back to you within 24 hours.
+            </p>
+          </div>
+
+          <form id="contact-form" method="post" action="{% url 'contact' %}" novalidate>
+            {% csrf_token %}
+            {# Honeypot anti-spam #}
+            <input type="text" name="website_honeypot" tabindex="-1" autocomplete="off"
+                   style="position:absolute;left:-9999px;opacity:0;height:0;width:0;" aria-hidden="true">
+
+            {# Name + Email row #}
+            <div id="cf-row1" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+              <div>
+                <label class="form-label" for="cf-name">Name *</label>
+                <input class="form-ctrl" type="text" id="cf-name" name="name" required
+                       placeholder="Jane Smith" autocomplete="name">
+                <p class="form-error" id="err-name"></p>
+              </div>
+              <div>
+                <label class="form-label" for="cf-email">Email *</label>
+                <input class="form-ctrl" type="email" id="cf-email" name="email" required
+                       placeholder="jane@co.com" autocomplete="email">
+                <p class="form-error" id="err-email"></p>
+              </div>
+            </div>
+
+            {# Subject #}
+            <div style="margin-bottom:1rem;">
+              <label class="form-label" for="cf-subject">Subject *</label>
+              <input class="form-ctrl" type="text" id="cf-subject" name="subject" required
+                     placeholder="Project inquiry, collaboration…">
+              <p class="form-error" id="err-subject"></p>
+            </div>
+
+            {# Budget #}
+            <div style="margin-bottom:1rem;">
+              <label class="form-label" for="cf-budget">Budget Range</label>
+              <select class="form-ctrl" id="cf-budget" name="budget">
+                <option value="">Select a range…</option>
+                <option value="under-1k">Under $1,000</option>
+                <option value="1k-5k">$1,000 – $5,000</option>
+                <option value="5k-15k">$5,000 – $15,000</option>
+                <option value="15k-plus">$15,000+</option>
+                <option value="not-sure">Not sure yet</option>
+              </select>
+            </div>
+
+            {# Message #}
+            <div style="margin-bottom:1.25rem;">
+              <label class="form-label" for="cf-msg">Message *</label>
+              <textarea class="form-ctrl" id="cf-msg" name="message" rows="4" required
+                        placeholder="Tell me about your project, goals, and timeline…"></textarea>
+              <p class="form-error" id="err-message"></p>
+            </div>
+
+            <button type="submit" id="cf-submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+              <span class="cf-text">Send Message</span>
+              <i class="fas fa-paper-plane cf-icon" style="font-size:.75rem;" aria-hidden="true"></i>
+              <span class="cf-loading" style="display:none;align-items:center;gap:.45rem;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:.8rem;" aria-hidden="true"></i> Sending…
+              </span>
+            </button>
+
+            <p style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);margin-top:.8rem;display:flex;align-items:center;gap:.4rem;">
+              <i class="fas fa-lock" style="font-size:.65rem;color:#eb5e28;" aria-hidden="true"></i>
+              Your data is never shared. Typical reply within 24 hours.
+            </p>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  @media(min-width:1024px) { #contact-grid { grid-template-columns:1fr 1fr !important; } }
+  @media(max-width:520px)  { #cf-row1 { grid-template-columns:1fr !important; } }
+</style>
+
+
+<section id="newsletter" class="page-sec section-alt" aria-labelledby="nl-heading">
+  <div class="cx">
+    <div class="nl-strip" data-reveal>
+      <div id="nl-grid" style="display:grid;grid-template-columns:1fr;gap:2.25rem;align-items:center;">
+
+        {# Copy #}
+        <div>
+          <p class="eyebrow" style="margin-bottom:.8rem;">Newsletter</p>
+          <h2 class="section-h2" id="nl-heading" style="font-size:clamp(1.5rem,3vw,2.1rem);margin-bottom:.65rem;">
+            Stay <em>Updated</em>
+          </h2>
+          <p class="section-sub" style="max-width:380px;margin-bottom:.65rem;">
+            New projects, articles &amp; dev insights — delivered to your inbox. No spam, unsubscribe anytime.
+          </p>
+          <p style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);">
+            Joined by <strong style="color:var(--text-secondary);">{{ stats.total_clients|default:30 }}+</strong> readers following my work.
+          </p>
+        </div>
+
+        {# Form #}
+        <div>
+          <div id="nl-success"
+               style="display:none;padding:1rem 1.1rem;border-radius:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);margin-bottom:1rem;">
+            <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:#15803d;display:flex;align-items:center;gap:.5rem;">
+              <i class="fas fa-circle-check" aria-hidden="true"></i> You're in! Check your inbox to confirm.
+            </p>
+          </div>
+
+          <form id="nl-form" action="{% url 'newsletter_subscribe' %}" method="POST">
+            {% csrf_token %}
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+              <input type="email" name="email" required placeholder="your@email.com"
+                     class="form-ctrl" style="flex:1;min-width:200px;"
+                     aria-label="Your email address for the newsletter">
+              <button type="submit" id="nl-btn" class="btn btn-primary" style="flex-shrink:0;">
+                <span class="nl-btn-text">Subscribe</span>
+                <i class="fas fa-circle-notch fa-spin nl-btn-spin" style="display:none;font-size:.8rem;" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);margin-top:.55rem;">
+              Unsubscribe anytime. Your privacy is respected.
+            </p>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  @media(min-width:768px) { #nl-grid { grid-template-columns:1fr 1fr !important; } }
+</style>
+
+
+{% endblock content %}
+
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-// ==================== TYPING ANIMATION ====================
-const roles = [
-    'Full Stack Developer',
-    'Python & Django Expert',
-    'React Developer',
-    'UI/UX Craftsman',
-    'Problem Solver',
-];
-let rIdx = 0, cIdx = 0, deleting = false;
-const typedEl = document.getElementById('typed-text');
+/* ================================================================
+   HOME PAGE JS — All features wired up
+   - tsParticles (paprika, dark-mode-aware)
+   - Typed.js (hero role typewriter)
+   - CountUp.js (stat numbers)
+   - Skill progress bars (IntersectionObserver)
+   - Skill tab filter
+   - Testimonials Swiper
+   - FAQ accordion
+   - Contact form AJAX
+   - Newsletter AJAX
+   - Project like AJAX
+   ================================================================ */
+document.addEventListener('DOMContentLoaded', function() {
 
-function type() {
-    if (!typedEl) return;
-    const role = roles[rIdx];
-    typedEl.textContent = deleting ? role.substring(0, cIdx - 1) : role.substring(0, cIdx + 1);
-    deleting ? cIdx-- : cIdx++;
-    if (!deleting && cIdx === role.length) {
-        deleting = true; setTimeout(type, 2200); return;
-    }
-    if (deleting && cIdx === 0) {
-        deleting = false; rIdx = (rIdx + 1) % roles.length;
-        setTimeout(type, 400); return;
-    }
-    setTimeout(type, deleting ? 45 : 100);
-}
-setTimeout(type, 1000);
-
-// ==================== COUNTER ANIMATION ====================
-const counterObs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const el = entry.target;
-        const target = parseInt(el.dataset.target) || 0;
-        const dur = 1800;
-        const step = target / (dur / 16);
-        let cur = 0;
-        const tick = () => {
-            cur = Math.min(cur + step, target);
-            el.textContent = Math.ceil(cur) + (cur < target ? '' : '+');
-            if (cur < target) requestAnimationFrame(tick);
-        };
-        tick();
-        counterObs.unobserve(el);
+  /* ──────────────────────────────────────────────────────────
+     1. tsParticles — paprika particle network
+  ────────────────────────────────────────────────────────── */
+  function initParticles() {
+    if (!window.tsParticles || !document.getElementById('hero-particles')) return;
+    var dark = document.documentElement.classList.contains('dark');
+    tsParticles.load('hero-particles', {
+      background:  { color: { value: 'transparent' } },
+      fpsLimit:    30,
+      fullScreen:  { enable: false },
+      particles: {
+        number:  { value: 52, density: { enable: true, area: 900 } },
+        color:   { value: '#eb5e28' },
+        links:   { enable: true, distance: 115, color: '#eb5e28', opacity: dark ? .16 : .12, width: 1 },
+        move:    { enable: true, speed: .65, outModes: { default: 'bounce' } },
+        opacity: { value: dark ? .35 : .26 },
+        size:    { value: { min: 1, max: 2.5 } },
+      },
+      detectRetina: true,
     });
-}, { threshold: 0.5 });
-document.querySelectorAll('.counter').forEach(el => counterObs.observe(el));
+  }
+  initParticles();
 
-// ==================== SKILL BARS ====================
-const skillObs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const bar = entry.target;
-        setTimeout(() => { bar.style.width = (bar.dataset.width || 90) + '%'; }, 100);
-        skillObs.unobserve(bar);
+  /* Re-init particles on theme change so opacity matches */
+  var _darkToggle = document.getElementById('dark-toggle');
+  if (_darkToggle) {
+    _darkToggle.addEventListener('click', function() {
+      var inst = tsParticles.domItem ? tsParticles.domItem(0) : null;
+      if (inst) { setTimeout(function() { inst.refresh(); }, 80); }
     });
-}, { threshold: 0.3 });
-document.querySelectorAll('.skill-bar-fill').forEach(b => skillObs.observe(b));
+  }
 
-// ==================== TESTIMONIALS SWIPER ====================
-if (document.querySelector('.testimonials-swiper')) {
-    new Swiper('.testimonials-swiper', {
-        slidesPerView: 1,
-        spaceBetween: 24,
-        loop: true,
-        autoplay: { delay: 5500, disableOnInteraction: false },
-        pagination: { el: '.swiper-pagination', clickable: true },
-        breakpoints: {
-            768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 }
+  /* ──────────────────────────────────────────────────────────
+     2. Typed.js — hero role typewriter
+  ────────────────────────────────────────────────────────── */
+  if (window.Typed && document.getElementById('hero-typed')) {
+    new Typed('#hero-typed', {
+      strings: [
+        'Full Stack Developer.',
+        'Django Expert.',
+        'React Developer.',
+        'Problem Solver.',
+        'Open Source Contributor.',
+      ],
+      typeSpeed:  50,
+      backSpeed:  26,
+      backDelay:  2300,
+      loop:       true,
+      smartBackspace: true,
+    });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     3. CountUp — animated stat numbers
+  ────────────────────────────────────────────────────────── */
+  if (window.CountUp) {
+    var countEls = document.querySelectorAll('[data-countup]');
+    var cObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (!e.isIntersecting || e.target._counted) return;
+        e.target._counted = true;
+        var end = parseInt(e.target.dataset.countup, 10) || 0;
+        var cu  = new CountUp.CountUp(e.target, end, { duration: 2.4, useGrouping: false });
+        if (!cu.error) { cu.start(); } else { e.target.textContent = end; }
+      });
+    }, { threshold: .55 });
+    countEls.forEach(function(el) { cObs.observe(el); });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     4. Skill progress bars — animate on scroll into view
+  ────────────────────────────────────────────────────────── */
+  var fillEls = document.querySelectorAll('.skill-bar-fill');
+  if (fillEls.length) {
+    var pObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (!e.isIntersecting || e.target._done) return;
+        e.target._done = true;
+        e.target.style.width = (e.target.dataset.pct || '0') + '%';
+      });
+    }, { threshold: .3 });
+    fillEls.forEach(function(el) { pObs.observe(el); });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     5. Skill tab filter
+  ────────────────────────────────────────────────────────── */
+  var tabs  = document.querySelectorAll('.s-tab');
+  var cards = document.querySelectorAll('#skills-grid .skill-card');
+
+  tabs.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      /* Update tab state */
+      tabs.forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      var cat = btn.dataset.cat;
+      var delay = 0;
+
+      cards.forEach(function(card) {
+        var match = (cat === 'all' || card.dataset.skillCat === cat);
+        card.style.display = match ? '' : 'none';
+        /* Re-trigger scroll reveal for newly visible cards */
+        if (match && !card.classList.contains('revealed')) {
+          setTimeout(function() { card.classList.add('revealed'); }, delay);
+          delay += 35;
         }
+        /* Re-animate progress bar if not yet done */
+        if (match) {
+          var fill = card.querySelector('.skill-bar-fill');
+          if (fill && !fill._done) { fill._done = true; fill.style.width = (fill.dataset.pct || '0') + '%'; }
+        }
+      });
     });
-}
+  });
+
+  /* ──────────────────────────────────────────────────────────
+     6. Testimonials Swiper
+  ────────────────────────────────────────────────────────── */
+  if (window.Swiper && document.getElementById('testi-swiper')) {
+    new Swiper('#testi-swiper', {
+      slidesPerView: 1.06,
+      spaceBetween:  18,
+      loop:          true,
+      autoplay:      { delay: 4600, disableOnInteraction: false, pauseOnMouseEnter: true },
+      pagination:    { el: '.swiper-pagination', clickable: true },
+      keyboard:      { enabled: true },
+      a11y:          { prevSlideMessage: 'Previous testimonial', nextSlideMessage: 'Next testimonial' },
+      breakpoints:   {
+        640:  { slidesPerView: 1.45, spaceBetween: 22 },
+        1024: { slidesPerView: 2.15, spaceBetween: 26 },
+      },
+    });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     7. FAQ accordion
+  ────────────────────────────────────────────────────────── */
+  document.querySelectorAll('.faq-trigger').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id   = btn.dataset.faq;
+      var body = document.getElementById('faq-body-' + id);
+      var icon = btn.querySelector('.faq-icon');
+      var isOpen = body.classList.contains('open');
+
+      /* Collapse all */
+      document.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
+      document.querySelectorAll('.faq-trigger').forEach(function(t) {
+        t.setAttribute('aria-expanded', 'false');
+        var ic = t.querySelector('.faq-icon');
+        if (ic) { ic.className = 'fas fa-plus faq-icon'; ic.style.transform = ''; }
+      });
+
+      /* Open clicked (if it was closed) */
+      if (!isOpen && body && icon) {
+        body.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        icon.className = 'fas fa-minus faq-icon';
+        icon.style.transform = 'rotate(45deg)';
+      }
+    });
+  });
+
+  /* ──────────────────────────────────────────────────────────
+     8. Contact form — AJAX submit
+  ────────────────────────────────────────────────────────── */
+  var cfForm = document.getElementById('contact-form');
+  if (cfForm) {
+    cfForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      /* Clear previous errors */
+      cfForm.querySelectorAll('.form-error').forEach(function(el) {
+        el.style.display = 'none'; el.textContent = '';
+      });
+
+      var btn      = document.getElementById('cf-submit');
+      var cfText   = btn.querySelector('.cf-text');
+      var cfIcon   = btn.querySelector('.cf-icon');
+      var cfLoad   = btn.querySelector('.cf-loading');
+
+      btn.disabled = true;
+      if (cfText) cfText.style.display = 'none';
+      if (cfIcon) cfIcon.style.display = 'none';
+      if (cfLoad) cfLoad.style.display = 'flex';
+
+      window.fetchWithCSRF('{% url "contact" %}', {
+        method:  'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body:    new FormData(cfForm),
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        if (cfText) cfText.style.display = '';
+        if (cfIcon) cfIcon.style.display = '';
+        if (cfLoad) cfLoad.style.display = 'none';
+
+        if (d.success) {
+          cfForm.reset();
+          var success = document.getElementById('cf-success');
+          if (success) success.style.display = 'block';
+          showToast(d.message || '✅ Message sent! I\'ll reply within 24 h.', 'success');
+          /* Scroll to success banner */
+          success && success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          var errs = d.errors || {};
+          Object.keys(errs).forEach(function(field) {
+            var el = document.getElementById('err-' + field);
+            if (el) { el.textContent = Array.isArray(errs[field]) ? errs[field][0] : errs[field]; el.style.display = 'block'; }
+          });
+          showToast('Please fix the highlighted fields.', 'error');
+        }
+      })
+      .catch(function() {
+        btn.disabled = false;
+        if (cfText) cfText.style.display = '';
+        if (cfIcon) cfIcon.style.display = '';
+        if (cfLoad) cfLoad.style.display = 'none';
+        showToast('Network error. Please try again.', 'error');
+      });
+    });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     9. Newsletter — AJAX submit
+  ────────────────────────────────────────────────────────── */
+  var nlForm = document.getElementById('nl-form');
+  if (nlForm) {
+    nlForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn  = document.getElementById('nl-btn');
+      var text = btn.querySelector('.nl-btn-text');
+      var spin = btn.querySelector('.nl-btn-spin');
+      if (text) text.style.display = 'none';
+      if (spin) spin.style.display = 'inline';
+      btn.disabled = true;
+
+      window.fetchWithCSRF('{% url "newsletter_subscribe" %}', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+        body:    new URLSearchParams(new FormData(nlForm)).toString(),
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        if (text) text.style.display = '';
+        if (spin) spin.style.display = 'none';
+        if (d.success) {
+          nlForm.style.display = 'none';
+          var ok = document.getElementById('nl-success');
+          if (ok) ok.style.display = 'block';
+          showToast(d.message || '🎉 Subscribed!', 'success');
+        } else {
+          showToast(d.message || 'Something went wrong — please try again.', 'error');
+        }
+      })
+      .catch(function() {
+        btn.disabled = false;
+        if (text) text.style.display = '';
+        if (spin) spin.style.display = 'none';
+        showToast('Network error. Please try again.', 'error');
+      });
+    });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     10. Project like buttons — AJAX
+  ────────────────────────────────────────────────────────── */
+  document.querySelectorAll('[data-like-project]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var slug = btn.dataset.likeProject;
+      window.fetchWithCSRF('/projects/' + slug + '/like/', { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.success || d.likes !== undefined) {
+            var counter = btn.querySelector('.like-count');
+            if (counter) counter.textContent = d.likes;
+            btn.style.color = '#eb5e28';
+            showToast('❤️ Liked!', 'success', 2000);
+          } else {
+            showToast(d.message || 'Already liked.', 'info', 2200);
+          }
+        })
+        .catch(function() {});
+    });
+  });
+
+}); /* end DOMContentLoaded */
 </script>
-{% endblock %}
+{% endblock extra_js %}

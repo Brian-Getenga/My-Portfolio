@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Newsletter Feedback — {{ site_settings.site_name|default:"Brian Getenga" }}{% endblock %}
+
+{% block content %}
+
+<nav aria-label="Breadcrumb" style="background:var(--bg-subtle);border-bottom:1px solid var(--border);transition:background .3s;">
+  <div class="cx" style="padding-top:.75rem;padding-bottom:.75rem;">
+    <ol style="display:flex;align-items:center;gap:.5rem;list-style:none;flex-wrap:wrap;">
+      <li><a href="{% url 'home' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'"><i class="fas fa-house" style="font-size:.7rem;"></i></a></li>
+      <li style="color:var(--border-strong);font-size:.75rem;">/</li>
+      <li><span style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:#eb5e28;font-weight:600;">Newsletter Feedback</span></li>
+    </ol>
+  </div>
+</nav>
+
+<section style="padding:5.5rem 0;background:var(--bg-base);transition:background .3s;">
+  <div class="cx" style="max-width:580px;margin:0 auto;">
+    <div data-reveal>
+
+      {# Icon + heading #}
+      <div style="text-align:center;margin-bottom:2.5rem;">
+        <div style="width:76px;height:76px;border-radius:50%;background:rgba(235,94,40,.1);border:2px solid rgba(235,94,40,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.75rem;color:#eb5e28;">
+          <i class="fas fa-comments"></i>
+        </div>
+        <h1 style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,4vw,2.7rem);color:var(--text-primary);margin-bottom:.8rem;transition:color .3s;">
+          Your <em style="font-style:italic;color:#eb5e28;">Feedback</em> Matters
+        </h1>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-muted);line-height:1.8;max-width:440px;margin:0 auto;">
+          Help me improve the newsletter by sharing what you think. It only takes a minute.
+        </p>
+      </div>
+
+      {# Feedback form #}
+      {% if submitted %}
+      <div style="text-align:center;padding:2rem;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:16px;">
+        <i class="fas fa-circle-check" style="font-size:2rem;color:#22c55e;display:block;margin-bottom:1rem;"></i>
+        <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.3rem;color:var(--text-primary);margin-bottom:.5rem;">Thank You!</h2>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-muted);">Your feedback has been submitted. I really appreciate it!</p>
+      </div>
+
+      {% else %}
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;padding:2.25rem 2rem;transition:background .3s,border-color .3s;">
+        <form id="feedback-form" method="post" action="{% url 'newsletter_feedback' %}">
+          {% csrf_token %}
+
+          {# Rating #}
+          <div style="margin-bottom:1.5rem;">
+            <label style="display:block;font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.75rem;">Overall Rating *</label>
+            <div style="display:flex;gap:.5rem;" role="radiogroup" aria-label="Rating">
+              {% for i in "12345" %}
+              <label style="cursor:pointer;flex:1;">
+                <input type="radio" name="rating" value="{{ i }}" style="position:absolute;opacity:0;width:0;height:0;" {% if i == "3" %}checked{% endif %} required>
+                <span data-rating="{{ i }}" style="display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.65rem .5rem;border-radius:10px;border:1.5px solid var(--border);background:transparent;transition:all .2s;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;color:var(--text-muted);">
+                  <span style="font-size:1.2rem;">{% if i == "1" %}😞{% elif i == "2" %}😐{% elif i == "3" %}🙂{% elif i == "4" %}😊{% else %}🤩{% endif %}</span>
+                  {{ i }}
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          {# Topics of interest #}
+          <div style="margin-bottom:1.25rem;">
+            <label style="display:block;font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.65rem;">What topics do you enjoy most?</label>
+            <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+              {% for topic in "Django Tips,React/Frontend,System Design,Project Showcases,Career Advice,Open Source,Web Performance,CSS &amp; Design"|split:"," %}
+              <label style="cursor:pointer;">
+                <input type="checkbox" name="topics" value="{{ topic }}" style="position:absolute;opacity:0;width:0;height:0;">
+                <span class="topic-chip" style="display:inline-block;padding:.38rem .85rem;border-radius:999px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-muted);cursor:pointer;transition:all .2s;user-select:none;">{{ topic }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          {# Frequency pref #}
+          <div style="margin-bottom:1.25rem;">
+            <label style="display:block;font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.5rem;" for="fb-freq">How often should I send emails?</label>
+            <select id="fb-freq" name="frequency" style="width:100%;padding:.72rem 1rem;background:var(--bg-subtle);border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-primary);outline:none;cursor:pointer;transition:border-color .2s,background .3s;" onfocus="this.style.borderColor='#eb5e28'" onblur="this.style.borderColor='var(--border)'">
+              <option value="">No preference</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Every 2 weeks</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+
+          {# Free text #}
+          <div style="margin-bottom:1.5rem;">
+            <label style="display:block;font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.4rem;" for="fb-msg">Additional comments</label>
+            <textarea id="fb-msg" name="message" rows="4" style="width:100%;padding:.72rem 1rem;background:var(--bg-subtle);border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-primary);outline:none;resize:vertical;min-height:100px;transition:border-color .2s,background .3s;" placeholder="Any suggestions, requests, or comments are welcome…" onfocus="this.style.borderColor='#eb5e28'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+            <i class="fas fa-paper-plane" style="font-size:.72rem;" aria-hidden="true"></i> Submit Feedback
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  /* Rating radio visual feedback */
+  var ratingInputs = document.querySelectorAll('input[name="rating"]');
+  var ratingSpans  = document.querySelectorAll('[data-rating]');
+  function updateRating(val) {
+    ratingSpans.forEach(function (s) {
+      var r = parseInt(s.dataset.rating, 10);
+      var selected = r <= parseInt(val, 10);
+      s.style.background    = selected ? 'rgba(235,94,40,.1)' : 'transparent';
+      s.style.borderColor   = selected ? '#eb5e28' : 'var(--border)';
+      s.style.color         = selected ? '#eb5e28' : 'var(--text-muted)';
+    });
+  }
+  ratingInputs.forEach(function (inp) {
+    inp.addEventListener('change', function () { updateRating(inp.value); });
+  });
+  updateRating('3'); // default
+
+  /* Topic chip toggles */
+  document.querySelectorAll('input[name="topics"]').forEach(function (cb) {
+    var chip = cb.nextElementSibling;
+    cb.addEventListener('change', function () {
+      chip.style.background   = cb.checked ? 'rgba(235,94,40,.1)' : '';
+      chip.style.borderColor  = cb.checked ? '#eb5e28' : 'var(--border)';
+      chip.style.color        = cb.checked ? '#eb5e28' : 'var(--text-muted)';
+    });
+  });
+});
+</script>
+{% endblock %}

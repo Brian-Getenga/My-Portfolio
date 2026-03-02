@@ -1,341 +1,358 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load math_filters %}
+{% load custom_filters %}
 
-{% block title %}Contact — {{ site_settings.site_name }}{% endblock %}
-{% block meta_description %}Get in touch with {{ site_settings.site_name }}. Let's discuss your project.{% endblock %}
+{% block title %}Contact — {{ site_settings.site_name|default:"Brian Getenga" }}{% endblock %}
+{% block meta_description %}Get in touch with Brian Getenga — Full Stack Developer. Available for freelance projects, full-time roles, and collaborations.{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <style>
-    .contact-hero {
-        background: #0a0f2e; position: relative; overflow: hidden;
-    }
-    .contact-hero-grid {
-        position: absolute; inset: 0;
-        background-image: linear-gradient(rgba(201,147,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,147,42,0.04) 1px, transparent 1px);
-        background-size: 80px 80px;
-    }
-    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; }
-    .breadcrumb a { color: rgba(255,255,255,0.4); transition: color 0.2s; }
-    .breadcrumb a:hover { color: #fbbf24; }
-    .breadcrumb .sep { color: rgba(255,255,255,0.2); }
-    .breadcrumb .current { color: #fbbf24; }
+  .contact-hero   { padding:3.5rem 0 2.5rem; background:var(--bg-base); position:relative; overflow:hidden; transition:background .3s; }
+  .contact-hero::before { content:''; position:absolute; top:-100px; right:-60px; width:420px; height:420px; border-radius:50%; background:radial-gradient(circle,rgba(235,94,40,.07) 0%,transparent 70%); pointer-events:none; }
 
-    /* Form */
-    .form-field { position: relative; }
-    .form-input {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        background: rgba(0,0,0,0.02);
-        border: 1px solid rgba(0,0,0,0.1);
-        border-radius: 4px;
-        font-size: 0.9rem;
-        font-family: 'DM Sans', sans-serif;
-        color: #0f172a;
-        transition: all 0.25s ease;
-        outline: none;
-    }
-    .dark .form-input {
-        background: rgba(255,255,255,0.03);
-        border-color: rgba(255,255,255,0.1);
-        color: #f1f5f9;
-    }
-    .form-input::placeholder { color: #94a3b8; }
-    .form-input:focus { border-color: #c9932a; box-shadow: 0 0 0 3px rgba(201,147,42,0.08); }
-    .form-label {
-        display: block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #64748b;
-        margin-bottom: 0.5rem;
-    }
-    .dark .form-label { color: #94a3b8; }
-    textarea.form-input { resize: vertical; min-height: 140px; }
-    select.form-input { appearance: none; cursor: pointer; }
+  /* Info card */
+  .info-card { display:flex; align-items:flex-start; gap:1rem; padding:1.25rem 1.4rem; background:var(--bg-surface); border:1px solid var(--border); border-radius:14px; transition:all .22s ease; }
+  .info-card:hover { border-color:rgba(235,94,40,.28); box-shadow:var(--shadow-md); transform:translateX(4px); }
+  .info-icon { width:42px; height:42px; border-radius:11px; background:rgba(235,94,40,.1); border:1px solid rgba(235,94,40,.2); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#eb5e28; font-size:.85rem; transition:all .2s ease; }
+  .info-card:hover .info-icon { background:#eb5e28; color:#fff; }
 
-    /* Contact info card */
-    .ci-card {
-        display: flex; align-items: center; gap: 1rem;
-        padding: 1.25rem 1.5rem;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.07);
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-    .ci-card:hover { border-color: rgba(201,147,42,0.3); background: rgba(201,147,42,0.04); }
-    .ci-icon { width: 2.5rem; height: 2.5rem; background: linear-gradient(135deg, #c9932a, #fbbf24); display: flex; align-items: center; justify-content: center; color: #0a0f2e; border-radius: 4px; flex-shrink: 0; font-size: 0.875rem; }
+  /* Social link */
+  .soc-row { display:flex; align-items:center; gap:.85rem; padding:.8rem 0; border-bottom:1px solid var(--border); text-decoration:none; transition:all .2s ease; }
+  .soc-row:last-child { border-bottom:none; }
+  .soc-row:hover .soc-name { color:#eb5e28; }
+  .soc-icon-wrap { width:36px; height:36px; border-radius:9px; background:var(--bg-muted); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.82rem; color:var(--text-muted); transition:all .2s ease; }
+  .soc-row:hover .soc-icon-wrap { background:#eb5e28; border-color:#eb5e28; color:#fff; }
+  .soc-name { font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:600; color:var(--text-muted); transition:color .2s ease; }
+  .soc-handle { font-family:'Courier Prime',monospace; font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); display:block; margin-top:1px; }
 
-    /* FAQ */
-    .faq-item { border-bottom: 1px solid rgba(0,0,0,0.06); }
-    .dark .faq-item { border-color: rgba(255,255,255,0.05); }
-    .faq-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0; text-align: left; cursor: pointer; }
-    .faq-btn:focus-visible { outline: 2px solid #c9932a; outline-offset: 2px; }
-    .faq-answer { overflow: hidden; max-height: 0; transition: max-height 0.4s ease; }
-    .faq-answer.open { max-height: 400px; }
-    .faq-answer-inner { padding-bottom: 1.25rem; }
-    .faq-icon { width: 1.5rem; height: 1.5rem; border: 1px solid rgba(201,147,42,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
-    .faq-icon i { font-size: 0.6rem; color: #c9932a; transition: transform 0.3s ease; }
-    .faq-btn[aria-expanded="true"] .faq-icon { background: #c9932a; border-color: #c9932a; }
-    .faq-btn[aria-expanded="true"] .faq-icon i { color: #0a0f2e; transform: rotate(45deg); }
+  /* Form */
+  .form-wrap { background:var(--bg-surface); border:1px solid var(--border); border-radius:22px; padding:2.25rem 2rem; transition:background .3s,border-color .3s; }
+  .form-label { display:block; font-family:'Courier Prime',monospace; font-size:.62rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:.4rem; }
+  .form-ctrl { width:100%; padding:.72rem 1rem; background:var(--bg-subtle); border:1.5px solid var(--border); border-radius:9px; font-family:'DM Sans',sans-serif; font-size:.875rem; color:var(--text-primary); outline:none; transition:border-color .2s,box-shadow .2s,background .3s; }
+  .form-ctrl::placeholder { color:var(--text-faint); }
+  .form-ctrl:focus { border-color:#eb5e28; box-shadow:0 0 0 3px rgba(235,94,40,.1); background:var(--bg-surface); }
+  textarea.form-ctrl { resize:vertical; min-height:118px; }
+  select.form-ctrl { cursor:pointer; }
+  .form-error { display:none; font-size:.74rem; color:#dc2626; margin-top:.28rem; font-family:'DM Sans',sans-serif; }
 
-    /* Submit button states */
-    #submit-btn { transition: all 0.3s ease; }
-    #submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none !important; }
-
-    /* Char counter */
-    .char-count { font-size: 0.7rem; font-family: 'DM Mono', monospace; color: #94a3b8; text-align: right; margin-top: 0.375rem; }
-    .char-count.warning { color: #f59e0b; }
-    .char-count.danger { color: #ef4444; }
+  /* FAQ */
+  .faq-item { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--bg-surface); transition:border-color .2s; }
+  .faq-item:hover { border-color:rgba(235,94,40,.22); }
+  .faq-trigger { width:100%; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.05rem 1.25rem; background:none; border:none; cursor:pointer; text-align:left; font-family:'DM Sans',sans-serif; font-weight:600; font-size:.9rem; color:var(--text-primary); transition:color .2s; }
+  .faq-trigger:hover { color:#eb5e28; }
+  .faq-icon { color:#eb5e28; font-size:.68rem; flex-shrink:0; transition:transform .28s cubic-bezier(.34,1.56,.64,1); }
+  .faq-body { overflow:hidden; max-height:0; transition:max-height .38s cubic-bezier(.22,1,.36,1),padding .38s ease; padding:0 1.25rem; }
+  .faq-body.open { padding:0 1.25rem 1.05rem; max-height:400px; }
+  .faq-body p { font-family:'DM Sans',sans-serif; font-size:.875rem; color:var(--text-muted); line-height:1.75; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ==================== HERO ==================== -->
-<section class="contact-hero pt-28 pb-20">
-    <div class="contact-hero-grid"></div>
-    <div class="absolute top-16 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent 5%, rgba(201,147,42,0.3) 50%, transparent 95%);"></div>
-    
-    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-        <nav class="breadcrumb mb-12" data-aos="fade-down">
-            <a href="{% url 'home' %}">Home</a>
-            <span class="sep">/</span>
-            <span class="current">Contact</span>
-        </nav>
-        
-        <div class="max-w-3xl">
-            <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem;border:1px solid rgba(201,147,42,0.3);background:rgba(201,147,42,0.06);border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fbbf24;" class="mb-8" data-aos="fade-up">
-                <i class="fas fa-comment-dots"></i> Let's Connect
-            </div>
-            <h1 class="font-display text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight" data-aos="fade-up" data-aos-delay="80">
-                Get in <span class="italic" style="color:transparent;-webkit-text-stroke:1px rgba(201,147,42,0.6);">Touch</span>
-            </h1>
-            <p class="text-slate-400 text-xl leading-relaxed" data-aos="fade-up" data-aos-delay="160">
-                Have a project in mind? Let's discuss how we can create something remarkable together.
-            </p>
-        </div>
+{# ══ BREADCRUMB ═══════════════════════════════════════ #}
+<nav aria-label="Breadcrumb" style="background:var(--bg-subtle);border-bottom:1px solid var(--border);transition:background .3s;">
+  <div class="cx" style="padding-top:.75rem;padding-bottom:.75rem;">
+    <ol style="display:flex;align-items:center;gap:.5rem;list-style:none;flex-wrap:wrap;" itemscope itemtype="https://schema.org/BreadcrumbList">
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="{% url 'home' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'">
+          <i class="fas fa-house" style="font-size:.7rem;"></i>
+          <span itemprop="name" class="sr-only">Home</span>
+        </a>
+        <meta itemprop="position" content="1">
+      </li>
+      <li aria-hidden="true" style="color:var(--border-strong);font-size:.75rem;">/</li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:#eb5e28;font-weight:600;">Contact</span>
+        <meta itemprop="position" content="2">
+      </li>
+    </ol>
+  </div>
+</nav>
+
+{# ══ HERO ════════════════════════════════════════════ #}
+<section class="contact-hero">
+  <div class="cx">
+    <div data-reveal style="max-width:620px;">
+      <p class="eyebrow" style="margin-bottom:.9rem;">Get In Touch</p>
+      <h1 style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.06;color:var(--text-primary);margin-bottom:1rem;transition:color .3s;">
+        Let's Build Something<br><em style="font-style:italic;color:#eb5e28;">Amazing Together</em>
+      </h1>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.98rem;color:var(--text-muted);line-height:1.8;max-width:500px;">
+        Whether you have a project in mind, a question, or just want to say hello — my inbox is always open. I reply within 24 hours.
+      </p>
     </div>
+  </div>
 </section>
 
-<!-- ==================== MAIN CONTENT ==================== -->
-<section class="py-28 lg:py-36 bg-white dark:bg-navy-950">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="grid lg:grid-cols-5 gap-16">
-            
-            <!-- ===== FORM (3 cols) ===== -->
-            <div class="lg:col-span-3" data-aos="fade-right">
-                <div class="mb-8">
-                    <div class="section-label mb-4">Project Inquiry</div>
-                    <h2 class="font-display text-3xl font-bold text-slate-900 dark:text-white">Send a Message</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-2">I typically respond within 24 hours on business days.</p>
-                </div>
-                
-                <form id="contact-form" method="post" class="space-y-5" novalidate>
-                    {% csrf_token %}
-                    
-                    <div class="grid sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="id_name" class="form-label">Full Name <span class="text-gold-500">*</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-user text-xs"></i></div>
-                                <input type="text" id="id_name" name="name" required placeholder="John Doe" class="form-input pl-9">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="id_email" class="form-label">Email Address <span class="text-gold-500">*</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-envelope text-xs"></i></div>
-                                <input type="email" id="id_email" name="email" required placeholder="you@example.com" class="form-input pl-9">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="id_phone" class="form-label">Phone <span class="text-slate-400 normal-case" style="letter-spacing:0">(optional)</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-phone text-xs"></i></div>
-                                <input type="tel" id="id_phone" name="phone" placeholder="+1 555 000 0000" class="form-input pl-9">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="id_subject" class="form-label">Subject <span class="text-gold-500">*</span></label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400"><i class="fas fa-tag text-xs"></i></div>
-                                <input type="text" id="id_subject" name="subject" required placeholder="Project Inquiry" class="form-input pl-9">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="id_budget" class="form-label">Budget Range</label>
-                            <div class="relative">
-                                <select id="id_budget" name="budget" class="form-input pr-8">
-                                    <option value="">Select range…</option>
-                                    <option value="under_5k">Under $5,000</option>
-                                    <option value="5k_10k">$5,000 — $10,000</option>
-                                    <option value="10k_25k">$10,000 — $25,000</option>
-                                    <option value="25k_50k">$25,000 — $50,000</option>
-                                    <option value="over_50k">Over $50,000</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400"><i class="fas fa-chevron-down text-xs"></i></div>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="id_timeline" class="form-label">Timeline</label>
-                            <div class="relative">
-                                <select id="id_timeline" name="timeline" class="form-input pr-8">
-                                    <option value="">Select timeline…</option>
-                                    <option value="asap">ASAP</option>
-                                    <option value="1_2_weeks">1–2 weeks</option>
-                                    <option value="1_3_months">1–3 months</option>
-                                    <option value="3_6_months">3–6 months</option>
-                                    <option value="flexible">Flexible</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400"><i class="fas fa-chevron-down text-xs"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label for="id_message" class="form-label">Message <span class="text-gold-500">*</span></label>
-                        <textarea id="id_message" name="message" required maxlength="1000" placeholder="Tell me about your project, goals, and requirements…" class="form-input" rows="6"></textarea>
-                        <div id="char-count" class="char-count">0 / 1000</div>
-                    </div>
-                    
-                    <!-- Honeypot -->
-                    <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
-                    
-                    <button type="submit" id="submit-btn" class="group w-full inline-flex items-center justify-center gap-3 px-8 py-4 bg-navy-900 dark:bg-gold-500 text-white dark:text-navy-900 font-bold rounded-sm transition-all hover:bg-gold-500 hover:text-navy-900 dark:hover:bg-gold-400 hover:shadow-gold">
-                        <span id="submit-text" class="flex items-center gap-3">
-                            <i class="fas fa-paper-plane text-sm"></i>
-                            Send Message
-                        </span>
-                        <span id="submit-loading" class="hidden items-center gap-3">
-                            <i class="fas fa-spinner fa-spin text-sm"></i>
-                            Sending…
-                        </span>
-                    </button>
-                    
-                    <p class="text-xs text-slate-400 text-center"><i class="fas fa-lock mr-1.5"></i>Your information is secure and will never be shared.</p>
-                </form>
-            </div>
-            
-            <!-- ===== SIDEBAR (2 cols) ===== -->
-            <div class="lg:col-span-2 space-y-8" data-aos="fade-left">
-                
-                <!-- Contact Info -->
-                <div>
-                    <div class="section-label mb-5">Contact</div>
-                    <div class="space-y-3">
-                        <div class="ci-card">
-                            <div class="ci-icon"><i class="fas fa-envelope"></i></div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-500 uppercase tracking-widest mb-0.5">Email</div>
-                                <a href="mailto:{{ site_settings.email }}" class="text-sm font-semibold text-slate-900 dark:text-white hover:text-gold-500 dark:hover:text-gold-400 transition-colors break-all">{{ site_settings.email }}</a>
-                            </div>
-                        </div>
-                        {% if site_settings.phone %}
-                        <div class="ci-card">
-                            <div class="ci-icon"><i class="fas fa-phone"></i></div>
-                            <div>
-                                <div class="text-xs text-slate-500 uppercase tracking-widest mb-0.5">Phone</div>
-                                <a href="tel:{{ site_settings.phone }}" class="text-sm font-semibold text-slate-900 dark:text-white hover:text-gold-500 dark:hover:text-gold-400 transition-colors">{{ site_settings.phone }}</a>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="ci-card">
-                            <div class="ci-icon"><i class="fas fa-location-dot"></i></div>
-                            <div>
-                                <div class="text-xs text-slate-500 uppercase tracking-widest mb-0.5">Location</div>
-                                <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ site_settings.location }}</span>
-                                <div class="text-xs text-slate-400 mt-0.5">Available remotely worldwide</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Availability -->
-                <div class="p-6 bg-navy-900 rounded-sm border border-white/5 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(201,147,42,0.5) 50%, transparent);"></div>
-                    <div class="flex items-start gap-3 mb-4">
-                        {% if site_settings.available_for_work %}
-                        <div class="flex items-center gap-2">
-                            <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
-                            <span class="text-sm font-semibold text-emerald-400">Available for Projects</span>
-                        </div>
-                        {% else %}
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 bg-amber-400 rounded-full"></span>
-                            <span class="text-sm font-semibold text-amber-400">Limited Availability</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        {% if site_settings.available_for_work %}
-                        Accepting new projects and collaborations. Let's discuss your requirements.
-                        {% else %}
-                        Currently at capacity, but reach out for future projects or the waitlist.
-                        {% endif %}
-                    </p>
-                    <div class="mt-4 pt-4 border-t border-white/5">
-                        <div class="text-xs text-slate-500 flex items-center gap-2"><i class="fas fa-clock text-gold-500"></i> Response within 24 hours</div>
-                    </div>
-                </div>
-                
-                <!-- Map -->
-                <div class="rounded-sm overflow-hidden border border-slate-100 dark:border-white/5">
-                    <div class="h-52">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255282.35823184754!2d36.70730158674246!3d-1.3031976327445654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1707758400000!5m2!1sen!2sus" width="100%" height="100%" style="border:0; filter:grayscale(0.8);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                </div>
-                
-                <!-- Social -->
-                <div>
-                    <div class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-4">Find Me Online</div>
-                    <div class="flex gap-3">
-                        {% if site_settings.github_url %}
-                        <a href="{{ site_settings.github_url }}" target="_blank" class="flex-1 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-gold-500/40 hover:text-gold-600 dark:hover:text-gold-400 transition-all text-sm" title="GitHub">
-                            <i class="fab fa-github mr-2"></i> GitHub
-                        </a>
-                        {% endif %}
-                        {% if site_settings.linkedin_url %}
-                        <a href="{{ site_settings.linkedin_url }}" target="_blank" class="flex-1 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-sm flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-gold-500/40 hover:text-gold-600 dark:hover:text-gold-400 transition-all text-sm" title="LinkedIn">
-                            <i class="fab fa-linkedin-in mr-2"></i> LinkedIn
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+{# ══ MAIN GRID ═══════════════════════════════════════ #}
+<section style="padding:3.5rem 0 5rem;">
+  <div class="cx">
+    <div id="contact-main-grid" style="display:grid;grid-template-columns:1fr;gap:3rem;align-items:start;">
 
-<!-- ==================== FAQ ==================== -->
-{% if faqs %}
-<section class="py-28 bg-slate-50 dark:bg-navy-900/40">
-    <div class="max-w-3xl mx-auto px-6 lg:px-8">
-        <div class="text-center mb-14" data-aos="fade-up">
-            <div class="section-label mb-5">FAQ</div>
-            <h2 class="font-display text-4xl font-bold text-slate-900 dark:text-white">Frequently Asked <span class="text-gold">Questions</span></h2>
-        </div>
-        
-        <div data-aos="fade-up">
-            {% for faq in faqs %}
-            <div class="faq-item">
-                <button class="faq-btn" aria-expanded="false" onclick="toggleFaq(this)">
-                    <span class="font-semibold text-slate-900 dark:text-white text-sm pr-8">{{ faq.question }}</span>
-                    <div class="faq-icon"><i class="fas fa-plus"></i></div>
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-inner text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ faq.answer }}</div>
-                </div>
+      {# ── LEFT SIDEBAR ── #}
+      <aside data-reveal>
+
+        {# Info cards #}
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:2.25rem;">
+
+          <a href="mailto:{{ site_settings.email|default:'briangetenga3@gmail.com' }}" class="info-card" style="text-decoration:none;">
+            <div class="info-icon"><i class="fas fa-envelope"></i></div>
+            <div>
+              <p style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.25rem;">Email</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">{{ site_settings.email|default:'briangetenga3@gmail.com' }}</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-muted);margin-top:.1rem;">Response within 24 hours</p>
             </div>
+          </a>
+
+          <div class="info-card">
+            <div class="info-icon"><i class="fas fa-location-dot"></i></div>
+            <div>
+              <p style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.25rem;">Location</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">{{ site_settings.location|default:'Nairobi, Kenya' }} 🇰🇪</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-muted);margin-top:.1rem;">Available for remote work worldwide</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon"><i class="fas fa-clock"></i></div>
+            <div>
+              <p style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:.25rem;">Working Hours</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text-primary);">Mon – Fri, 8am – 6pm EAT</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-muted);margin-top:.1rem;">UTC+3 — East Africa Time</p>
+            </div>
+          </div>
+
+          {% if site_settings.available_for_work %}
+          <div style="padding:1.1rem 1.25rem;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.22);border-radius:14px;display:flex;align-items:center;gap:.85rem;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;animation:availPing 2.2s cubic-bezier(0,0,.2,1) infinite;flex-shrink:0;"></span>
+            <div>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;color:#15803d;">Currently Available</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-muted);margin-top:.1rem;">Open to freelance &amp; full-time roles</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        {# Social links #}
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.5rem;margin-bottom:2.25rem;">
+          <h3 style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-bottom:1rem;">Follow Me</h3>
+
+          {% if site_settings.github_url %}
+          <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="soc-row">
+            <div class="soc-icon-wrap"><i class="fab fa-github"></i></div>
+            <div>
+              <span class="soc-name">GitHub</span>
+              <span class="soc-handle">Code &amp; Open Source</span>
+            </div>
+            <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;color:var(--text-faint);margin-left:auto;"></i>
+          </a>
+          {% endif %}
+
+          {% if site_settings.linkedin_url %}
+          <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="soc-row">
+            <div class="soc-icon-wrap"><i class="fab fa-linkedin-in"></i></div>
+            <div>
+              <span class="soc-name">LinkedIn</span>
+              <span class="soc-handle">Professional Network</span>
+            </div>
+            <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;color:var(--text-faint);margin-left:auto;"></i>
+          </a>
+          {% endif %}
+
+          {% if site_settings.twitter_url %}
+          <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="soc-row">
+            <div class="soc-icon-wrap"><i class="fab fa-x-twitter"></i></div>
+            <div>
+              <span class="soc-name">X / Twitter</span>
+              <span class="soc-handle">Thoughts &amp; Updates</span>
+            </div>
+            <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;color:var(--text-faint);margin-left:auto;"></i>
+          </a>
+          {% endif %}
+        </div>
+
+        {# What to expect #}
+        <div style="background:linear-gradient(135deg,rgba(235,94,40,.06) 0%,transparent 100%);border:1px solid rgba(235,94,40,.15);border-radius:16px;padding:1.4rem 1.5rem;">
+          <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:1rem;">What to Expect</h3>
+          <ul style="display:flex;flex-direction:column;gap:.7rem;list-style:none;">
+            {% for item in "Reply within 24 hours,Free initial consultation,Transparent scope &amp; pricing,Clear project timeline,Ongoing post-launch support"|split:"," %}
+            <li style="display:flex;align-items:center;gap:.65rem;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text-muted);">
+              <i class="fas fa-check" style="color:#22c55e;font-size:.6rem;width:14px;flex-shrink:0;"></i>{{ item }}
+            </li>
             {% endfor %}
+          </ul>
         </div>
+
+      </aside>
+
+      {# ── CONTACT FORM ── #}
+      <div data-reveal data-reveal-delay="2">
+        <div class="form-wrap">
+          <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;color:var(--text-primary);margin-bottom:.4rem;">Send a Message</h2>
+          <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);margin-bottom:1.75rem;line-height:1.65;">Fill in the form below and I'll get back to you as soon as possible.</p>
+
+          {# Success state #}
+          <div id="cf-success" style="display:none;padding:1.1rem 1.25rem;border-radius:12px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.22);margin-bottom:1.25rem;">
+            <div style="display:flex;align-items:flex-start;gap:.75rem;">
+              <div style="width:36px;height:36px;border-radius:50%;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-check" style="color:#22c55e;font-size:.75rem;"></i></div>
+              <div>
+                <p style="font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;color:#15803d;">Message Sent!</p>
+                <p style="font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-muted);margin-top:.2rem;">Thank you for reaching out. I'll get back to you within 24 hours.</p>
+              </div>
+            </div>
+          </div>
+
+          <form id="contact-form" method="post" action="{% url 'contact' %}" novalidate>
+            {% csrf_token %}
+            {# Honeypot #}
+            <div aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden;">
+              <label>Leave this empty: <input type="text" name="website_honeypot" tabindex="-1" autocomplete="off"></label>
+            </div>
+
+            {# Name + Email #}
+            <div id="cf-row-1" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+              <div>
+                <label class="form-label" for="cf-name">Full Name *</label>
+                <input class="form-ctrl" type="text" id="cf-name" name="name" required
+                       placeholder="Jane Smith" autocomplete="name" value="{{ form.name.value|default:'' }}">
+                <p class="form-error" id="err-name">{% if form.name.errors %}{{ form.name.errors.0 }}{% endif %}</p>
+              </div>
+              <div>
+                <label class="form-label" for="cf-email">Email Address *</label>
+                <input class="form-ctrl" type="email" id="cf-email" name="email" required
+                       placeholder="jane@company.com" autocomplete="email" value="{{ form.email.value|default:'' }}">
+                <p class="form-error" id="err-email">{% if form.email.errors %}{{ form.email.errors.0 }}{% endif %}</p>
+              </div>
+            </div>
+
+            {# Phone + Company #}
+            <div id="cf-row-2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+              <div>
+                <label class="form-label" for="cf-phone">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;font-family:'DM Sans',sans-serif;font-size:.65rem;color:var(--text-faint);">(optional)</span></label>
+                <input class="form-ctrl" type="tel" id="cf-phone" name="phone" placeholder="+254 700 000 000" autocomplete="tel">
+              </div>
+              <div>
+                <label class="form-label" for="cf-company">Company <span style="font-weight:400;text-transform:none;letter-spacing:0;font-family:'DM Sans',sans-serif;font-size:.65rem;color:var(--text-faint);">(optional)</span></label>
+                <input class="form-ctrl" type="text" id="cf-company" name="company" placeholder="Acme Inc.">
+              </div>
+            </div>
+
+            {# Subject #}
+            <div style="margin-bottom:1rem;">
+              <label class="form-label" for="cf-subject">Subject *</label>
+              <input class="form-ctrl" type="text" id="cf-subject" name="subject" required
+                     placeholder="Project inquiry, collaboration, question…" value="{{ form.subject.value|default:'' }}">
+              <p class="form-error" id="err-subject">{% if form.subject.errors %}{{ form.subject.errors.0 }}{% endif %}</p>
+            </div>
+
+            {# Service + Budget row #}
+            <div id="cf-row-3" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+              <div>
+                <label class="form-label" for="cf-service">Service Needed</label>
+                <select class="form-ctrl" id="cf-service" name="service_type">
+                  <option value="">Select service…</option>
+                  <option value="web-app">Web Application</option>
+                  <option value="api">API / Backend</option>
+                  <option value="frontend">Frontend / UI</option>
+                  <option value="ecommerce">E-Commerce</option>
+                  <option value="consulting">Consulting</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" for="cf-budget">Budget Range</label>
+                <select class="form-ctrl" id="cf-budget" name="budget">
+                  <option value="">Select budget…</option>
+                  <option value="under-1k">Under $1,000</option>
+                  <option value="1k-5k">$1,000 – $5,000</option>
+                  <option value="5k-15k">$5,000 – $15,000</option>
+                  <option value="15k-plus">$15,000+</option>
+                  <option value="not-sure">Not sure yet</option>
+                </select>
+              </div>
+            </div>
+
+            {# Timeline #}
+            <div style="margin-bottom:1rem;">
+              <label class="form-label" for="cf-timeline">Project Timeline</label>
+              <select class="form-ctrl" id="cf-timeline" name="timeline">
+                <option value="">Select timeline…</option>
+                <option value="asap">As soon as possible</option>
+                <option value="1month">Within 1 month</option>
+                <option value="3months">1–3 months</option>
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+
+            {# Message #}
+            <div style="margin-bottom:1.25rem;">
+              <label class="form-label" for="cf-msg">Message *</label>
+              <textarea class="form-ctrl" id="cf-msg" name="message" rows="5" required
+                        placeholder="Tell me about your project, goals, challenges, and any specific requirements…">{{ form.message.value|default:'' }}</textarea>
+              <p class="form-error" id="err-message">{% if form.message.errors %}{{ form.message.errors.0 }}{% endif %}</p>
+              <p id="cf-char-count" style="font-family:'Courier Prime',monospace;font-size:.62rem;color:var(--text-faint);margin-top:.3rem;text-align:right;">0 / 2000</p>
+            </div>
+
+            {# How did you find me? #}
+            <div style="margin-bottom:1.5rem;">
+              <label class="form-label" for="cf-source">How did you find me?</label>
+              <select class="form-ctrl" id="cf-source" name="source">
+                <option value="">Select source…</option>
+                <option value="google">Google Search</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="github">GitHub</option>
+                <option value="referral">Referral</option>
+                <option value="twitter">X / Twitter</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <button type="submit" id="cf-submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:1rem;">
+              <span class="cf-text"><i class="fas fa-paper-plane" style="font-size:.72rem;" aria-hidden="true"></i> Send Message</span>
+              <span class="cf-loading" style="display:none;align-items:center;gap:.45rem;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:.8rem;" aria-hidden="true"></i> Sending…
+              </span>
+            </button>
+
+            <p style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);margin-top:.85rem;display:flex;align-items:center;gap:.4rem;">
+              <i class="fas fa-lock" style="font-size:.6rem;color:#eb5e28;" aria-hidden="true"></i>
+              Your information is kept strictly private. I never share your data.
+            </p>
+          </form>
+        </div>
+      </div>
+
     </div>
+  </div>
+</section>
+<style>
+  @media(min-width:1024px) { #contact-main-grid { grid-template-columns:1fr 1.6fr !important; } }
+  @media(max-width:580px)  { #cf-row-1,#cf-row-2,#cf-row-3 { grid-template-columns:1fr !important; } }
+</style>
+
+{# ══ FAQS ════════════════════════════════════════════ #}
+{% if faqs %}
+<section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s;">
+  <div class="cx">
+    <div data-reveal style="margin-bottom:2.5rem;text-align:center;">
+      <p class="eyebrow" style="margin-bottom:.8rem;justify-content:center;">Questions</p>
+      <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.7rem,3.5vw,2.5rem);color:var(--text-primary);">Frequently <em style="font-style:italic;color:#eb5e28;">Asked</em></h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.6rem;max-width:740px;margin:0 auto;">
+      {% for faq in faqs %}
+      <div class="faq-item" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-c-{{ forloop.counter }}" data-faq="{{ forloop.counter }}">
+          <span>{{ faq.question }}</span>
+          <i class="fas fa-plus faq-icon" aria-hidden="true"></i>
+        </button>
+        <div class="faq-body" id="faq-c-{{ forloop.counter }}" role="region">
+          <p>{{ faq.answer }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 {% endif %}
 
@@ -343,78 +360,80 @@
 
 {% block extra_js %}
 <script>
-// Char counter
-const msgField = document.getElementById('id_message');
-const charCount = document.getElementById('char-count');
-msgField?.addEventListener('input', function() {
-    const n = this.value.length;
-    charCount.textContent = n + ' / 1000';
-    charCount.classList.toggle('warning', n > 800 && n <= 900);
-    charCount.classList.toggle('danger', n > 900);
-});
+document.addEventListener('DOMContentLoaded', function () {
 
-// Form submit
-const form = document.getElementById('contact-form');
-const submitBtn = document.getElementById('submit-btn');
-const submitText = document.getElementById('submit-text');
-const submitLoading = document.getElementById('submit-loading');
-
-form?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (msgField.value.trim().length < 10) {
-        msgField.focus();
-        msgField.style.borderColor = '#ef4444';
-        setTimeout(() => msgField.style.borderColor = '', 2000);
-        return;
-    }
-    submitBtn.disabled = true;
-    submitText.classList.add('hidden');
-    submitLoading.classList.remove('hidden');
-    submitLoading.style.display = 'flex';
-    
-    const fd = new FormData(form);
-    try {
-        const res = await fetch('{% url "contact" %}', {
-            method: 'POST', body: fd,
-            headers: { 'X-CSRFToken': fd.get('csrfmiddlewaretoken') }
-        });
-        if (res.ok) {
-            form.reset();
-            charCount.textContent = '0 / 1000';
-            showNotification('Message sent! I\'ll respond within 24 hours.', 'success');
-        } else { throw new Error(); }
-    } catch {
-        showNotification('Something went wrong. Please email me directly.', 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitText.classList.remove('hidden');
-        submitLoading.classList.add('hidden');
-        submitLoading.style.display = '';
-    }
-});
-
-function showNotification(msg, type) {
-    const el = document.createElement('div');
-    const color = type === 'success' ? 'bg-emerald-600' : 'bg-red-600';
-    el.className = `fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 ${color} text-white text-sm font-semibold rounded-sm shadow-xl flex items-center gap-2`;
-    el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'}"></i> ${msg}`;
-    document.body.appendChild(el);
-    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.4s'; setTimeout(() => el.remove(), 400); }, 5000);
-}
-
-// FAQ toggle
-function toggleFaq(btn) {
-    const isOpen = btn.getAttribute('aria-expanded') === 'true';
-    // Close all
-    document.querySelectorAll('.faq-btn[aria-expanded="true"]').forEach(b => {
-        b.setAttribute('aria-expanded', 'false');
-        b.nextElementSibling.classList.remove('open');
+  /* ── Character counter ─────────────────────────── */
+  var msgEl    = document.getElementById('cf-msg');
+  var cntEl    = document.getElementById('cf-char-count');
+  if (msgEl && cntEl) {
+    msgEl.addEventListener('input', function () {
+      var n = msgEl.value.length;
+      cntEl.textContent = n + ' / 2000';
+      cntEl.style.color = n > 1800 ? '#dc2626' : 'var(--text-faint)';
     });
-    // Open this
-    if (!isOpen) {
-        btn.setAttribute('aria-expanded', 'true');
-        btn.nextElementSibling.classList.add('open');
-    }
-}
+  }
+
+  /* ── AJAX contact form ──────────────────────────── */
+  var form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      form.querySelectorAll('.form-error').forEach(function (el) { el.style.display = 'none'; el.textContent = ''; });
+      var btn  = document.getElementById('cf-submit');
+      var text = btn.querySelector('.cf-text');
+      var load = btn.querySelector('.cf-loading');
+      btn.disabled = true;
+      if (text) text.style.display = 'none';
+      if (load) load.style.display = 'flex';
+
+      window.fetchWithCSRF('{% url "contact" %}', {
+        method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: new FormData(form),
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        btn.disabled = false;
+        if (text) text.style.display = '';
+        if (load) load.style.display = 'none';
+        if (d.success) {
+          form.reset();
+          var s = document.getElementById('cf-success');
+          if (s) { s.style.display = 'block'; s.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+          showToast('✅ Message sent! I\'ll reply within 24 h.', 'success');
+        } else {
+          var errs = d.errors || {};
+          Object.keys(errs).forEach(function (f) {
+            var el = document.getElementById('err-' + f);
+            if (el) { el.textContent = Array.isArray(errs[f]) ? errs[f][0] : errs[f]; el.style.display = 'block'; }
+          });
+          showToast('Please fix the highlighted fields.', 'error');
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        if (text) text.style.display = '';
+        if (load) load.style.display = 'none';
+        showToast('Network error. Please try again.', 'error');
+      });
+    });
+  }
+
+  /* ── FAQ accordion ──────────────────────────────── */
+  document.querySelectorAll('.faq-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.faq, body = document.getElementById('faq-c-' + id), icon = btn.querySelector('.faq-icon');
+      var wasOpen = body && body.classList.contains('open');
+      document.querySelectorAll('.faq-body').forEach(function (b) { b.classList.remove('open'); });
+      document.querySelectorAll('.faq-trigger').forEach(function (t) {
+        t.setAttribute('aria-expanded', 'false');
+        var ic = t.querySelector('.faq-icon');
+        if (ic) { ic.className = 'fas fa-plus faq-icon'; ic.style.transform = ''; }
+      });
+      if (!wasOpen && body) {
+        body.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+        icon.className = 'fas fa-minus faq-icon'; icon.style.transform = 'rotate(45deg)';
+      }
+    });
+  });
+});
 </script>
 {% endblock %}

@@ -25,9 +25,11 @@ urlpatterns = [
     # Newsletter
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
     path('newsletter/verify/<str:token>/', views.newsletter_verify, name='newsletter_verify'),
-    path('newsletter/unsubscribe/<str:email>/', views.newsletter_unsubscribe, name='newsletter_unsubscribe'),
+    path('newsletter/unsubscribe/<str:token>/', views.newsletter_unsubscribe, name='newsletter_unsubscribe'),
+    path('newsletter/feedback/', views.newsletter_feedback, name='newsletter_feedback'),
     
     # Actions
     path('download-resume/', views.download_resume, name='download_resume'),
     path('search/', views.search_view, name='search'),
+    path('api/projects/', views.api_projects, name='api_projects'),
 ]
