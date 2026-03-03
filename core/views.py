@@ -72,13 +72,20 @@ def invalidate_cache(*keys):
 
 
 def track_page_view(request, page_type=None):
+    """
+    Increments today's AnalyticsSnapshot counters.
+
+    Valid page_type values: 'blog', 'project'  (must match model field names
+    <type>_views).  Any other value is ignored to prevent invalid field errors.
+    """
+    VALID_PAGE_TYPES = {'blog', 'project'}
     try:
         today = timezone.now().date()
         snapshot, _ = AnalyticsSnapshot.objects.get_or_create(date=today)
-        AnalyticsSnapshot.objects.filter(pk=snapshot.pk).update(
-            page_views=F('page_views') + 1,
-            **({f'{page_type}_views': F(f'{page_type}_views') + 1} if page_type else {})
-        )
+        update_kwargs = {'page_views': F('page_views') + 1}
+        if page_type in VALID_PAGE_TYPES:
+            update_kwargs[f'{page_type}_views'] = F(f'{page_type}_views') + 1
+        AnalyticsSnapshot.objects.filter(pk=snapshot.pk).update(**update_kwargs)
     except Exception as e:
         logger.warning(f"Analytics tracking failed: {e}")
 
@@ -99,6 +106,41 @@ PROFANITY_LIST = ['spam', 'casino', 'crypto', 'nft', 'pills', 'viagra', 'lottery
 def has_profanity(text):
     lower = text.lower()
     return any(word in lower for word in PROFANITY_LIST)
+
+
+# ─────────────────────────────────────────────
+# Taggit-compatible tag helpers
+#
+# django-taggit uses a GenericForeignKey through TaggedItem, so reverse
+# lookups like Tag.objects.filter(project__status='completed') do NOT work.
+# These helpers use ContentType + TaggedItem to build correct queries.
+# ─────────────────────────────────────────────
+
+def get_tags_for_model(model_class, filter_kwargs=None, limit=20, count_annotation='item_count'):
+    """
+    Return a list of taggit Tag objects that are attached to instances of
+    `model_class`, optionally pre-filtered by `filter_kwargs`.
+
+    Example:
+        get_tags_for_model(Project, {'status': 'completed'}, limit=20)
+    """
+    from taggit.models import Tag, TaggedItem
+    from django.contrib.contenttypes.models import ContentType
+
+    ct = ContentType.objects.get_for_model(model_class)
+    object_ids = (
+        model_class.objects.filter(**(filter_kwargs or {}))
+        .values_list('id', flat=True)
+    )
+    tag_ids = (
+        TaggedItem.objects.filter(content_type=ct, object_id__in=object_ids)
+        .values_list('tag_id', flat=True)
+    )
+    return list(
+        Tag.objects.filter(id__in=tag_ids)
+        .annotate(**{count_annotation: Count('taggit_taggeditem_items')})
+        .order_by(f'-{count_annotation}')[:limit]
+    )
 
 
 # ─────────────────────────────────────────────
@@ -249,14 +291,22 @@ class ProjectListView(ListView):
         context = super().get_context_data(**kwargs)
         try:
             context['site_settings'] = get_site_settings()
+
+            # ─── FIX: use taggit-compatible helper instead of ───────────────
+            #   Tag.objects.filter(project__status='completed')
+            # which fails with taggit's GenericForeignKey relations.
+            # ─────────────────────────────────────────────────────────────────
             cache_key = 'project_tags_v2'
             tags = cache.get(cache_key)
             if not tags:
-                from taggit.models import Tag
-                tags = list(Tag.objects.filter(
-                    project__status='completed'
-                ).annotate(project_count=Count('project')).order_by('-project_count')[:20])
+                tags = get_tags_for_model(
+                    Project,
+                    filter_kwargs={'status': 'completed'},
+                    limit=20,
+                    count_annotation='project_count',
+                )
                 cache.set(cache_key, tags, 1800)
+
             context['tags'] = tags
             context['categories'] = Project.CATEGORY_CHOICES
             context['current_category'] = self.request.GET.get('category', '')
@@ -404,14 +454,22 @@ class BlogListView(ListView):
         context = super().get_context_data(**kwargs)
         try:
             context['site_settings'] = get_site_settings()
+
+            # ─── FIX: use taggit-compatible helper instead of ───────────────
+            #   Tag.objects.filter(blogpost__status='published')
+            # which fails with taggit's GenericForeignKey relations.
+            # ─────────────────────────────────────────────────────────────────
             cache_key = 'blog_tags_v2'
             tags = cache.get(cache_key)
             if not tags:
-                from taggit.models import Tag
-                tags = list(Tag.objects.filter(
-                    blogpost__status='published'
-                ).annotate(post_count=Count('blogpost')).order_by('-post_count')[:20])
+                tags = get_tags_for_model(
+                    BlogPost,
+                    filter_kwargs={'status': 'published'},
+                    limit=20,
+                    count_annotation='post_count',
+                )
                 cache.set(cache_key, tags, 1800)
+
             context['tags'] = tags
             context['featured_post'] = BlogPost.objects.filter(status='published', featured=True).first()
             context['popular_posts'] = BlogPost.objects.filter(status='published').order_by('-views')[:5]

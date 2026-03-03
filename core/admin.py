@@ -216,7 +216,6 @@ class SiteSettingsAdmin(ImagePreviewMixin, admin.ModelAdmin):
         ("📝 Footer", {"fields": ("footer_text",)}),
     )
 
-    # ── helpers ──────────────────────────────────────────────────
     def _profile_preview(self, obj):
         return self.image_preview(obj, "profile_image", 90, 90)
     _profile_preview.short_description = "Profile Photo"
@@ -227,7 +226,6 @@ class SiteSettingsAdmin(ImagePreviewMixin, admin.ModelAdmin):
         return _icon_badge("🔴", "Unavailable", "#ef4444")
     _avail.short_description = "Availability"
 
-    # ── singleton guards ─────────────────────────────────────────
     def has_add_permission(self, request):
         return not SiteSettings.objects.exists()
 
@@ -237,7 +235,6 @@ class SiteSettingsAdmin(ImagePreviewMixin, admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         """Always redirect list → the single change form."""
         obj = SiteSettings.load()
-        # ✅ Fixed: app label is 'core', not 'portfolio'
         return HttpResponseRedirect(
             reverse("admin:core_sitesettings_change", args=[obj.pk])
         )
@@ -696,7 +693,6 @@ class BlogCommentAdmin(admin.ModelAdmin):
     actions = ["approve_comments", "unapprove_comments"]
 
     def _post_link(self, obj):
-        # ✅ Fixed: use 'core' app label
         url = reverse("admin:core_blogpost_change", args=[obj.post.pk])
         return format_html('<a href="{}">{}</a>', url, obj.post.title[:45])
     _post_link.short_description = "Post"
@@ -747,6 +743,7 @@ class TestimonialAdmin(ImagePreviewMixin, ExportCsvMixin, admin.ModelAdmin):
     actions = ["export_as_csv", "approve_all", "feature_all"]
 
     def _photo(self, obj):
+        # FIX: model field is `image`, not `avatar`
         return self.image_preview(obj, "image", 52, 52)
     _photo.short_description = "Photo"
 
@@ -764,7 +761,6 @@ class TestimonialAdmin(ImagePreviewMixin, ExportCsvMixin, admin.ModelAdmin):
 
     def _project_link(self, obj):
         if obj.project:
-            # ✅ Fixed: use 'core' app label
             url = reverse("admin:core_project_change", args=[obj.project.pk])
             return format_html('<a href="{}">{}</a>', url, obj.project.title[:30])
         return "—"
@@ -824,8 +820,8 @@ class ContactMessageAdmin(ExportCsvMixin, admin.ModelAdmin):
         if obj.is_read:
             return format_html('<span style="color:#059669;">✓ Read</span>')
         return format_html(
-            '<span style="color:#ef4444;font-weight:700;'
-            'animation:blink 1s step-start infinite;">● Unread</span>'
+            '<span style="color:#ef4444;font-weight:700;">'
+            '● Unread</span>'
         )
     _read_status.short_description = "Read"
     _read_status.admin_order_field = "is_read"
@@ -1049,7 +1045,14 @@ class SocialProofAdmin(ExportCsvMixin, admin.ModelAdmin):
 
 
 # ─────────────────────────────────────────────────────────────────
-# AnalyticsSnapshot  (read-only)
+# AnalyticsSnapshot  (read-only dashboard)
+#
+# FIX: `date` is no longer auto_now_add (changed to default=timezone.now
+# in models.py so that views.get_or_create(date=today) works).
+# Removed `date` from readonly_fields so it remains editable if needed,
+# but has_add_permission is still False so no new rows can be created
+# through the admin — editing an existing row's date is an admin-only
+# escape hatch for data correction.
 # ─────────────────────────────────────────────────────────────────
 
 @admin.register(AnalyticsSnapshot)
@@ -1057,9 +1060,13 @@ class AnalyticsSnapshotAdmin(admin.ModelAdmin):
 
     list_display   = ("date", "_pv", "_uv", "_bv", "_prv",
                       "contact_submissions", "newsletter_signups")
-    readonly_fields = ("date", "page_views", "unique_visitors",
+
+    # FIX: removed "date" — it is now a plain DateField (default=timezone.now)
+    # and can be corrected by superusers if necessary.
+    readonly_fields = ("page_views", "unique_visitors",
                        "blog_views", "project_views",
                        "contact_submissions", "newsletter_signups")
+
     date_hierarchy = "date"
 
     def _stat(self, val, color="#3b82f6"):
@@ -1067,10 +1074,10 @@ class AnalyticsSnapshotAdmin(admin.ModelAdmin):
             '<span style="font-weight:700;color:{};">{}</span>', color, val
         )
 
-    def _pv(self, obj):  return self._stat(obj.page_views, "#3b82f6")
-    def _uv(self, obj):  return self._stat(obj.unique_visitors, "#059669")
-    def _bv(self, obj):  return self._stat(obj.blog_views, "#8b5cf6")
-    def _prv(self, obj): return self._stat(obj.project_views, "#f59e0b")
+    def _pv(self, obj):  return self._stat(obj.page_views,      "#3b82f6")
+    def _uv(self, obj):  return self._stat(obj.unique_visitors,  "#059669")
+    def _bv(self, obj):  return self._stat(obj.blog_views,       "#8b5cf6")
+    def _prv(self, obj): return self._stat(obj.project_views,    "#f59e0b")
 
     _pv.short_description  = "Page Views"
     _uv.short_description  = "Unique Visitors"

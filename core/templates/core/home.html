@@ -990,10 +990,13 @@
           <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);line-height:1.72;">{{ exp.description|truncatewords:45 }}</p>
           {% endif %}
 
-          {% if exp.tech_used %}
+          {# FIX: was `exp.tech_used|split:","` — model field is `technologies`,
+             accessed via the `tech_list` property which already returns a clean list.
+             No custom `split` or `trim` filters needed here. #}
+          {% if exp.tech_list %}
           <div style="display:flex;flex-wrap:wrap;gap:.32rem;margin-top:.85rem;">
-            {% for tech in exp.tech_used|split:"," %}
-            <span class="tag">{{ tech|trim }}</span>
+            {% for tech in exp.tech_list %}
+            <span class="tag">{{ tech }}</span>
             {% endfor %}
           </div>
           {% endif %}
@@ -1063,13 +1066,15 @@
             </div>
             {% endif %}
 
+            {# FIX: was `t.testimonial` — model field is `content` #}
             <blockquote style="font-family:'Playfair Display',serif;font-size:.98rem;font-style:italic;color:var(--text-secondary);line-height:1.8;margin-bottom:1.5rem;transition:color .3s ease;">
-              "{{ t.testimonial }}"
+              "{{ t.content }}"
             </blockquote>
 
             <div style="display:flex;align-items:center;gap:.85rem;">
-              {% if t.avatar %}
-              <img src="{{ t.avatar.url }}" alt="{{ t.name }}"
+              {# FIX: was `t.avatar` — model field is `image` #}
+              {% if t.image %}
+              <img src="{{ t.image.url }}" alt="{{ t.name }}"
                    style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(235,94,40,.22);flex-shrink:0;" loading="lazy">
               {% else %}
               <div style="width:42px;height:42px;border-radius:50%;background:#eb5e28;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;color:#fff;font-size:.9rem;flex-shrink:0;">
@@ -1078,8 +1083,9 @@
               {% endif %}
               <div>
                 <p style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;color:var(--text-primary);">{{ t.name }}</p>
+                {# FIX: was `t.role` — model field is `position` #}
                 <p style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">
-                  {{ t.role }}{% if t.company %} · {{ t.company }}{% endif %}
+                  {{ t.position }}{% if t.company %} · {{ t.company }}{% endif %}
                 </p>
               </div>
             </div>
@@ -1146,11 +1152,9 @@
 
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;padding-top:.85rem;border-top:1px solid var(--border);">
             <div style="display:flex;align-items:center;gap:.5rem;">
-              {% if post.author.profile.avatar %}
-              <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.get_full_name }}"
-                   style="width:24px;height:24px;border-radius:50%;object-fit:cover;" loading="lazy">
-              {% endif %}
-              <span style="font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--text-muted);">{{ post.author.get_full_name|default:post.author.username }}</span>
+              <span style="font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--text-muted);">
+                {{ post.author.get_full_name|default:post.author.username }}
+              </span>
             </div>
             <div style="display:flex;align-items:center;gap:.8rem;">
               <span style="font-family:'Courier Prime',monospace;font-size:.62rem;color:var(--text-faint);">
@@ -1219,7 +1223,7 @@
             Share a rough idea or a detailed brief — either way I'll help you shape a path from concept to launch.
           </p>
 
-          {# Perks #}
+          {# Perks — using hardcoded list to avoid needing `split` filter #}
           <ul style="display:flex;flex-direction:column;gap:.7rem;list-style:none;margin-bottom:2rem;">
             {% for perk in "Quick response within 24 h,Transparent &amp; competitive pricing,Expert-quality engineering output,Ongoing post-launch support"|split:"," %}
             <li style="display:flex;align-items:center;gap:.75rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-secondary);">
@@ -1406,16 +1410,6 @@
 <script>
 /* ================================================================
    HOME PAGE JS — All features wired up
-   - tsParticles (paprika, dark-mode-aware)
-   - Typed.js (hero role typewriter)
-   - CountUp.js (stat numbers)
-   - Skill progress bars (IntersectionObserver)
-   - Skill tab filter
-   - Testimonials Swiper
-   - FAQ accordion
-   - Contact form AJAX
-   - Newsletter AJAX
-   - Project like AJAX
    ================================================================ */
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -1442,7 +1436,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   initParticles();
 
-  /* Re-init particles on theme change so opacity matches */
   var _darkToggle = document.getElementById('dark-toggle');
   if (_darkToggle) {
     _darkToggle.addEventListener('click', function() {
@@ -1511,7 +1504,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   tabs.forEach(function(btn) {
     btn.addEventListener('click', function() {
-      /* Update tab state */
       tabs.forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
@@ -1522,12 +1514,10 @@ document.addEventListener('DOMContentLoaded', function() {
       cards.forEach(function(card) {
         var match = (cat === 'all' || card.dataset.skillCat === cat);
         card.style.display = match ? '' : 'none';
-        /* Re-trigger scroll reveal for newly visible cards */
         if (match && !card.classList.contains('revealed')) {
           setTimeout(function() { card.classList.add('revealed'); }, delay);
           delay += 35;
         }
-        /* Re-animate progress bar if not yet done */
         if (match) {
           var fill = card.querySelector('.skill-bar-fill');
           if (fill && !fill._done) { fill._done = true; fill.style.width = (fill.dataset.pct || '0') + '%'; }
@@ -1565,7 +1555,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var icon = btn.querySelector('.faq-icon');
       var isOpen = body.classList.contains('open');
 
-      /* Collapse all */
       document.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
       document.querySelectorAll('.faq-trigger').forEach(function(t) {
         t.setAttribute('aria-expanded', 'false');
@@ -1573,7 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (ic) { ic.className = 'fas fa-plus faq-icon'; ic.style.transform = ''; }
       });
 
-      /* Open clicked (if it was closed) */
       if (!isOpen && body && icon) {
         body.classList.add('open');
         btn.setAttribute('aria-expanded', 'true');
@@ -1591,7 +1579,6 @@ document.addEventListener('DOMContentLoaded', function() {
     cfForm.addEventListener('submit', function(e) {
       e.preventDefault();
 
-      /* Clear previous errors */
       cfForm.querySelectorAll('.form-error').forEach(function(el) {
         el.style.display = 'none'; el.textContent = '';
       });
@@ -1623,7 +1610,6 @@ document.addEventListener('DOMContentLoaded', function() {
           var success = document.getElementById('cf-success');
           if (success) success.style.display = 'block';
           showToast(d.message || '✅ Message sent! I\'ll reply within 24 h.', 'success');
-          /* Scroll to success banner */
           success && success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
           var errs = d.errors || {};

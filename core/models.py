@@ -675,9 +675,25 @@ class SocialProof(TimeStampedModel):
         return f"{self.label}: {self.value}"
 
 
+# ─────────────────────────────────────────────
+# FIX: Removed auto_now_add=True from `date`.
+#
+# REASON: views.py calls
+#   AnalyticsSnapshot.objects.get_or_create(date=today)
+# in four places. Django's auto_now_add makes a field non-editable
+# and ignores any value you pass at creation time, meaning
+# get_or_create would always create a new row with today's date
+# set automatically — but the `date=today` kwarg is used for
+# the lookup AND the create, so Django raises a TypeError when
+# it tries to pass the value to an auto_now_add field.
+#
+# Fix: use default=timezone.now so the field is still populated
+# automatically on new rows but remains settable for lookups.
+# Run: python manage.py makemigrations && python manage.py migrate
+# ─────────────────────────────────────────────
 class AnalyticsSnapshot(models.Model):
     """Daily analytics snapshots"""
-    date = models.DateField(unique=True, auto_now_add=True)
+    date = models.DateField(unique=True, default=timezone.now)   # ← FIXED (was auto_now_add=True)
     page_views = models.IntegerField(default=0)
     unique_visitors = models.IntegerField(default=0)
     blog_views = models.IntegerField(default=0)
