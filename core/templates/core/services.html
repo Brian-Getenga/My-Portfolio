@@ -2,7 +2,7 @@
 {% load static %}
 {% load math_filters %}
 {% load custom_filters %}
-Z
+
 {% block title %}Services — {{ site_settings.site_name|default:"Brian Getenga" }}{% endblock %}
 {% block meta_description %}Professional web development services by Brian Getenga — Django, React, REST APIs, e-commerce, and more. Transparent pricing, rapid delivery.{% endblock %}
 
@@ -133,18 +133,31 @@ Z
   </div>
 </section>
 
-{# ══ STATS STRIP ═══════════════════════════════════════════════ #}
+{# ══ STATS STRIP — pulled from site_settings (services_view passes site_settings) ══ #}
 <div style="background:var(--bg-surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);transition:background .3s;">
   <div class="cx">
     <div id="svc-stats" style="display:grid;grid-template-columns:repeat(2,1fr);">
-      {% for stat in "Projects Shipped:40+||Happy Clients:20+||Years Experience:4+||On-time Delivery:98%"|split:"||" %}
-      {% with parts=stat|split:":" %}
-      <div style="padding:1.6rem 0;text-align:center;position:relative;">
-        <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,3.5vw,2.5rem);color:#eb5e28;display:block;line-height:1;">{{ parts.1 }}</span>
-        <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-top:.35rem;display:block;">{{ parts.0 }}</span>
+
+      <div style="padding:1.6rem 0;text-align:center;">
+        <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,3.5vw,2.5rem);color:#eb5e28;display:block;line-height:1;">{{ site_settings.total_projects|default:40 }}+</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-top:.35rem;display:block;">Projects Shipped</span>
       </div>
-      {% endwith %}
-      {% endfor %}
+
+      <div style="padding:1.6rem 0;text-align:center;">
+        <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,3.5vw,2.5rem);color:#eb5e28;display:block;line-height:1;">{{ site_settings.happy_clients|default:20 }}+</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-top:.35rem;display:block;">Happy Clients</span>
+      </div>
+
+      <div style="padding:1.6rem 0;text-align:center;">
+        <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,3.5vw,2.5rem);color:#eb5e28;display:block;line-height:1;">{{ site_settings.years_experience|default:4 }}+</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-top:.35rem;display:block;">Years Experience</span>
+      </div>
+
+      <div style="padding:1.6rem 0;text-align:center;">
+        <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.85rem,3.5vw,2.5rem);color:#eb5e28;display:block;line-height:1;">98%</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-top:.35rem;display:block;">On-time Delivery</span>
+      </div>
+
     </div>
   </div>
 </div>
@@ -173,7 +186,6 @@ Z
         <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.25rem;color:var(--text-primary);margin-bottom:.7rem;transition:color .3s;">{{ service.title }}</h3>
         <p style="font-family:'DM Sans',sans-serif;font-size:.875rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.25rem;flex:1;">{{ service.short_description }}</p>
 
-        {# Feature list #}
         {% if service.features %}
         <ul style="list-style:none;margin-bottom:1.4rem;" aria-label="Service features">
           {% for feature in service.features|split:"\n" %}
@@ -187,7 +199,6 @@ Z
         </ul>
         {% endif %}
 
-        {# Pricing + CTA #}
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;padding-top:1.1rem;border-top:1px solid var(--border);">
           <div>
             {% if service.starting_price %}
@@ -206,8 +217,7 @@ Z
         </div>
       </article>
       {% empty %}
-      {# Fallback cards #}
-      {% for svc in "Full Stack Web Development:fas fa-laptop-code:Django & React apps — from wireframe to deployment:5,Django REST API:fas fa-server:Scalable APIs with auth, docs &amp; tests:3,React Frontend:fas fa-paintbrush:Pixel-perfect UIs with modern React:2,E-Commerce:fas fa-shopping-cart:WooCommerce / custom Django shops:7,UI/UX Consulting:fas fa-eye:User research, prototypes &amp; design systems:1,DevOps &amp; Deployment:fas fa-cloud:CI/CD, Docker, VPS &amp; AWS setup:4"|split:"," %}
+      {% for svc in "Full Stack Development:fas fa-laptop-code:Django & React — from wireframe to deployment||Django REST API:fas fa-server:Scalable APIs with auth, docs & tests||React Frontend:fas fa-paintbrush:Pixel-perfect UIs with modern React||E-Commerce:fas fa-shopping-cart:Custom Django shops & WooCommerce||UI/UX Consulting:fas fa-eye:User research & design systems||DevOps & Deployment:fas fa-cloud:CI/CD, Docker, VPS & AWS setup"|split:"||" %}
       {% with parts=svc|split:":" %}
       <article class="svc-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
         <div class="svc-icon"><i class="{{ parts.1 }}" aria-hidden="true"></i></div>
@@ -239,12 +249,22 @@ Z
       <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text-muted);max-width:460px;margin:.75rem auto 0;line-height:1.75;">Technologies I reach for daily — chosen for reliability, performance, and developer experience.</p>
     </div>
 
+    {# services_view passes `skills` — show them, fall back to hardcoded list #}
     <div style="display:flex;flex-wrap:wrap;gap:.65rem;justify-content:center;" data-reveal>
-      {% for tech in "Python:fab fa-python,Django:fas fa-server,React:fab fa-react,JavaScript:fab fa-js,TypeScript:fas fa-code,PostgreSQL:fas fa-database,Redis:fas fa-database,Celery:fas fa-gears,Docker:fab fa-docker,AWS:fab fa-aws,Nginx:fas fa-server,Git:fab fa-git-alt,REST APIs:fas fa-plug,GraphQL:fas fa-project-diagram,Tailwind CSS:fas fa-palette,Next.js:fab fa-react"|split:"," %}
-      {% with parts=tech|split:":" %}
-      <span class="tech-badge"><i class="{{ parts.1 }}" aria-hidden="true"></i>{{ parts.0 }}</span>
-      {% endwith %}
-      {% endfor %}
+      {% if skills %}
+        {% for skill in skills %}
+        <span class="tech-badge">
+          {% if skill.icon_class %}<i class="{{ skill.icon_class }}" aria-hidden="true"></i>{% endif %}
+          {{ skill.name }}
+        </span>
+        {% endfor %}
+      {% else %}
+        {% for tech in "Python:fab fa-python,Django:fas fa-server,React:fab fa-react,JavaScript:fab fa-js,TypeScript:fas fa-code,PostgreSQL:fas fa-database,Redis:fas fa-database,Celery:fas fa-gears,Docker:fab fa-docker,AWS:fab fa-aws,Nginx:fas fa-server,Git:fab fa-git-alt,REST APIs:fas fa-plug,Tailwind CSS:fas fa-palette,Next.js:fab fa-react"|split:"," %}
+        {% with parts=tech|split:":" %}
+        <span class="tech-badge"><i class="{{ parts.1 }}" aria-hidden="true"></i>{{ parts.0 }}</span>
+        {% endwith %}
+        {% endfor %}
+      {% endif %}
     </div>
   </div>
 </section>
@@ -261,7 +281,7 @@ Z
     </div>
 
     <div id="process-grid" style="display:grid;grid-template-columns:1fr;gap:.85rem;">
-      {% for step in "Discovery &amp; Planning:fas fa-magnifying-glass:We align on goals, scope, timeline, and success metrics. I listen more than I talk.:1,Design &amp; Architecture:fas fa-pen-ruler:Wireframes, system design, database schema — the blueprint before any code.:2,Development:fas fa-code:Clean, well-tested code with regular check-ins and demos. No surprises.:3,Quality Assurance:fas fa-circle-check:Thorough testing — unit, integration, manual UAT — before anything goes live.:4,Deployment:fas fa-rocket:Zero-downtime deployment to your chosen infrastructure with full documentation.:5,Ongoing Support:fas fa-headset:Post-launch monitoring, bug fixes, and feature iterations whenever you need them.:6"|split:"," %}
+      {% for step in "Discovery & Planning:fas fa-magnifying-glass:We align on goals, scope, timeline, and success metrics.:1||Design & Architecture:fas fa-pen-ruler:Wireframes, system design, database schema — the blueprint before any code.:2||Development:fas fa-code:Clean, well-tested code with regular check-ins and demos. No surprises.:3||Quality Assurance:fas fa-circle-check:Thorough testing — unit, integration, manual UAT — before anything goes live.:4||Deployment:fas fa-rocket:Zero-downtime deployment to your chosen infrastructure with full documentation.:5||Ongoing Support:fas fa-headset:Post-launch monitoring, bug fixes, and feature iterations whenever you need them.:6"|split:"||" %}
       {% with parts=step|split:":" %}
       <div class="process-step" data-reveal data-reveal-delay="{{ forloop.counter }}">
         <div class="step-num" aria-hidden="true">{{ parts.3 }}</div>
@@ -312,7 +332,7 @@ Z
 {% endif %}
 
 {# ══ FAQ ═══════════════════════════════════════════════════════ #}
-<section style="padding:4.5rem 0;{% if not testimonials %}background:var(--bg-subtle);{% endif %}transition:background .3s;" aria-labelledby="faq-svc-heading">
+<section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s;" aria-labelledby="faq-svc-heading">
   <div class="cx">
     <div data-reveal style="text-align:center;margin-bottom:2.5rem;">
       <p class="eyebrow" style="justify-content:center;margin-bottom:.8rem;">FAQ</p>
@@ -321,7 +341,7 @@ Z
     <div style="display:flex;flex-direction:column;gap:.6rem;max-width:760px;margin:0 auto;">
       {% for faq in faqs %}
       <div class="faq-item" data-reveal data-reveal-delay="{{ forloop.counter }}">
-        <button class="faq-trigger" aria-expanded="false" aria-controls="sfaq-{{ forloop.counter }}" data-faq="s{{ forloop.counter }}">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="sfaq-{{ forloop.counter }}">
           <span>{{ faq.question }}</span>
           <i class="fas fa-plus faq-icon" aria-hidden="true"></i>
         </button>
@@ -330,11 +350,10 @@ Z
         </div>
       </div>
       {% empty %}
-      {# Built-in FAQ fallback #}
-      {% for qa in "What's your typical project timeline?:Timelines vary by scope — a landing page might take 1–2 weeks; a full SaaS product can take 2–4 months. We'll agree on a clear schedule upfront.,Do you work with international clients?:Absolutely. I work with clients across the US, UK, EU, and beyond. Remote-first is my default mode.,What information do you need to give me a quote?:A brief description of the project, rough timeline, and your budget range are enough to start. We'll refine scope together.,Do you offer maintenance after launch?:Yes — I offer monthly retainers for ongoing maintenance, updates, and feature additions.,What are your payment terms?:I typically require 50% upfront and 50% on delivery. Milestones can be arranged for larger projects.,Can I see your previous work?:Of course! Browse my Projects page for case studies with live demos and source code links."|split:"," %}
+      {% for qa in "What's your typical project timeline?:Timelines vary by scope — a landing page might take 1–2 weeks; a full SaaS product can take 2–4 months. We'll agree on a clear schedule upfront.||Do you work with international clients?:Absolutely. I work with clients across the US, UK, EU, and beyond. Remote-first is my default mode.||What are your payment terms?:I typically require 50% upfront and 50% on delivery. Milestones can be arranged for larger projects.||Do you offer maintenance after launch?:Yes — I offer monthly retainers for ongoing maintenance, updates, and feature additions.||Can I see your previous work?:Of course! Browse my Projects page for case studies with live demos and source code links.||How do I get started?:Just send me a message via the contact form. I'll reply within 24 hours with next steps."|split:"||" %}
       {% with parts=qa|split:":" %}
       <div class="faq-item" data-reveal>
-        <button class="faq-trigger" aria-expanded="false" aria-controls="sfaq-d-{{ forloop.counter }}" data-faq="sd{{ forloop.counter }}">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="sfaq-d-{{ forloop.counter }}">
           <span>{{ parts.0 }}</span>
           <i class="fas fa-plus faq-icon" aria-hidden="true"></i>
         </button>
@@ -380,13 +399,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /* FAQ accordion */
   document.querySelectorAll('.faq-trigger').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var id   = btn.dataset.faq;
-      var body = document.getElementById('sfaq-' + id) || document.getElementById('sfaq-d-' + id.replace('sd',''));
-      /* find the matching body by aria-controls */
-      var ctrl = btn.getAttribute('aria-controls');
+      var ctrl      = btn.getAttribute('aria-controls');
       var actualBody = document.getElementById(ctrl);
-      var icon = btn.querySelector('.faq-icon');
-      var wasOpen = actualBody && actualBody.classList.contains('open');
+      var icon      = btn.querySelector('.faq-icon');
+      var wasOpen   = actualBody && actualBody.classList.contains('open');
       /* collapse all */
       document.querySelectorAll('.faq-body').forEach(function (b) { b.classList.remove('open'); });
       document.querySelectorAll('.faq-trigger').forEach(function (t) {
@@ -398,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!wasOpen && actualBody) {
         actualBody.classList.add('open');
         btn.setAttribute('aria-expanded', 'true');
-        if (icon) { icon.className = 'fas fa-minus faq-icon'; icon.style.transform = 'rotate(45deg)'; }
+        if (icon) { icon.className = 'fas fa-minus faq-icon'; icon.style.transform = 'rotate(0deg)'; }
       }
     });
   });

@@ -40,6 +40,34 @@
   /* Interest chips */
   .interest-chip { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .9rem; border-radius:999px; background:var(--bg-muted); border:1px solid var(--border); font-family:'DM Sans',sans-serif; font-size:.82rem; color:var(--text-muted); transition:all .2s ease; }
   .interest-chip:hover { background:rgba(235,94,40,.08); border-color:rgba(235,94,40,.25); color:#eb5e28; }
+
+  /* Achievement enhanced */
+  .ach-card { position:relative; display:flex; flex-direction:column; gap:.75rem; padding:1.3rem 1.4rem; border-radius:16px; background:var(--bg-surface); border:1.5px solid var(--border); transition:all .25s cubic-bezier(.34,1.56,.64,1); overflow:hidden; }
+  .ach-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#eb5e28,rgba(235,94,40,.3)); transform:scaleX(0); transform-origin:left; transition:transform .3s ease; }
+  .ach-card:hover { border-color:rgba(235,94,40,.35); transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.08); }
+  .ach-card:hover::before { transform:scaleX(1); }
+  html.dark .ach-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.3); }
+
+  .ach-header { display:flex; align-items:flex-start; gap:1rem; }
+  .ach-icon { width:52px; height:52px; min-width:52px; border-radius:14px; background:linear-gradient(135deg,rgba(235,94,40,.15),rgba(235,94,40,.05)); border:1.5px solid rgba(235,94,40,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem; transition:all .25s ease; }
+  .ach-card:hover .ach-icon { background:linear-gradient(135deg,rgba(235,94,40,.25),rgba(235,94,40,.15)); transform:scale(1.05) rotate(3deg); }
+
+  .ach-content { flex:1; }
+  .ach-title { font-family:'Playfair Display',serif; font-weight:700; font-size:.96rem; color:var(--text-primary); margin:0; }
+  .ach-meta { display:flex; align-items:center; gap:.5rem; margin-top:.3rem; font-family:'DM Sans',sans-serif; font-size:.75rem; color:var(--text-faint); }
+  .ach-meta-badge { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .6rem; border-radius:6px; background:rgba(235,94,40,.08); border:1px solid rgba(235,94,40,.15); color:#eb5e28; font-weight:600; }
+
+  .ach-description { display:block; font-family:'DM Sans',sans-serif; font-size:.82rem; color:var(--text-muted); margin:0; line-height:1.5; }
+  .ach-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; padding-top:.75rem; border-top:1px dashed var(--border); }
+  .ach-tags { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .ach-tag { display:inline-flex; align-items:center; gap:.25rem; padding:.3rem .7rem; border-radius:8px; background:var(--bg-muted); border:1px solid var(--border); font-family:'Courier Prime',monospace; font-size:.65rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--text-faint); transition:all .2s ease; }
+  .ach-tag:hover { background:rgba(235,94,40,.1); border-color:rgba(235,94,40,.2); color:#eb5e28; }
+
+  .ach-verify { display:flex; align-items:center; gap:.35rem; font-family:'DM Sans',sans-serif; font-size:.7rem; font-weight:700; color:#10b981; text-transform:uppercase; letter-spacing:.05em; }
+  .ach-verify-icon { width:16px; height:16px; border-radius:50%; background:rgba(16,185,129,.15); border:1.5px solid #10b981; display:flex; align-items:center; justify-content:center; font-size:.5rem; }
+
+  .ach-year { font-family:'Courier Prime',monospace; font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); }
+  .ach-category { font-family:'DM Sans',sans-serif; font-size:.7rem; font-weight:600; padding:.35rem .7rem; border-radius:6px; background:rgba(235,94,40,.06); color:#eb5e28; border:1px solid rgba(235,94,40,.12); display:inline-block; }
 </style>
 {% endblock %}
 
@@ -78,20 +106,20 @@
           {% endif %}
         </div>
 
-        {# Quick facts #}
+        {# ── Quick facts: pull from site_settings, falling back to sensible defaults ── #}
         <div style="display:flex;flex-wrap:wrap;gap:1.5rem;">
           <div>
-            <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:2rem;color:#eb5e28;display:block;line-height:1;">{{ stats.years_experience|default:4 }}+</span>
+            <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:2rem;color:#eb5e28;display:block;line-height:1;">{{ site_settings.years_experience|default:4 }}+</span>
             <span style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);">Years Experience</span>
           </div>
           <div style="width:1px;background:var(--border);"></div>
           <div>
-            <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:2rem;color:#eb5e28;display:block;line-height:1;">{{ stats.total_projects|default:40 }}+</span>
+            <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:2rem;color:#eb5e28;display:block;line-height:1;">{{ site_settings.total_projects|default:40 }}+</span>
             <span style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);">Projects Built</span>
           </div>
           <div style="width:1px;background:var(--border);"></div>
           <div>
-            <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:2rem;color:#eb5e28;display:block;line-height:1;">{{ stats.total_clients|default:20 }}+</span>
+            <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:2rem;color:#eb5e28;display:block;line-height:1;">{{ site_settings.happy_clients|default:20 }}+</span>
             <span style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);">Happy Clients</span>
           </div>
         </div>
@@ -236,12 +264,12 @@
       <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.75rem,3.5vw,2.6rem);color:var(--text-primary);">Technical <em style="font-style:italic;color:#eb5e28;">Skills</em></h2>
     </div>
     <div id="skills-about-grid" style="display:grid;grid-template-columns:1fr;gap:2rem;">
-      {% regroup skills by get_category_display as skill_groups %}
-      {% for group in skill_groups %}
+      {# skills_grouped is passed by about_view as {display_name: [skill, ...]} #}
+      {% for category_name, skill_list in skills_grouped.items %}
       <div data-reveal>
-        <h3 style="font-family:'Courier Prime',monospace;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-faint);margin-bottom:1rem;">{{ group.grouper }}</h3>
+        <h3 style="font-family:'Courier Prime',monospace;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-faint);margin-bottom:1rem;">{{ category_name }}</h3>
         <div>
-          {% for skill in group.list %}
+          {% for skill in skill_list %}
           <div class="skill-row">
             <div style="display:flex;align-items:center;gap:.65rem;width:160px;flex-shrink:0;">
               {% if skill.icon_image %}
@@ -268,31 +296,71 @@
 
 {# ── ACHIEVEMENTS ──────────────────────────────────── #}
 {% if achievements %}
-<section style="padding:4.5rem 0;">
+<section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s ease;">
   <div class="cx">
     <div data-reveal style="margin-bottom:2.5rem;">
       <p class="eyebrow" style="margin-bottom:.8rem;">Milestones</p>
       <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.75rem,3.5vw,2.6rem);color:var(--text-primary);">Achievements &amp; <em style="font-style:italic;color:#eb5e28;">Recognition</em></h2>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-muted);margin-top:.75rem;max-width:580px;">Notable milestones, certifications, and recognitions from across my career and community involvement.</p>
     </div>
-    <div id="ach-grid" style="display:grid;grid-template-columns:1fr;gap:.9rem;">
+    <div id="ach-grid" style="display:grid;grid-template-columns:1fr;gap:1.1rem;">
       {% for ach in achievements %}
-      <div style="display:flex;align-items:center;gap:.85rem;padding:1rem 1.1rem;border-radius:14px;background:var(--bg-surface);border:1px solid var(--border);transition:all .22s ease;" data-reveal data-reveal-delay="{{ forloop.counter }}"
-           onmouseover="this.style.borderColor='rgba(235,94,40,.28)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
-        <div style="width:46px;height:46px;border-radius:12px;background:rgba(235,94,40,.1);border:1px solid rgba(235,94,40,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;">{{ ach.icon|default:"🏆" }}</div>
-        <div style="flex:1;">
-          <h4 style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.92rem;color:var(--text-primary);">{{ ach.title }}</h4>
-          {% if ach.description %}<p style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);margin-top:.1rem;">{{ ach.description }}</p>{% endif %}
+      <div class="ach-card" data-reveal data-reveal-delay="{{ forloop.counter }}">
+        <div class="ach-header">
+          <div class="ach-icon">
+            {% if ach.icon %}
+              {% if "fa-" in ach.icon or "fas " in ach.icon %}
+                <i class="{{ ach.icon }}"></i>
+              {% else %}
+                {{ ach.icon }}
+              {% endif %}
+            {% else %}
+              🏆
+            {% endif %}
+          </div>
+          <div style="flex:1;">
+            <h4 class="ach-title">{{ ach.title }}</h4>
+            {% if ach.category %}
+            <div class="ach-meta">
+              <span class="ach-category">{{ ach.get_category_display }}</span>
+              {% if ach.date_achieved %}<span class="ach-year">{{ ach.date_achieved|date:"Y" }}</span>{% endif %}
+              {% if ach.is_verified %}<span class="ach-verify"><span class="ach-verify-icon">✓</span>Verified</span>{% endif %}
+            </div>
+            {% else %}
+            <div class="ach-meta">
+              {% if ach.date_achieved %}<span class="ach-year">{{ ach.date_achieved|date:"Y" }}</span>{% endif %}
+              {% if ach.is_verified %}<span class="ach-verify"><span class="ach-verify-icon">✓</span>Verified</span>{% endif %}
+            </div>
+            {% endif %}
+          </div>
         </div>
-        {% if ach.date_achieved %}<span style="font-family:'Courier Prime',monospace;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);flex-shrink:0;">{{ ach.date_achieved|date:"Y" }}</span>{% endif %}
+        {% if ach.description %}
+        <p class="ach-description">{{ ach.description }}</p>
+        {% endif %}
+        {% if ach.issuer or ach.tags_text %}
+        <div class="ach-footer">
+          {% if ach.issuer %}<span class="ach-meta-badge">{{ ach.issuer }}</span>{% endif %}
+          {% if ach.tags_text %}
+          <div class="ach-tags">
+            {% for tag in ach.tags_text|split:"," %}
+            <span class="ach-tag">#{{ tag|trim }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
   </div>
 </section>
-<style> @media(min-width:640px){ #ach-grid{grid-template-columns:repeat(2,1fr)!important;} } @media(min-width:1024px){ #ach-grid{grid-template-columns:repeat(3,1fr)!important;} } </style>
+<style>
+  @media(min-width:640px){ #ach-grid{grid-template-columns:repeat(2,1fr)!important;} }
+  @media(min-width:1024px){ #ach-grid{grid-template-columns:repeat(3,1fr)!important;} }
+</style>
 {% endif %}
 
-{# ── TESTIMONIALS ──────────────────────────────────── #}
+{# ── TESTIMONIALS (only shows when testimonials passed in context) ── #}
 {% if testimonials %}
 <section style="padding:4.5rem 0;background:var(--bg-subtle);transition:background .3s ease;">
   <div class="cx">
@@ -378,7 +446,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Skill bar animation
   var bars = document.querySelectorAll('.skill-bar-fg');
   if (bars.length) {
     var obs = new IntersectionObserver(function(entries) {
@@ -391,9 +458,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { threshold: .3 });
     bars.forEach(function(b) { obs.observe(b); });
   }
-
-  // Quick facts — parse the "Key:Value,..." string approach
-  // (Quick facts are rendered inline above via template)
 });
 </script>
 {% endblock %}

@@ -7,31 +7,121 @@
 {% block meta_description %}Browse all projects by Brian Getenga — full-stack web apps, Django APIs, React frontends, and more.{% endblock %}
 
 {% block extra_head %}
+{# CSRF meta tag for AJAX requests #}
+<meta name="csrf-token" content="{{ csrf_token }}">
+
 <style>
-  .proj-card { background:var(--bg-surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:box-shadow .3s,transform .3s cubic-bezier(.34,1.56,.64,1),border-color .25s; }
-  .proj-card:hover { box-shadow:var(--shadow-xl);transform:translateY(-5px);border-color:rgba(235,94,40,.28); }
-  .proj-img-wrap { position:relative;aspect-ratio:16/9;overflow:hidden; }
-  .proj-img-wrap img { width:100%;height:100%;object-fit:cover;transition:transform .55s; }
-  .proj-card:hover .proj-img-wrap img { transform:scale(1.06); }
-  .proj-overlay { position:absolute;inset:0;background:linear-gradient(to top,rgba(37,36,34,.88) 0%,rgba(37,36,34,.4) 50%,transparent 100%);opacity:0;transition:opacity .3s; }
+  /* ── Project Card Grid View ─────────────── */
+  .proj-card { background:var(--bg-surface); border:1.5px solid var(--border); border-radius:18px; overflow:hidden; transition:box-shadow .3s cubic-bezier(.34,1.56,.64,1), transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s; }
+  .proj-card:hover { box-shadow:0 12px 40px rgba(0,0,0,.12); transform:translateY(-6px); border-color:rgba(235,94,40,.3); }
+  html.dark .proj-card:hover { box-shadow:0 12px 40px rgba(0,0,0,.4); }
+
+  .proj-img-wrap { position:relative; aspect-ratio:16/9; overflow:hidden; background:var(--bg-muted); }
+  .proj-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .55s cubic-bezier(.22,1,.36,1); }
+  .proj-card:hover .proj-img-wrap img { transform:scale(1.08); }
+
+  .proj-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(37,36,34,.9) 0%,rgba(37,36,34,.5) 40%,transparent 100%); opacity:0; transition:opacity .3s; }
   .proj-card:hover .proj-overlay { opacity:1; }
-  .proj-actions { position:absolute;bottom:.9rem;left:.9rem;right:.9rem;display:flex;gap:.45rem;transform:translateY(8px);opacity:0;transition:transform .3s,opacity .3s; }
-  .proj-card:hover .proj-actions { transform:none;opacity:1; }
-  .filter-pill { padding:.42rem .9rem;border-radius:999px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;white-space:nowrap; }
-  .filter-pill:hover { border-color:rgba(235,94,40,.3);color:#eb5e28; }
-  .filter-pill.active { background:#eb5e28;border-color:#eb5e28;color:#fff; }
-  .view-btn { width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:all .2s; }
-  .view-btn.active { background:#eb5e28;border-color:#eb5e28;color:#fff; }
-  .view-btn:hover:not(.active) { border-color:rgba(235,94,40,.3);color:#eb5e28; }
-  .proj-list-card { display:flex;gap:1.25rem;align-items:flex-start;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;transition:all .25s; }
-  .proj-list-card:hover { border-color:rgba(235,94,40,.28);box-shadow:var(--shadow-md);transform:translateX(4px); }
-  .proj-list-img { width:130px;height:96px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--bg-muted); }
-  .sort-select { padding:.42rem .85rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-surface);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;outline:none;transition:border-color .2s,background .3s; }
-  .sort-select:focus { border-color:#eb5e28; }
-  .page-btn { width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;transition:all .2s; }
-  .page-btn:hover:not(.active):not(.disabled) { border-color:rgba(235,94,40,.3);color:#eb5e28; }
-  .page-btn.active { background:#eb5e28;border-color:#eb5e28;color:#fff; }
-  .page-btn.disabled { opacity:.4;cursor:not-allowed;pointer-events:none; }
+
+  .proj-badges { position:absolute; top:.9rem; left:.9rem; right:.9rem; display:flex; flex-wrap:wrap; gap:.5rem; }
+  .proj-badge { font-family:'Courier Prime',monospace; font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:.3rem .7rem; border-radius:6px; background:rgba(255,252,242,.15); backdrop-filter:blur(10px); color:rgba(255,252,242,.95); border:1px solid rgba(255,252,242,.2); transition:all .2s; }
+  .proj-badge.featured { background:#eb5e28; border-color:#eb5e28; }
+
+  .proj-actions { position:absolute; bottom:.9rem; left:.9rem; right:.9rem; display:flex; gap:.5rem; transform:translateY(12px); opacity:0; transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; }
+  .proj-card:hover .proj-actions { transform:none; opacity:1; }
+  .proj-actions .btn { flex:1; font-size:.75rem; padding:.55rem; }
+
+  .proj-content { padding:1.4rem; }
+  .proj-tech-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.9rem; }
+  .proj-tech-tag { font-family:'Courier Prime',monospace; font-size:.63rem; font-weight:700; padding:.25rem .6rem; border-radius:6px; background:var(--bg-muted); color:var(--text-muted); border:1px solid var(--border); transition:all .2s; }
+  .proj-tech-tag:hover { background:rgba(235,94,40,.1); color:#eb5e28; border-color:rgba(235,94,40,.25); }
+
+  .proj-title { font-family:'Playfair Display',serif; font-weight:700; font-size:1.2rem; color:var(--text-primary); margin-bottom:.5rem; line-height:1.25; }
+  .proj-title a { color:inherit; text-decoration:none; transition:color .2s; }
+  .proj-title a:hover { color:#eb5e28; }
+
+  .proj-desc { font-family:'DM Sans',sans-serif; font-size:.875rem; color:var(--text-muted); line-height:1.7; margin-bottom:.9rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  .proj-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.7rem; padding-top:.9rem; border-top:1px solid var(--border); }
+  .proj-stats { display:flex; gap:1rem; }
+  .proj-stat { display:flex; align-items:center; gap:.35rem; font-family:'DM Sans',sans-serif; font-size:.78rem; color:var(--text-faint); transition:color .2s; }
+  .proj-stat i { font-size:.68rem; }
+  .proj-like-btn { background:none; border:none; cursor:pointer; padding:0; transition:color .2s; }
+  .proj-like-btn:hover { color:#eb5e28; }
+
+  .proj-cta { font-family:'DM Sans',sans-serif; font-size:.8rem; font-weight:700; color:#eb5e28; text-decoration:none; display:flex; align-items:center; gap:.35rem; transition:gap .2s; }
+  .proj-cta:hover { gap:.6rem; }
+
+  /* ── Project Card List View ─────────────── */
+  .proj-list { display:flex; flex-direction:column; gap:1rem; }
+
+  .proj-list-card { display:flex; gap:1.4rem; align-items:flex-start; background:var(--bg-surface); border:1.5px solid var(--border); border-radius:16px; padding:1.3rem; transition:all .25s cubic-bezier(.34,1.56,.64,1); }
+  .proj-list-card:hover { border-color:rgba(235,94,40,.3); box-shadow:0 8px 24px rgba(0,0,0,.08); transform:translateX(4px); }
+  html.dark .proj-list-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.3); }
+
+  .proj-list-img { width:140px; height:100px; border-radius:12px; object-fit:cover; flex-shrink:0; background:var(--bg-muted); border:1px solid var(--border); }
+
+  .proj-list-content { flex:1; min-width:0; }
+  .proj-list-meta { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-bottom:.6rem; }
+  .proj-list-badge { font-family:'Courier Prime',monospace; font-size:.63rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:.28rem .65rem; border-radius:6px; background:rgba(235,94,40,.1); color:#eb5e28; border:1px solid rgba(235,94,40,.2); transition:all .2s; }
+  .proj-list-badge.featured { background:#eb5e28; color:#fff; border-color:#eb5e28; }
+
+  .proj-list-title { font-family:'Playfair Display',serif; font-weight:700; font-size:1.15rem; color:var(--text-primary); margin-bottom:.35rem; }
+  .proj-list-title a { color:inherit; text-decoration:none; transition:color .2s; }
+  .proj-list-title a:hover { color:#eb5e28; }
+
+  .proj-list-desc { font-family:'DM Sans',sans-serif; font-size:.85rem; color:var(--text-muted); line-height:1.65; margin-bottom:.7rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  .proj-list-tech { display:flex; flex-wrap:wrap; gap:.35rem; }
+  .proj-list-tech-tag { font-family:'Courier Prime',monospace; font-size:.6rem; font-weight:700; padding:.22rem .55rem; border-radius:5px; background:var(--bg-muted); color:var(--text-faint); border:1px solid var(--border); }
+
+  .proj-list-actions { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:1rem; }
+  .proj-list-stats { display:flex; gap:1rem; }
+  .proj-list-stat { display:flex; align-items:center; gap:.3rem; font-family:'DM Sans',sans-serif; font-size:.75rem; color:var(--text-faint); }
+  .proj-list-stat i { font-size:.65rem; }
+
+  /* ── Filters and Controls ───────────────── */
+  .filter-controls { display:flex; flex-wrap:wrap; align-items:center; gap:1rem; margin-bottom:2rem; background:var(--bg-surface); border:1px solid var(--border); border-radius:14px; padding:1rem; }
+
+  .filter-group { display:flex; flex-wrap:wrap; gap:.5rem; flex:1; }
+  .filter-pill { padding:.45rem 1rem; border-radius:999px; font-family:'DM Sans',sans-serif; font-size:.8rem; font-weight:700; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all .25s; white-space:nowrap; }
+  .filter-pill:hover { border-color:rgba(235,94,40,.4); color:#eb5e28; }
+  .filter-pill.active { background:#eb5e28; border-color:#eb5e28; color:#fff; transform:scale(1.05); }
+  .filter-pill span { font-size:.65rem; opacity:.8; margin-left:.35rem; }
+
+  .sort-select { padding:.45rem .9rem; border-radius:8px; border:1.5px solid var(--border); background:var(--bg-surface); color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:.8rem; font-weight:600; cursor:pointer; outline:none; transition:all .2s; }
+  .sort-select:hover { border-color:rgba(235,94,40,.3); }
+  .sort-select:focus { border-color:#eb5e28; box-shadow:0 0 0 3px rgba(235,94,40,.1); }
+
+  .view-toggle { display:flex; gap:.35rem; background:var(--bg-muted); border-radius:8px; padding:.25rem; }
+  .view-btn { width:38px; height:38px; border-radius:6px; border:none; background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.82rem; transition:all .2s; }
+  .view-btn:hover { color:#eb5e28; }
+  .view-btn.active { background:#eb5e28; color:#fff; }
+
+  /* ── Empty State ────────────────────────── */
+  .empty-state { text-align:center; padding:4rem 2rem; background:var(--bg-surface); border:1.5px dashed var(--border); border-radius:18px; }
+  .empty-state-icon { font-size:3rem; color:rgba(235,94,40,.3); margin-bottom:1.2rem; display:block; }
+  .empty-state-title { font-family:'Playfair Display',serif; font-weight:700; font-size:1.35rem; color:var(--text-primary); margin-bottom:.6rem; }
+  .empty-state-text { font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--text-muted); margin-bottom:1.5rem; }
+
+  /* ── Pagination ─────────────────────────── */
+  .pagination { display:flex; align-items:center; justify-content:center; gap:.5rem; margin-top:3.5rem; flex-wrap:wrap; }
+  .page-btn { width:38px; height:38px; border-radius:8px; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:700; text-decoration:none; transition:all .2s; }
+  .page-btn:hover:not(.active):not(.disabled) { border-color:rgba(235,94,40,.3); color:#eb5e28; }
+  .page-btn.active { background:#eb5e28; border-color:#eb5e28; color:#fff; }
+  .page-btn.disabled { opacity:.5; cursor:not-allowed; pointer-events:none; }
+  .page-dots { color:var(--text-faint); }
+
+  /* ── Responsive ─────────────────────────── */
+  @media(max-width:768px) {
+    .proj-list-card { flex-direction:column; }
+    .proj-list-img { width:100%; height:200px; }
+    .proj-list-actions { flex-direction:row; align-items:center; justify-content:space-between; }
+    .filter-controls { flex-direction:column; align-items:stretch; }
+    .filter-group { order:1; }
+  }
+  @media(min-width:640px)  { #proj-grid { grid-template-columns:repeat(2,1fr) !important; } }
+  @media(min-width:1024px) { #proj-grid { grid-template-columns:repeat(3,1fr) !important; } }
 </style>
 {% endblock %}
 
@@ -42,11 +132,16 @@
   <div class="cx" style="padding-top:.75rem;padding-bottom:.75rem;">
     <ol style="display:flex;align-items:center;gap:.5rem;list-style:none;flex-wrap:wrap;" itemscope itemtype="https://schema.org/BreadcrumbList">
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a itemprop="item" href="{% url 'home' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'"><i class="fas fa-house" style="font-size:.7rem;"></i><span itemprop="name" class="sr-only">Home</span></a><meta itemprop="position" content="1">
+        <a itemprop="item" href="{% url 'home' %}" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-faint);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'">
+          <i class="fas fa-house" style="font-size:.7rem;" aria-hidden="true"></i>
+          <span itemprop="name" class="sr-only">Home</span>
+        </a>
+        <meta itemprop="position" content="1">
       </li>
       <li aria-hidden="true" style="color:var(--border-strong);font-size:.75rem;">/</li>
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <span itemprop="name" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:#eb5e28;font-weight:600;">Projects</span><meta itemprop="position" content="2">
+        <span itemprop="name" style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:#eb5e28;font-weight:600;">Projects</span>
+        <meta itemprop="position" content="2">
       </li>
     </ol>
   </div>
@@ -59,13 +154,28 @@
       <div data-reveal>
         <p class="eyebrow" style="margin-bottom:.8rem;">Portfolio</p>
         <h1 style="font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.5rem);color:var(--text-primary);line-height:1.06;transition:color .3s;">Things I've <em style="font-style:italic;color:#eb5e28;">Built</em></h1>
-        <p style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-muted);max-width:500px;margin-top:.75rem;line-height:1.75;">{{ projects.paginator.count|default:0 }} project{{ projects.paginator.count|default:0|pluralize }} — from side experiments to full commercial products.</p>
+        <p style="font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text-muted);max-width:500px;margin-top:.75rem;line-height:1.75;">
+          {# Use paginator.count if available, else total_count from view context #}
+          {% if projects.paginator %}
+            {{ projects.paginator.count }} project{{ projects.paginator.count|pluralize }}
+          {% elif total_count is not None %}
+            {{ total_count }} project{{ total_count|pluralize }}
+          {% else %}
+            Projects
+          {% endif %}
+          — from side experiments to full commercial products.
+        </p>
       </div>
       <div data-reveal data-reveal-delay="2" style="flex:1;max-width:300px;min-width:180px;">
         <form action="{% url 'projects' %}" method="GET" role="search">
+          {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+          {% if request.GET.category and request.GET.category != 'all' %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
           <div style="position:relative;">
             <i class="fas fa-search" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;" aria-hidden="true"></i>
-            <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search projects…" style="width:100%;padding:.65rem .9rem .65rem 2.5rem;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text-primary);outline:none;transition:border-color .2s,background .3s;" onfocus="this.style.borderColor='#eb5e28'" onblur="this.style.borderColor='var(--border)'" aria-label="Search projects">
+            <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search projects…"
+                   style="width:100%;padding:.65rem .9rem .65rem 2.5rem;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text-primary);outline:none;transition:border-color .2s,background .3s;"
+                   onfocus="this.style.borderColor='#eb5e28'" onblur="this.style.borderColor='var(--border)'"
+                   aria-label="Search projects">
           </div>
         </form>
       </div>
@@ -77,144 +187,314 @@
 <section style="padding:1.25rem 0 5rem;background:var(--bg-subtle);transition:background .3s;">
   <div class="cx">
 
-    {# Controls #}
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-bottom:1.75rem;">
-      <div id="filter-pills" style="display:flex;flex-wrap:wrap;gap:.45rem;flex:1;" role="group" aria-label="Filter by category">
-        <button class="filter-pill active" data-filter="all" type="button">All <span style="font-size:.6rem;margin-left:.2rem;">({{ projects.paginator.count|default:0 }})</span></button>
-        {% for cat in categories %}<button class="filter-pill" data-filter="{{ cat.slug }}" type="button">{{ cat.name }} <span style="font-size:.6rem;margin-left:.2rem;">({{ cat.count }})</span></button>{% endfor %}
+    {# ── Filter + Sort Controls ── #}
+    <div class="filter-controls">
+      {# Category filter pills — server-side via URL, enhanced with JS #}
+      <div class="filter-group" id="filter-pills" role="group" aria-label="Filter projects by category">
+        <button class="filter-pill {% if not request.GET.category or request.GET.category == 'all' %}active{% endif %}"
+                data-filter="all" type="button">
+          All
+          <span>
+            ({% if projects.paginator %}{{ projects.paginator.count }}{% elif total_count is not None %}{{ total_count }}{% else %}—{% endif %})
+          </span>
+        </button>
+        {% for cat in categories %}
+        <button class="filter-pill {% if request.GET.category == cat.slug %}active{% endif %}"
+                data-filter="{{ cat.slug }}" type="button">
+          {{ cat.name }}
+          <span>({{ cat.count }})</span>
+        </button>
+        {% endfor %}
       </div>
-      <select class="sort-select" id="sort-select" aria-label="Sort projects">
-        <option value="newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest</option>
+
+      <select class="sort-select" id="sort-select" aria-label="Sort projects by">
+        <option value="newest"  {% if request.GET.sort == 'newest'  or not request.GET.sort %}selected{% endif %}>Newest</option>
         <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Viewed</option>
-        <option value="liked" {% if request.GET.sort == 'liked' %}selected{% endif %}>Most Liked</option>
-        <option value="oldest" {% if request.GET.sort == 'oldest' %}selected{% endif %}>Oldest</option>
+        <option value="liked"   {% if request.GET.sort == 'liked'   %}selected{% endif %}>Most Liked</option>
+        <option value="oldest"  {% if request.GET.sort == 'oldest'  %}selected{% endif %}>Oldest</option>
       </select>
-      <div style="display:flex;gap:.4rem;" role="group" aria-label="View layout">
-        <button class="view-btn active" id="grid-btn" type="button" title="Grid view" aria-pressed="true"><i class="fas fa-grip" aria-hidden="true"></i></button>
-        <button class="view-btn" id="list-btn" type="button" title="List view" aria-pressed="false"><i class="fas fa-list" aria-hidden="true"></i></button>
+
+      <div class="view-toggle" role="group" aria-label="View layout">
+        <button class="view-btn active" id="grid-btn" type="button" title="Grid view" aria-pressed="true">
+          <i class="fas fa-grip" aria-hidden="true"></i><span class="sr-only">Grid</span>
+        </button>
+        <button class="view-btn" id="list-btn" type="button" title="List view" aria-pressed="false">
+          <i class="fas fa-list" aria-hidden="true"></i><span class="sr-only">List</span>
+        </button>
       </div>
     </div>
 
-    {# Grid view #}
-    <div id="proj-grid" style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+    {# ── Grid view ── #}
+    <div id="proj-grid" style="display:grid;grid-template-columns:1fr;gap:1.6rem;">
       {% for project in projects %}
-      <article class="proj-card" data-cat="{{ project.category }}" data-reveal data-reveal-delay="{{ forloop.counter0|add:1 }}">
+      <article class="proj-card"
+               data-cat="{{ project.category }}"
+               data-reveal data-reveal-delay="{{ forloop.counter0|add:1 }}">
         <div class="proj-img-wrap">
-          {% if project.featured_image %}<img src="{{ project.featured_image.url }}" alt="{{ project.title }}" loading="lazy">
-          {% else %}<div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(235,94,40,.14),rgba(202,71,19,.06));display:flex;align-items:center;justify-content:center;"><i class="fas fa-code" style="font-size:2.25rem;color:rgba(235,94,40,.38);"></i></div>{% endif %}
+          {% if project.featured_image %}
+            <img src="{{ project.featured_image.url }}" alt="{{ project.title }}" loading="lazy">
+          {% else %}
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(235,94,40,.14),rgba(202,71,19,.06));display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-images" style="font-size:2.5rem;color:rgba(235,94,40,.35);" aria-hidden="true"></i>
+            </div>
+          {% endif %}
           <div class="proj-overlay" aria-hidden="true"></div>
-          <span style="position:absolute;top:.8rem;left:.8rem;font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .65rem;border-radius:6px;background:rgba(255,252,242,.12);backdrop-filter:blur(8px);color:rgba(255,252,242,.9);border:1px solid rgba(255,252,242,.15);">{{ project.get_category_display }}</span>
-          {% if project.is_featured %}<span style="position:absolute;top:.8rem;right:.8rem;background:#eb5e28;color:#fff;font-family:'Courier Prime',monospace;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .58rem;border-radius:5px;">Featured</span>{% endif %}
+          <div class="proj-badges">
+            <span class="proj-badge">{{ project.get_category_display }}</span>
+            {% if project.is_featured %}<span class="proj-badge featured">⭐ Featured</span>{% endif %}
+          </div>
           <div class="proj-actions">
-            {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;padding:.5rem;" aria-label="Live demo"><i class="fas fa-globe" style="font-size:.7rem;"></i> Live</a>{% endif %}
-            {% if project.github_url %}<a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="flex:1;justify-content:center;padding:.5rem;background:rgba(37,36,34,.7);border:1px solid rgba(255,252,242,.2);color:#fffcf2;" aria-label="Source code"><i class="fab fa-github" style="font-size:.7rem;"></i> Code</a>{% endif %}
+            {% if project.live_url %}
+            <a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" aria-label="View live demo">
+              <i class="fas fa-globe" style="font-size:.7rem;" aria-hidden="true"></i> Live
+            </a>
+            {% endif %}
+            {% if project.github_url %}
+            <a href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:rgba(37,36,34,.7);border:1px solid rgba(255,252,242,.2);color:#fffcf2;" aria-label="View source code">
+              <i class="fab fa-github" style="font-size:.7rem;" aria-hidden="true"></i> Code
+            </a>
+            {% endif %}
           </div>
         </div>
-        <div style="padding:1.3rem;">
-          <div style="display:flex;flex-wrap:wrap;gap:.32rem;margin-bottom:.85rem;">
-            {% for tech in project.tech_list|slice:":4" %}<span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;padding:.22rem .52rem;border-radius:5px;background:var(--bg-muted);color:var(--text-muted);border:1px solid var(--border);">{{ tech }}</span>{% endfor %}
-            {% if project.tech_list|length > 4 %}<span style="font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--text-faint);align-self:center;">+{{ project.tech_list|length|add:"-4" }}</span>{% endif %}
+        <div class="proj-content">
+          {% if project.tech_list %}
+          <div class="proj-tech-tags">
+            {% for tech in project.tech_list|slice:":4" %}
+              <span class="proj-tech-tag">{{ tech }}</span>
+            {% endfor %}
+            {% if project.tech_list|length > 4 %}
+              <span style="font-family:'DM Sans',sans-serif;font-size:.75rem;color:var(--text-faint);align-self:center;">+{{ project.tech_list|length|add:"-4" }}</span>
+            {% endif %}
           </div>
-          <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.15rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.2;">
-            <a href="{{ project.get_absolute_url }}" style="text-decoration:none;color:inherit;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='inherit'">{{ project.title }}</a>
+          {% endif %}
+          <h2 class="proj-title">
+            <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
           </h2>
-          <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.68;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ project.description }}</p>
-          <div style="margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
-            <div style="display:flex;gap:.85rem;">
-              <span style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);display:flex;align-items:center;gap:.3rem;" aria-label="{{ project.views }} views"><i class="fas fa-eye" style="font-size:.62rem;" aria-hidden="true"></i>{{ project.views }}</span>
-              <button data-like-project="{{ project.slug }}" style="font-family:'DM Sans',sans-serif;font-size:.74rem;color:var(--text-faint);display:flex;align-items:center;gap:.3rem;background:none;border:none;cursor:pointer;transition:color .2s;padding:0;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'" aria-label="Like {{ project.title }}"><i class="fas fa-heart" style="font-size:.62rem;" aria-hidden="true"></i><span class="like-count">{{ project.likes }}</span></button>
+          <p class="proj-desc">{{ project.description }}</p>
+          <div class="proj-footer">
+            <div class="proj-stats">
+              <span class="proj-stat" aria-label="{{ project.views }} views">
+                <i class="fas fa-eye" aria-hidden="true"></i>{{ project.views|default:0 }}
+              </span>
+              <button class="proj-like-btn proj-stat"
+                      data-like-project="{{ project.slug }}"
+                      data-like-url="{% url 'project_like' project.slug %}"
+                      aria-label="Like {{ project.title }}">
+                <i class="fas fa-heart" aria-hidden="true"></i>
+                <span class="like-count">{{ project.likes|default:0 }}</span>
+              </button>
             </div>
-            <a href="{{ project.get_absolute_url }}" style="font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;color:#eb5e28;text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:gap .2s;" onmouseover="this.style.gap='.55rem'" onmouseout="this.style.gap='.3rem'">Case Study <i class="fas fa-arrow-right" style="font-size:.62rem;" aria-hidden="true"></i></a>
+            <a href="{{ project.get_absolute_url }}" class="proj-cta">
+              Case Study <i class="fas fa-arrow-right" style="font-size:.65rem;" aria-hidden="true"></i>
+            </a>
           </div>
         </div>
       </article>
       {% empty %}
-      <div style="text-align:center;padding:4rem 2rem;background:var(--bg-surface);border:1px solid var(--border);border-radius:20px;grid-column:1/-1;" data-reveal>
-        <i class="fas fa-code" style="font-size:2.5rem;color:rgba(235,94,40,.3);margin-bottom:1rem;display:block;" aria-hidden="true"></i>
-        <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.2rem;color:var(--text-primary);margin-bottom:.5rem;">No projects found</h3>
-        <p style="font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text-muted);margin-bottom:1.25rem;">{% if request.GET.q %}No projects match "{{ request.GET.q }}".{% else %}Projects are coming soon.{% endif %}</p>
-        {% if request.GET.q %}<a href="{% url 'projects' %}" class="btn btn-primary btn-sm">Clear Search</a>{% endif %}
+      <div class="empty-state" style="grid-column:1/-1;" data-reveal>
+        <i class="fas fa-folder-open empty-state-icon" aria-hidden="true"></i>
+        <h3 class="empty-state-title">No projects found</h3>
+        <p class="empty-state-text">
+          {% if request.GET.q %}
+            No projects match "{{ request.GET.q }}". Try a different search term.
+          {% elif request.GET.category and request.GET.category != 'all' %}
+            No projects in this category yet.
+          {% else %}
+            Check back soon for new project showcases.
+          {% endif %}
+        </p>
+        {% if request.GET.q or request.GET.category %}
+          <a href="{% url 'projects' %}" class="btn btn-primary btn-sm">Clear Filters</a>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
 
-    {# List view (hidden) #}
-    <div id="proj-list" style="display:none;flex-direction:column;gap:.85rem;">
+    {# ── List view (hidden by default, shown via JS toggle) ── #}
+    <div id="proj-list" class="proj-list" style="display:none;">
       {% for project in projects %}
       <article class="proj-list-card" data-cat="{{ project.category }}">
-        {% if project.featured_image %}<img src="{{ project.featured_image.url }}" alt="{{ project.title }}" class="proj-list-img" loading="lazy">{% else %}<div class="proj-list-img" style="display:flex;align-items:center;justify-content:center;"><i class="fas fa-code" style="font-size:1.5rem;color:rgba(235,94,40,.35);" aria-hidden="true"></i></div>{% endif %}
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin-bottom:.55rem;">
-            <span style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .55rem;border-radius:5px;background:rgba(235,94,40,.1);color:#eb5e28;border:1px solid rgba(235,94,40,.2);">{{ project.get_category_display }}</span>
-            {% if project.is_featured %}<span style="font-family:'Courier Prime',monospace;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border-radius:5px;background:#eb5e28;color:#fff;">Featured</span>{% endif %}
+        {% if project.featured_image %}
+          <img src="{{ project.featured_image.url }}" alt="{{ project.title }}" class="proj-list-img" loading="lazy">
+        {% else %}
+          <div class="proj-list-img" style="display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-images" style="font-size:1.8rem;color:rgba(235,94,40,.3);" aria-hidden="true"></i>
           </div>
-          <h2 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;color:var(--text-primary);margin-bottom:.35rem;"><a href="{{ project.get_absolute_url }}" style="text-decoration:none;color:inherit;transition:color .2s;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='inherit'">{{ project.title }}</a></h2>
-          <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ project.description }}</p>
-          <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;">{% for tech in project.tech_list|slice:":5" %}<span style="font-family:'Courier Prime',monospace;font-size:.58rem;font-weight:700;padding:.2rem .48rem;border-radius:5px;background:var(--bg-muted);color:var(--text-faint);border:1px solid var(--border);">{{ tech }}</span>{% endfor %}</div>
+        {% endif %}
+        <div class="proj-list-content">
+          <div class="proj-list-meta">
+            <span class="proj-list-badge">{{ project.get_category_display }}</span>
+            {% if project.is_featured %}<span class="proj-list-badge featured">⭐ Featured</span>{% endif %}
+          </div>
+          <h2 class="proj-list-title">
+            <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
+          </h2>
+          <p class="proj-list-desc">{{ project.description }}</p>
+          {% if project.tech_list %}
+          <div class="proj-list-tech">
+            {% for tech in project.tech_list|slice:":6" %}
+              <span class="proj-list-tech-tag">{{ tech }}</span>
+            {% endfor %}
+            {% if project.tech_list|length > 6 %}
+              <span style="font-size:.75rem;color:var(--text-faint);">+{{ project.tech_list|length|add:"-6" }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
         </div>
-        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:.6rem;">
-          <a href="{{ project.get_absolute_url }}" class="btn btn-outline btn-sm">View <i class="fas fa-arrow-right" style="font-size:.62rem;" aria-hidden="true"></i></a>
-          <div style="display:flex;gap:.6rem;"><span style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--text-faint);display:flex;align-items:center;gap:.25rem;"><i class="fas fa-eye" style="font-size:.6rem;" aria-hidden="true"></i>{{ project.views }}</span><span style="font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--text-faint);display:flex;align-items:center;gap:.25rem;"><i class="fas fa-heart" style="font-size:.6rem;" aria-hidden="true"></i>{{ project.likes }}</span></div>
+        <div class="proj-list-actions">
+          <a href="{{ project.get_absolute_url }}" class="btn btn-outline btn-sm">
+            View <i class="fas fa-arrow-right" style="font-size:.65rem;" aria-hidden="true"></i>
+          </a>
+          <div class="proj-list-stats">
+            <span class="proj-list-stat" aria-label="{{ project.views }} views">
+              <i class="fas fa-eye" aria-hidden="true"></i>{{ project.views|default:0 }}
+            </span>
+            <span class="proj-list-stat" aria-label="{{ project.likes }} likes">
+              <i class="fas fa-heart" aria-hidden="true"></i>{{ project.likes|default:0 }}
+            </span>
+          </div>
         </div>
       </article>
       {% endfor %}
     </div>
 
-    {# Pagination #}
+    {# ── Pagination ── #}
     {% if projects.has_other_pages %}
-    <nav aria-label="Projects pagination" style="display:flex;align-items:center;justify-content:center;gap:.45rem;margin-top:3rem;flex-wrap:wrap;">
-      {% if projects.has_previous %}<a href="?page={{ projects.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-btn" aria-label="Previous"><i class="fas fa-chevron-left" style="font-size:.7rem;" aria-hidden="true"></i></a>{% else %}<span class="page-btn disabled"><i class="fas fa-chevron-left" style="font-size:.7rem;" aria-hidden="true"></i></span>{% endif %}
-      {% for num in projects.paginator.page_range %}{% if projects.number == num %}<span class="page-btn active" aria-current="page">{{ num }}</span>{% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}<a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-btn">{{ num }}</a>{% elif num == 1 or num == projects.paginator.num_pages %}<a href="?page={{ num }}" class="page-btn">{{ num }}</a>{% elif num == projects.number|add:'-3' or num == projects.number|add:'3' %}<span style="font-family:'DM Sans',sans-serif;color:var(--text-faint);align-self:center;">…</span>{% endif %}{% endfor %}
-      {% if projects.has_next %}<a href="?page={{ projects.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-btn" aria-label="Next"><i class="fas fa-chevron-right" style="font-size:.7rem;" aria-hidden="true"></i></a>{% else %}<span class="page-btn disabled"><i class="fas fa-chevron-right" style="font-size:.7rem;" aria-hidden="true"></i></span>{% endif %}
+    <nav aria-label="Projects pagination" class="pagination">
+      {# Build shared query params #}
+      {% if projects.has_previous %}
+      <a href="?page={{ projects.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+         class="page-btn" title="Previous page">
+        <i class="fas fa-chevron-left" style="font-size:.75rem;" aria-hidden="true"></i>
+        <span class="sr-only">Previous</span>
+      </a>
+      {% else %}
+      <span class="page-btn disabled"><i class="fas fa-chevron-left" style="font-size:.75rem;" aria-hidden="true"></i><span class="sr-only">Previous (disabled)</span></span>
+      {% endif %}
+
+      {% for num in projects.paginator.page_range %}
+        {% if projects.number == num %}
+          <span class="page-btn active" aria-current="page">{{ num }}</span>
+        {% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}
+          <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-btn">{{ num }}</a>
+        {% elif num == 1 or num == projects.paginator.num_pages %}
+          <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-btn">{{ num }}</a>
+        {% elif num == projects.number|add:'-3' or num == projects.number|add:'3' %}
+          <span class="page-dots" aria-hidden="true">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if projects.has_next %}
+      <a href="?page={{ projects.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+         class="page-btn" title="Next page">
+        <i class="fas fa-chevron-right" style="font-size:.75rem;" aria-hidden="true"></i>
+        <span class="sr-only">Next</span>
+      </a>
+      {% else %}
+      <span class="page-btn disabled"><i class="fas fa-chevron-right" style="font-size:.75rem;" aria-hidden="true"></i><span class="sr-only">Next (disabled)</span></span>
+      {% endif %}
     </nav>
     {% endif %}
 
   </div>
 </section>
-<style>
-  @media(min-width:640px)  { #proj-grid { grid-template-columns:repeat(2,1fr) !important; } }
-  @media(min-width:1024px) { #proj-grid { grid-template-columns:repeat(3,1fr) !important; } }
-</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+  /* ── CSRF helper ── */
+  function getCsrf() {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) return meta.getAttribute('content');
+    var cookie = document.cookie.split('; ').find(function (r) { return r.startsWith('csrftoken='); });
+    return cookie ? cookie.split('=')[1] : '';
+  }
+
+  /* ── Category filter pills ──
+     Updates URL with ?category=slug so the server re-filters.
+     Falls back to client-side hide/show while the page reloads. */
   var pills = document.querySelectorAll('.filter-pill');
-  var cards = document.querySelectorAll('[data-cat]');
-  pills.forEach(function (p) {
-    p.addEventListener('click', function () {
-      pills.forEach(function (x) { x.classList.remove('active'); });
-      p.classList.add('active');
-      var f = p.dataset.filter;
-      cards.forEach(function (c) { c.style.display = (f === 'all' || c.dataset.cat === f) ? '' : 'none'; });
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      var filter = pill.dataset.filter;
+      var url = new URL(window.location.href);
+      if (filter === 'all') {
+        url.searchParams.delete('category');
+      } else {
+        url.searchParams.set('category', filter);
+      }
+      url.searchParams.delete('page'); // reset to page 1
+      /* Optimistic UI while navigating */
+      pills.forEach(function (p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      window.location.href = url.toString();
     });
   });
-  var gridBtn = document.getElementById('grid-btn'), listBtn = document.getElementById('list-btn');
-  var gridEl  = document.getElementById('proj-grid'), listEl  = document.getElementById('proj-list');
-  function setView(v) {
-    var isGrid = v === 'grid';
-    gridBtn.classList.toggle('active', isGrid); listBtn.classList.toggle('active', !isGrid);
-    gridBtn.setAttribute('aria-pressed', isGrid); listBtn.setAttribute('aria-pressed', !isGrid);
-    gridEl.style.display = isGrid ? '' : 'none'; listEl.style.display = isGrid ? 'none' : 'flex';
-    localStorage.setItem('proj-view', v);
+
+  /* ── View toggle (Grid / List) ── */
+  var gridBtn = document.getElementById('grid-btn');
+  var listBtn = document.getElementById('list-btn');
+  var gridEl  = document.getElementById('proj-grid');
+  var listEl  = document.getElementById('proj-list');
+
+  function setView(view) {
+    var isGrid = view === 'grid';
+    gridBtn.classList.toggle('active', isGrid);
+    listBtn.classList.toggle('active', !isGrid);
+    gridBtn.setAttribute('aria-pressed', String(isGrid));
+    listBtn.setAttribute('aria-pressed', String(!isGrid));
+    gridEl.style.display = isGrid ? 'grid' : 'none';
+    listEl.style.display = isGrid ? 'none' : 'flex';
+    try { localStorage.setItem('proj-view', view); } catch (e) {}
   }
+
   gridBtn.addEventListener('click', function () { setView('grid'); });
   listBtn.addEventListener('click', function () { setView('list'); });
-  setView(localStorage.getItem('proj-view') || 'grid');
-  document.getElementById('sort-select').addEventListener('change', function () {
-    var url = new URL(window.location.href); url.searchParams.set('sort', this.value); window.location.href = url.toString();
-  });
+  try { setView(localStorage.getItem('proj-view') || 'grid'); } catch (e) { setView('grid'); }
+
+  /* ── Sort select ── */
+  var sortSelect = document.getElementById('sort-select');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set('sort', this.value);
+      url.searchParams.delete('page');
+      window.location.href = url.toString();
+    });
+  }
+
+  /* ── Like buttons ── */
   document.querySelectorAll('[data-like-project]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      window.fetchWithCSRF('/project/' + btn.dataset.likeProject + '/like/', { method: 'POST' })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (d.likes !== undefined) { var c = btn.querySelector('.like-count'); if (c) c.textContent = d.likes; btn.style.color = '#eb5e28'; showToast('❤️ Liked!', 'success', 2000); }
-          else showToast(d.message || 'Already liked.', 'info', 2000);
-        }).catch(function () {});
+      var slug    = btn.dataset.likeProject;
+      var likeUrl = btn.dataset.likeUrl || ('/project/' + slug + '/like/');
+      var csrf    = getCsrf();
+
+      fetch(likeUrl, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrf,
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.likes !== undefined) {
+          var countEl = btn.querySelector('.like-count');
+          if (countEl) countEl.textContent = data.likes;
+          btn.style.color = '#eb5e28';
+          if (typeof showToast === 'function') showToast('❤️ Liked!', 'success', 2000);
+        } else if (data.message) {
+          if (typeof showToast === 'function') showToast(data.message, 'info', 2000);
+        }
+      })
+      .catch(function (err) { console.warn('Like error:', err); });
     });
   });
+
 });
 </script>
 {% endblock %}

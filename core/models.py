@@ -554,11 +554,13 @@ class Achievement(TimeStampedModel):
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='award')
     description = models.TextField()
-    icon = models.CharField(max_length=100, help_text="FontAwesome icon class")
+    icon = models.CharField(max_length=100, help_text="FontAwesome icon class or emoji")
     image = models.ImageField(upload_to='achievements/', null=True, blank=True)
     date_achieved = models.DateField(db_index=True)
-    issuer = models.CharField(max_length=200, blank=True)
-    verification_url = models.URLField(blank=True)
+    issuer = models.CharField(max_length=200, blank=True, verbose_name="Organization/Issuer")
+    verification_url = models.URLField(blank=True, help_text="Link to verify the achievement")
+    is_verified = models.BooleanField(default=False, help_text="Mark as verified achievement")
+    tags_text = models.CharField(max_length=500, blank=True, help_text="Comma-separated tags (e.g., 'Python, Django, Backend')")
     order = models.IntegerField(default=0, db_index=True)
     
     class Meta:

@@ -26,8 +26,11 @@
   .result-card { display:flex; gap:1.25rem; align-items:flex-start; padding:1.35rem; background:var(--bg-surface); border:1px solid var(--border); border-radius:16px; transition:all .25s ease; text-decoration:none; }
   .result-card:hover { border-color:rgba(235,94,40,.28); box-shadow:var(--shadow-md); transform:translateY(-2px); }
   .result-thumb { width:90px; height:68px; border-radius:10px; object-fit:cover; flex-shrink:0; background:var(--bg-muted); }
-  .result-type-badge { font-family:'Courier Prime',monospace; font-size:.58rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:.22rem .6rem; border-radius:5px; }
-  mark { background:rgba(235,94,40,.15); color:#eb5e28; border-radius:3px; padding:.05em .2em; font-style:normal; }
+  .result-type-badge { font-family:'Courier Prime',monospace; font-size:.58rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:.22rem .6rem; border-radius:5px; background:rgba(235,94,40,.1); color:#eb5e28; border:1px solid rgba(235,94,40,.2); }
+
+  /* Section heading */
+  .results-section-title { font-family:'Courier Prime',monospace; font-size:.65rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--text-faint); margin:2rem 0 .85rem; display:flex; align-items:center; gap:.6rem; }
+  .results-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
 
   /* No results */
   .no-results { text-align:center; padding:4rem 2rem; }
@@ -67,7 +70,7 @@
       <p style="font-family:'DM Sans',sans-serif;font-size:.92rem;color:var(--text-muted);line-height:1.75;">Search across projects, blog posts, and services.</p>
     </div>
 
-    {# Search form #}
+    {# search_view reads ?q= param #}
     <form id="search-form" action="{% url 'search' %}" method="GET" role="search" data-reveal>
       <div class="search-bar-wrap" style="margin-bottom:1.1rem;">
         <i class="fas fa-search search-bar-icon" aria-hidden="true"></i>
@@ -81,12 +84,12 @@
         {% endif %}
       </div>
 
-      {# Type filter tabs #}
+      {# Client-side section filters (JS toggles sections below) #}
       <div style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;" role="group" aria-label="Filter by type">
-        <button type="submit" name="type" value="all"   class="type-tab {% if not request.GET.type or request.GET.type == 'all' %}active{% endif %}">All</button>
-        <button type="submit" name="type" value="project" class="type-tab {% if request.GET.type == 'project' %}active{% endif %}">Projects</button>
-        <button type="submit" name="type" value="post"    class="type-tab {% if request.GET.type == 'post' %}active{% endif %}">Blog Posts</button>
-        <button type="submit" name="type" value="service" class="type-tab {% if request.GET.type == 'service' %}active{% endif %}">Services</button>
+        <button type="button" class="type-tab active" data-section="all">All ({{ total_results }})</button>
+        <button type="button" class="type-tab" data-section="projects">Projects ({{ projects|length }})</button>
+        <button type="button" class="type-tab" data-section="posts">Blog Posts ({{ posts|length }})</button>
+        <button type="button" class="type-tab" data-section="services">Services ({{ services|length }})</button>
       </div>
     </form>
   </div>
@@ -100,87 +103,109 @@
       {# Result summary #}
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.75rem;">
         <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text-muted);">
-          {% with total=results|length %}
-          {% if total > 0 %}
-            <strong style="color:var(--text-primary);">{{ total }} result{{ total|pluralize }}</strong> for <em style="color:#eb5e28;">"{{ query }}"</em>
+          {% if total_results > 0 %}
+            <strong style="color:var(--text-primary);">{{ total_results }} result{{ total_results|pluralize }}</strong> for <em style="color:#eb5e28;">"{{ query }}"</em>
           {% else %}
             No results for <em style="color:#eb5e28;">"{{ query }}"</em>
           {% endif %}
-          {% endwith %}
         </p>
-        {% if results %}
-        <p style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">
-          Showing {{ results|length }} result{{ results|length|pluralize }}
-        </p>
-        {% endif %}
       </div>
 
-      {# Results list #}
-      {% if results %}
-      <div style="display:flex;flex-direction:column;gap:.85rem;" role="list" aria-label="Search results">
-        {% for item in results %}
-        <a href="{{ item.url }}" class="result-card" role="listitem" data-reveal data-reveal-delay="{{ forloop.counter }}">
+      {% if total_results %}
 
-          {# Thumbnail #}
-          {% if item.image %}
-          <img src="{{ item.image }}" alt="{{ item.title }}" class="result-thumb" loading="lazy">
-          {% else %}
-          <div class="result-thumb" style="display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-{% if item.type == 'project' %}code{% elif item.type == 'post' %}newspaper{% else %}briefcase{% endif %}" style="font-size:1.5rem;color:rgba(235,94,40,.35);"></i>
-          </div>
-          {% endif %}
-
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.45rem;">
-              {# Type badge #}
-              <span class="result-type-badge {% if item.type == 'project' %}{% elif item.type == 'post' %}{% else %}{% endif %}"
-                    style="background:rgba(235,94,40,.1);color:#eb5e28;border:1px solid rgba(235,94,40,.2);">
-                {{ item.type|capfirst }}
-              </span>
-              {% if item.category %}<span class="tag">{{ item.category }}</span>{% endif %}
-              {% if item.date %}
-              <span style="font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--text-faint);margin-left:auto;">{{ item.date|date:"M d, Y" }}</span>
+        {# ── PROJECTS section ── #}
+        {% if projects %}
+        <div id="section-projects">
+          <p class="results-section-title"><i class="fas fa-code" style="color:#eb5e28;font-size:.65rem;"></i> Projects</p>
+          <div style="display:flex;flex-direction:column;gap:.85rem;" role="list">
+            {% for p in projects %}
+            <a href="{{ p.get_absolute_url }}" class="result-card" role="listitem" data-reveal data-reveal-delay="{{ forloop.counter }}">
+              {% if p.featured_image %}
+              <img src="{{ p.featured_image.url }}" alt="{{ p.title }}" class="result-thumb" loading="lazy">
+              {% else %}
+              <div class="result-thumb" style="display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-code" style="font-size:1.5rem;color:rgba(235,94,40,.35);"></i>
+              </div>
               {% endif %}
-            </div>
-
-            <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.08rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              {{ item.title }}
-            </h3>
-
-            <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
-              {{ item.excerpt|default:item.description }}
-            </p>
-
-            {% if item.tags %}
-            <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;">
-              {% for tag in item.tags|slice:":4" %}<span class="tag" style="font-size:.58rem;">{{ tag }}</span>{% endfor %}
-            </div>
-            {% endif %}
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.45rem;">
+                  <span class="result-type-badge">Project</span>
+                  {% if p.category %}<span class="tag">{{ p.get_category_display|default:p.category }}</span>{% endif %}
+                  <span style="font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--text-faint);margin-left:auto;">{{ p.project_date|date:"M Y"|default:"" }}</span>
+                </div>
+                <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.08rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.3;">{{ p.title }}</h3>
+                <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ p.description }}</p>
+                {% if p.tags.all %}
+                <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;">
+                  {% for tag in p.tags.all|slice:":4" %}<span class="tag" style="font-size:.58rem;">{{ tag.name }}</span>{% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div style="flex-shrink:0;align-self:center;"><i class="fas fa-arrow-right" style="color:var(--text-faint);font-size:.75rem;"></i></div>
+            </a>
+            {% endfor %}
           </div>
+        </div>
+        {% endif %}
 
-          <div style="flex-shrink:0;align-self:center;">
-            <i class="fas fa-arrow-right" style="color:var(--text-faint);font-size:.75rem;transition:color .2s;"></i>
+        {# ── BLOG POSTS section ── #}
+        {% if posts %}
+        <div id="section-posts">
+          <p class="results-section-title"><i class="fas fa-newspaper" style="color:#eb5e28;font-size:.65rem;"></i> Blog Posts</p>
+          <div style="display:flex;flex-direction:column;gap:.85rem;" role="list">
+            {% for post in posts %}
+            <a href="{{ post.get_absolute_url }}" class="result-card" role="listitem" data-reveal>
+              {% if post.featured_image %}
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="result-thumb" loading="lazy">
+              {% else %}
+              <div class="result-thumb" style="display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-newspaper" style="font-size:1.5rem;color:rgba(235,94,40,.35);"></i>
+              </div>
+              {% endif %}
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.45rem;">
+                  <span class="result-type-badge">Blog Post</span>
+                  <span style="font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--text-faint);margin-left:auto;">{{ post.published_date|date:"M d, Y" }}</span>
+                </div>
+                <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.08rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.3;">{{ post.title }}</h3>
+                <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ post.excerpt }}</p>
+                {% if post.tags.all %}
+                <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;">
+                  {% for tag in post.tags.all|slice:":4" %}<span class="tag" style="font-size:.58rem;">{{ tag.name }}</span>{% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div style="flex-shrink:0;align-self:center;"><i class="fas fa-arrow-right" style="color:var(--text-faint);font-size:.75rem;"></i></div>
+            </a>
+            {% endfor %}
           </div>
-        </a>
-        {% endfor %}
-      </div>
+        </div>
+        {% endif %}
 
-      {# Pagination if needed #}
-      {% if results.has_other_pages %}
-      <nav aria-label="Search results pagination" style="display:flex;align-items:center;justify-content:center;gap:.45rem;margin-top:2.5rem;flex-wrap:wrap;">
-        {% if results.has_previous %}<a href="?q={{ query }}&type={{ request.GET.type|default:'all' }}&page={{ results.previous_page_number }}" class="page-btn" aria-label="Previous"><i class="fas fa-chevron-left" style="font-size:.7rem;"></i></a>{% endif %}
-        {% for num in results.paginator.page_range %}
-          {% if results.number == num %}<span class="page-btn active" aria-current="page">{{ num }}</span>
-          {% elif num > results.number|add:'-3' and num < results.number|add:'3' %}<a href="?q={{ query }}&type={{ request.GET.type|default:'all' }}&page={{ num }}" class="page-btn">{{ num }}</a>{% endif %}
-        {% endfor %}
-        {% if results.has_next %}<a href="?q={{ query }}&type={{ request.GET.type|default:'all' }}&page={{ results.next_page_number }}" class="page-btn" aria-label="Next"><i class="fas fa-chevron-right" style="font-size:.7rem;"></i></a>{% endif %}
-      </nav>
-      <style>
-        .page-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;transition:all .2s;}
-        .page-btn:hover:not(.active){border-color:rgba(235,94,40,.3);color:#eb5e28;}
-        .page-btn.active{background:#eb5e28;border-color:#eb5e28;color:#fff;}
-      </style>
-      {% endif %}
+        {# ── SERVICES section ── #}
+        {% if services %}
+        <div id="section-services">
+          <p class="results-section-title"><i class="fas fa-briefcase" style="color:#eb5e28;font-size:.65rem;"></i> Services</p>
+          <div style="display:flex;flex-direction:column;gap:.85rem;" role="list">
+            {% for svc in services %}
+            <a href="{{ svc.get_absolute_url }}" class="result-card" role="listitem" data-reveal>
+              <div class="result-thumb" style="display:flex;align-items:center;justify-content:center;background:rgba(235,94,40,.06);">
+                <i class="{{ svc.icon|default:'fas fa-briefcase' }}" style="font-size:1.5rem;color:rgba(235,94,40,.45);"></i>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.45rem;">
+                  <span class="result-type-badge">Service</span>
+                  {% if svc.is_featured %}<span class="tag">Popular</span>{% endif %}
+                </div>
+                <h3 style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.08rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.3;">{{ svc.title }}</h3>
+                <p style="font-family:'DM Sans',sans-serif;font-size:.862rem;color:var(--text-muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ svc.short_description }}</p>
+              </div>
+              <div style="flex-shrink:0;align-self:center;"><i class="fas fa-arrow-right" style="color:var(--text-faint);font-size:.75rem;"></i></div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
 
       {% else %}
       {# No results #}
@@ -201,21 +226,23 @@
       {% endif %}
 
     {% else %}
-    {# No query — show suggestions #}
+    {# No query — show explore links #}
     <div class="no-results" data-reveal>
-      <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text-muted);margin-bottom:2.5rem;">Or explore these sections directly:</p>
+      <p style="font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text-muted);margin-bottom:2.5rem;">Start typing above, or explore these sections directly:</p>
       <div id="explore-grid" style="display:grid;grid-template-columns:1fr;gap:1rem;max-width:680px;margin:0 auto;">
-        {% for item in explore_items %}
-        <a href="{{ item.url }}" style="display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;background:var(--bg-surface);border:1px solid var(--border);border-radius:14px;text-decoration:none;transition:all .22s ease;" onmouseover="this.style.borderColor='rgba(235,94,40,.28)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        {% for item in "Projects:fas fa-code:Browse completed projects and case studies:{% url 'projects' %}||Blog Posts:fas fa-newspaper:Tutorials and dev insights:{% url 'blog' %}||Services:fas fa-briefcase:Full-stack web development services:{% url 'services' %}||About:fas fa-user:Learn about Brian's background and skills:{% url 'about' %}"|split:"||" %}
+        {% with parts=item|split:":" %}
+        <a href="{{ parts.3 }}" style="display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;background:var(--bg-surface);border:1px solid var(--border);border-radius:14px;text-decoration:none;transition:all .22s ease;" onmouseover="this.style.borderColor='rgba(235,94,40,.28)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
           <div style="width:40px;height:40px;border-radius:10px;background:rgba(235,94,40,.1);border:1px solid rgba(235,94,40,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;color:#eb5e28;">
-            <i class="{{ item.icon }}"></i>
+            <i class="{{ parts.1 }}"></i>
           </div>
           <div>
-            <p style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.92rem;color:var(--text-primary);">{{ item.title }}</p>
-            <p style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-muted);margin-top:.1rem;">{{ item.description }}</p>
+            <p style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.92rem;color:var(--text-primary);">{{ parts.0 }}</p>
+            <p style="font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text-muted);margin-top:.1rem;">{{ parts.2 }}</p>
           </div>
           <i class="fas fa-arrow-right" style="font-size:.7rem;color:var(--text-faint);margin-left:auto;"></i>
         </a>
+        {% endwith %}
         {% endfor %}
       </div>
     </div>
@@ -229,7 +256,8 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  /* Clear button */
+
+  /* ── Clear button ── */
   var clearBtn = document.getElementById('search-clear');
   var qInput   = document.getElementById('search-q');
   if (clearBtn && qInput) {
@@ -238,22 +266,43 @@ document.addEventListener('DOMContentLoaded', function () {
       clearBtn.style.display = 'none';
     });
   }
-
-  /* Live search suggestion (debounced, just highlights submit) */
   if (qInput) {
     qInput.addEventListener('input', function () {
-      var hasVal = qInput.value.trim().length > 0;
-      if (clearBtn) clearBtn.style.display = hasVal ? '' : 'none';
+      if (clearBtn) clearBtn.style.display = qInput.value.trim() ? '' : 'none';
     });
   }
 
-  /* Keyboard shortcut: / to focus search */
+  /* ── / shortcut to focus search ── */
   document.addEventListener('keydown', function (e) {
     var tag = document.activeElement.tagName.toLowerCase();
     if (e.key === '/' && tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
-      e.preventDefault();
-      if (qInput) { qInput.focus(); qInput.select(); }
+      e.preventDefault(); if (qInput) { qInput.focus(); qInput.select(); }
     }
+  });
+
+  /* ── Section filter tabs (client-side, no page reload) ── */
+  var tabs = document.querySelectorAll('.type-tab');
+  var sections = {
+    all:      ['section-projects', 'section-posts', 'section-services'],
+    projects: ['section-projects'],
+    posts:    ['section-posts'],
+    services: ['section-services'],
+  };
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var key = tab.dataset.section;
+      tabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      Object.keys(sections).forEach(function (k) {
+        sections[k].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var show = key === 'all' || sections[key].indexOf(id) !== -1;
+          el.style.display = show ? '' : 'none';
+        });
+      });
+    });
   });
 });
 </script>

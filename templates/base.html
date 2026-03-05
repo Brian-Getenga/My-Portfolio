@@ -3,22 +3,65 @@
 {% load custom_filters %}
 
 <!DOCTYPE html>
+{% if site_settings.maintenance_mode and not request.user.is_staff %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Down for Maintenance — {{ site_settings.site_name|default:"Brian Getenga" }}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%23eb5e28%22/><text y=%22.82em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2256%22 font-family=%22Georgia%2C serif%22 font-style=%22italic%22 font-weight=%22bold%22 fill=%22white%22>BG</text></svg>" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fffcf2;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+    .maint-wrap{text-align:center;padding:2.5rem 1.5rem;max-width:480px;}
+    .maint-icon{width:72px;height:72px;border-radius:20px;background:#eb5e28;display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;color:#fff;font-size:26px;animation:pulse 2s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(235,94,40,.4)}50%{box-shadow:0 0 0 16px rgba(235,94,40,0)}}
+    h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#252422;margin-bottom:.65rem;}
+    p{color:#6a655e;line-height:1.7;font-size:.95rem;margin-bottom:1.5rem;}
+    .maint-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(235,94,40,.09);color:#eb5e28;border:1px solid rgba(235,94,40,.22);border-radius:999px;padding:.35rem 1rem;font-family:'Courier Prime',monospace;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.75rem;}
+    .maint-dot{width:7px;height:7px;border-radius:50%;background:#eb5e28;animation:blink 1.4s ease-in-out infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    a.contact-link{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.5rem;border-radius:8px;background:#eb5e28;color:#fff;text-decoration:none;font-weight:600;font-size:.875rem;transition:background .2s;}
+    a.contact-link:hover{background:#ca4713;}
+  </style>
+</head>
+<body>
+  <div class="maint-wrap">
+    <div class="maint-icon">BG</div>
+    <div class="maint-badge"><span class="maint-dot"></span> Maintenance Mode</div>
+    <h1>Be right back.</h1>
+    <p>{{ site_settings.site_name|default:"This site" }} is undergoing scheduled maintenance. I'll be back online shortly — thanks for your patience.</p>
+    {% if site_settings.email %}
+    <a href="mailto:{{ site_settings.email }}" class="contact-link">
+      <i class="fas fa-envelope"></i> {{ site_settings.email }}
+    </a>
+    {% endif %}
+  </div>
+</body>
+</html>
+{% else %}
 <html lang="en" class="scroll-smooth" data-theme="light">
 <head>
-  <!-- ═══════════════════════════════════════════════
-       META & SEO
-  ═══════════════════════════════════════════════ -->
+  {# ── META & SEO ─────────────────────────────────────────────────── #}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{% block title %}{{ site_settings.site_name|default:"Brian Getenga — Full Stack Developer" }}{% endblock %}</title>
-  <meta name="description"  content="{% block meta_description %}{{ site_settings.meta_description|default:"Full Stack Developer in Nairobi, Kenya. Building premium web applications with care and craft." }}{% endblock %}">
-  <meta name="keywords"     content="{{ site_settings.meta_keywords|default:'Full Stack Developer, Django, React, Nairobi, Kenya' }}">
-  <meta name="author"       content="Brian Getenga">
-  <meta name="robots"       content="index, follow">
-  <meta name="theme-color"  content="#eb5e28" media="(prefers-color-scheme: light)">
-  <meta name="theme-color"  content="#1a1917"  media="(prefers-color-scheme: dark)">
-  <!-- Open Graph -->
+  <meta name="description" content="{% block meta_description %}{{ site_settings.meta_description|default:"Full Stack Developer in Nairobi, Kenya. Building premium web applications with care and craft." }}{% endblock %}">
+  <meta name="keywords"    content="{{ site_settings.meta_keywords|default:'Full Stack Developer, Django, React, Nairobi, Kenya' }}">
+  <meta name="author"      content="Brian Getenga">
+  <meta name="robots"      content="index, follow">
+  <meta name="theme-color" content="#eb5e28" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1917"  media="(prefers-color-scheme: dark)">
+  {# Google Site Verification — only when set in admin #}
+  {% if site_settings.google_site_verification %}
+  <meta name="google-site-verification" content="{{ site_settings.google_site_verification }}">
+  {% endif %}
+  {# Open Graph #}
   <meta property="og:type"        content="website">
   <meta property="og:locale"      content="en_KE">
   <meta property="og:url"         content="{{ request.build_absolute_uri }}">
@@ -26,36 +69,42 @@
   <meta property="og:title"       content="{% block og_title %}{{ site_settings.site_name|default:'Brian Getenga — Full Stack Developer' }}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ site_settings.meta_description|default:'Full Stack Developer in Nairobi, Kenya.' }}{% endblock %}">
   <meta property="og:image"       content="{% block og_image %}{% if site_settings.profile_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.profile_image.url }}{% endif %}{% endblock %}">
-  <!-- Twitter -->
+  {# Twitter #}
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="{% block twitter_title %}{{ site_settings.site_name|default:'Brian Getenga — Full Stack Developer' }}{% endblock %}">
   <meta name="twitter:description" content="{% block twitter_description %}{{ site_settings.meta_description|default:'Full Stack Developer in Nairobi, Kenya.' }}{% endblock %}">
-  <!-- Canonical -->
+  {% if site_settings.twitter_url %}
+  <meta name="twitter:site" content="{{ site_settings.twitter_url }}">
+  {% endif %}
+  {# Canonical #}
   <link rel="canonical" href="{{ request.build_absolute_uri }}">
-  <!-- Favicon -->
+  {# Favicon #}
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%23eb5e28%22/><text y=%22.82em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2256%22 font-family=%22Georgia%2C serif%22 font-style=%22italic%22 font-weight=%22bold%22 fill=%22white%22>BG</text></svg>" type="image/svg+xml">
-  <!-- ═══════════════════════════════════════════════
-       DARK MODE FLASH PREVENTION (inline, before paint)
-  ═══════════════════════════════════════════════ -->
+
+  {# ── DARK MODE FLASH PREVENTION — inline, before paint ──────────── #}
   <script>
     (function(){
+      {% if site_settings.enable_dark_mode %}
       var s = localStorage.getItem('bg-theme');
       var p = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       var t = s || p;
+      {% else %}
+      {# Dark mode disabled in admin — always force light #}
+      var t = 'light';
+      localStorage.removeItem('bg-theme');
+      {% endif %}
       document.documentElement.setAttribute('data-theme', t);
       if(t === 'dark') document.documentElement.classList.add('dark');
     })();
   </script>
-  <!-- ═══════════════════════════════════════════════
-       FONTS
-  ═══════════════════════════════════════════════ -->
+
+  {# ── FONTS ─────────────────────────────────────────────────────── #}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
-  <!-- ═══════════════════════════════════════════════
-       TAILWIND
-  ═══════════════════════════════════════════════ -->
+
+  {# ── TAILWIND ──────────────────────────────────────────────────── #}
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -94,11 +143,8 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
   {% block extra_head %}{% endblock %}
 
-  <!-- ═══════════════════════════════════════════════
-       GLOBAL STYLES
-  ═══════════════════════════════════════════════ -->
+  {# ── GLOBAL STYLES ─────────────────────────────────────────────── #}
   <style>
-    /* ── CSS Custom Properties ─────────────────── */
     :root {
       --paprika:       #eb5e28;
       --paprika-dark:  #ca4713;
@@ -134,7 +180,6 @@
       --shadow-xl:     0 32px 80px rgba(0,0,0,.56);
     }
 
-    /* ── Reset ──────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 16px; scroll-padding-top: 80px; }
     body {
@@ -147,44 +192,34 @@
       min-height: 100vh;
       position: relative;
     }
-    /* Grain overlay */
     body::after {
-      content: '';
-      position: fixed; inset: 0;
-      pointer-events: none; z-index: 9997;
-      opacity: .022;
+      content: ''; position: fixed; inset: 0;
+      pointer-events: none; z-index: 9997; opacity: .022;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
-    /* ── Typography ─────────────────────────────── */
     .font-display { font-family: 'Playfair Display', Georgia, serif; }
     .font-mono    { font-family: 'Courier Prime', monospace; }
-
     .text-gradient {
       background: linear-gradient(135deg, #eb5e28 0%, #ca4713 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-
     .section-label {
       display: inline-flex; align-items: center; gap: .55rem;
       font-family: 'Courier Prime', monospace; font-size: .7rem;
       font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #eb5e28;
     }
-    .section-label::before {
-      content: ''; width: 18px; height: 2px; background: #eb5e28; flex-shrink: 0;
-    }
+    .section-label::before { content: ''; width: 18px; height: 2px; background: #eb5e28; flex-shrink: 0; }
 
-    /* ── Scrollbar ──────────────────────────────── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg-base); }
     ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
     ::-webkit-scrollbar-thumb:hover { background: #eb5e28; }
     ::selection { background: #eb5e28; color: #fff; }
 
-    /* ── Page Loader ────────────────────────────── */
+    /* ── Page Loader ── */
     #page-loader {
-      position: fixed; inset: 0; z-index: 99999;
-      background: var(--bg-base);
+      position: fixed; inset: 0; z-index: 99999; background: var(--bg-base);
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.75rem;
       transition: opacity .5s ease, visibility .5s ease;
     }
@@ -199,9 +234,7 @@
       0%,100% { transform:scale(1); box-shadow:0 0 0 0 rgba(235,94,40,.45); }
       50%      { transform:scale(1.06); box-shadow:0 0 0 14px rgba(235,94,40,0); }
     }
-    .loader-bar-track {
-      width: 190px; height: 2px; background: var(--border); border-radius: 99px; overflow: hidden;
-    }
+    .loader-bar-track { width: 190px; height: 2px; background: var(--border); border-radius: 99px; overflow: hidden; }
     .loader-bar-fill {
       height: 100%; background: linear-gradient(90deg, #eb5e28, #ca4713); border-radius: 99px;
       animation: barFill 1.8s cubic-bezier(.4,0,.2,1) forwards;
@@ -212,14 +245,14 @@
       letter-spacing: .2em; text-transform: uppercase; color: var(--text-faint);
     }
 
-    /* ── Reading Progress ───────────────────────── */
+    /* ── Reading Progress ── */
     #reading-progress {
       position: fixed; top: 0; left: 0; height: 3px; width: 0%;
       background: linear-gradient(90deg, #eb5e28, #ca4713);
       z-index: 9998; transition: width .1s linear;
     }
 
-    /* ── Skip Link ──────────────────────────────── */
+    /* ── Skip Link ── */
     .skip-link {
       position: absolute; top: -100%; left: 1rem; z-index: 99999;
       padding: .5rem 1.25rem; border-radius: 8px;
@@ -229,10 +262,10 @@
     }
     .skip-link:focus { top: 1rem; outline: 2px solid #ca4713; outline-offset: 2px; }
 
-    /* ── Announcement Bar ───────────────────────── */
+    /* ── Announcement Bar ── */
     #announcement-bar {
       background: #eb5e28; position: relative; z-index: 60;
-      overflow: hidden;
+      overflow: hidden; max-height: 100px;
       transition: max-height .4s ease, opacity .4s ease, padding .4s ease;
     }
     #announcement-bar.dismissed { max-height: 0 !important; opacity: 0; pointer-events: none; }
@@ -240,22 +273,14 @@
       display: flex; align-items: center; justify-content: center;
       gap: .75rem; padding: .625rem 3rem; min-height: 42px; position: relative;
     }
-    .announce-pulse {
-      display: flex; align-items: center; gap: .45rem; flex-shrink: 0;
-    }
-    .announce-dot {
-      position: relative; width: 8px; height: 8px; flex-shrink: 0;
-    }
+    .announce-pulse { display: flex; align-items: center; gap: .45rem; flex-shrink: 0; }
+    .announce-dot { position: relative; width: 8px; height: 8px; flex-shrink: 0; }
     .announce-dot::before {
       content: ''; position: absolute; inset: 0; border-radius: 50%;
       background: rgba(255,255,255,.5); animation: dotPing 2s cubic-bezier(0,0,.2,1) infinite;
     }
-    .announce-dot::after {
-      content: ''; position: absolute; inset: 1px; border-radius: 50%; background: #fff;
-    }
-    @keyframes dotPing {
-      75%,100% { transform: scale(2.2); opacity: 0; }
-    }
+    .announce-dot::after { content: ''; position: absolute; inset: 1px; border-radius: 50%; background: #fff; }
+    @keyframes dotPing { 75%,100% { transform: scale(2.2); opacity: 0; } }
     .announce-text {
       font-family: 'DM Sans', sans-serif; font-size: .875rem; font-weight: 500; color: #fff;
       display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; justify-content: center;
@@ -268,6 +293,13 @@
       text-decoration: none; transition: background .2s ease; white-space: nowrap;
     }
     .announce-cta:hover { background: rgba(255,255,255,.32); }
+    .announce-rate-tag {
+      display: inline-flex; align-items: center; gap: .25rem;
+      padding: .18rem .6rem; border-radius: 999px;
+      background: rgba(255,255,255,.12); color: rgba(255,255,255,.9);
+      font-family: 'Courier Prime', monospace; font-size: .68rem; font-weight: 700; letter-spacing: .08em;
+      border: 1px solid rgba(255,255,255,.2); white-space: nowrap;
+    }
     #announce-dismiss {
       position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
       width: 28px; height: 28px; border-radius: 6px;
@@ -277,7 +309,14 @@
     }
     #announce-dismiss:hover { background: rgba(255,255,255,.3); }
 
-    /* ── Navbar ─────────────────────────────────── */
+    /* ── Staff Banner (maintenance active) ── */
+    #staff-maintenance-banner {
+      background: #ca4713; text-align: center; padding: .45rem 1rem;
+      font-family: 'Courier Prime', monospace; font-size: .68rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: #fff;
+    }
+
+    /* ── Navbar ── */
     #navbar {
       position: sticky; top: 0; left: 0; right: 0; z-index: 50;
       transition: background .4s ease, border-color .4s ease, box-shadow .4s ease;
@@ -292,7 +331,6 @@
     @media (min-width: 640px)  { .nav-inner { padding: 0 2rem; } }
     @media (min-width: 1024px) { .nav-inner { padding: 0 2.5rem; } }
 
-    /* Logo */
     .nav-logo { display: flex; align-items: center; gap: .7rem; text-decoration: none; flex-shrink: 0; }
     .nav-logo-mark {
       width: 38px; height: 38px; border-radius: 10px; background: #eb5e28; flex-shrink: 0;
@@ -305,7 +343,6 @@
     .nav-logo-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1rem; color: var(--text-primary); transition: color .3s ease; }
     .nav-logo-role { font-family: 'Courier Prime', monospace; font-size: .58rem; font-weight: 700; color: #eb5e28; letter-spacing: .16em; text-transform: uppercase; margin-top: 2px; }
 
-    /* Nav links */
     .nav-links { display: none; }
     @media (min-width: 1024px) { .nav-links { display: flex; align-items: center; gap: .2rem; } }
     .nav-link {
@@ -321,10 +358,8 @@
       width: 4px; height: 4px; border-radius: 50%; background: #eb5e28;
     }
 
-    /* Nav right */
     .nav-right { display: flex; align-items: center; gap: .45rem; flex-shrink: 0; }
 
-    /* Buttons */
     .btn {
       display: inline-flex; align-items: center; gap: .45rem;
       padding: .6rem 1.25rem; border-radius: 8px;
@@ -342,13 +377,11 @@
     .btn-icon { width: 38px; height: 38px; padding: 0; justify-content: center; flex-shrink: 0; }
     .btn-sm { padding: .5rem .9rem; font-size: .8rem; }
 
-    /* Dark toggle */
     #dark-toggle {
       width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       background: var(--bg-muted); border: 1px solid var(--border);
-      cursor: pointer; color: var(--text-muted);
-      transition: all .2s ease;
+      cursor: pointer; color: var(--text-muted); transition: all .2s ease;
     }
     #dark-toggle:hover { color: #eb5e28; border-color: rgba(235,94,40,.3); background: rgba(235,94,40,.06); }
     .icon-sun  { display: none; }
@@ -356,17 +389,15 @@
     html.dark .icon-sun  { display: block; }
     html.dark .icon-moon { display: none; }
 
-    /* Mobile toggle */
     #mobile-toggle { border: 1px solid var(--border); background: var(--bg-muted); border-radius: 9px; }
 
-    /* ── Mobile Drawer ───────────────────────────── */
+    /* ── Mobile Drawer ── */
     #mobile-backdrop {
       position: fixed; inset: 0; z-index: 80;
       background: rgba(37,36,34,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
       opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease;
     }
     #mobile-backdrop.open { opacity: 1; visibility: visible; }
-
     #mobile-panel {
       position: fixed; top: 0; right: 0; bottom: 0; z-index: 90;
       width: min(340px, 88vw); background: var(--bg-base);
@@ -375,7 +406,6 @@
       display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain;
     }
     #mobile-panel.open { transform: translateX(0); }
-
     .mobile-nav-link {
       display: flex; align-items: center; gap: .9rem;
       padding: .85rem 1.1rem; border-radius: 10px; margin: 0 .4rem;
@@ -387,7 +417,6 @@
     .mobile-nav-link .m-icon { width: 18px; text-align: center; font-size: .82rem; flex-shrink: 0; }
     .mobile-nav-link .m-chevron { margin-left: auto; font-size: .65rem; opacity: .6; }
 
-    /* ── Input ──────────────────────────────────── */
     .input {
       width: 100%; padding: .7rem 1rem;
       background: var(--bg-surface); border: 1.5px solid var(--border); border-radius: 8px;
@@ -397,7 +426,6 @@
     .input::placeholder { color: var(--text-faint); }
     .input:focus { border-color: #eb5e28; box-shadow: 0 0 0 3px rgba(235,94,40,.1); }
 
-    /* ── Badges & Tags ──────────────────────────── */
     .badge {
       display: inline-flex; align-items: center; gap: .35rem;
       padding: .28rem .72rem; border-radius: 999px;
@@ -407,6 +435,7 @@
     .badge-paprika { background: rgba(235,94,40,.1);  color: #eb5e28; border: 1px solid rgba(235,94,40,.22); }
     .badge-neutral { background: var(--bg-muted); color: var(--text-muted); border: 1px solid var(--border); }
     .badge-green   { background: rgba(34,197,94,.08); color: #15803d; border: 1px solid rgba(34,197,94,.22); }
+    .badge-amber   { background: rgba(251,191,36,.08); color: #b45309; border: 1px solid rgba(251,191,36,.22); }
     .availability-dot {
       width: 7px; height: 7px; border-radius: 50%; background: #22c55e;
       animation: availPing 2.2s cubic-bezier(0,0,.2,1) infinite;
@@ -419,14 +448,12 @@
 
     .tag {
       display: inline-flex; align-items: center; gap: .22rem;
-      padding: .2rem .6rem; border-radius: 6px;
-      font-size: .75rem; font-weight: 500;
+      padding: .2rem .6rem; border-radius: 6px; font-size: .75rem; font-weight: 500;
       background: var(--bg-muted); color: var(--text-muted); border: 1px solid var(--border);
       text-decoration: none; transition: all .2s ease;
     }
     .tag:hover { background: rgba(235,94,40,.08); color: #eb5e28; border-color: rgba(235,94,40,.22); }
 
-    /* ── Cards ──────────────────────────────────── */
     .card {
       background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px;
       box-shadow: var(--shadow-sm);
@@ -434,10 +461,8 @@
     }
     .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
 
-    /* ── Divider ────────────────────────────────── */
     .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-strong), transparent); border: none; }
 
-    /* ── Scroll Reveal ──────────────────────────── */
     [data-reveal] {
       opacity: 0; transform: translateY(22px);
       transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
@@ -450,22 +475,17 @@
     [data-reveal-delay="5"] { transition-delay: .4s; }
     [data-reveal-delay="6"] { transition-delay: .48s; }
 
-    /* ── Marquee ────────────────────────────────── */
     .marquee-outer { overflow: hidden; }
     .marquee-track { display: flex; width: max-content; animation: marquee 32s linear infinite; }
     .marquee-track:hover { animation-play-state: paused; }
 
-    /* ── Footer ─────────────────────────────────── */
     #site-footer { background: var(--bg-surface); border-top: 1px solid var(--border); transition: background .3s ease, border-color .3s ease; }
     .footer-link {
       display: flex; align-items: center; gap: .5rem;
       font-family: 'DM Sans', sans-serif; font-size: .85rem; color: var(--text-faint);
       text-decoration: none; padding: .22rem 0; transition: color .2s ease;
     }
-    .footer-link::before {
-      content: ''; width: 0; height: 1.5px; background: #eb5e28;
-      transition: width .25s ease; flex-shrink: 0;
-    }
+    .footer-link::before { content: ''; width: 0; height: 1.5px; background: #eb5e28; transition: width .25s ease; flex-shrink: 0; }
     .footer-link:hover { color: #eb5e28; }
     .footer-link:hover::before { width: 10px; }
     .social-btn {
@@ -477,7 +497,6 @@
     }
     .social-btn:hover { background: #eb5e28; border-color: #eb5e28; color: #fff; transform: translateY(-2px); }
 
-    /* ── Back to Top ────────────────────────────── */
     #back-to-top {
       position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 50;
       width: 40px; height: 40px; border-radius: 10px;
@@ -492,7 +511,6 @@
     #back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     #back-to-top:hover { background: #eb5e28; color: #fff; border-color: #eb5e28; }
 
-    /* ── Toast ──────────────────────────────────── */
     #toast-container {
       position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
       display: flex; flex-direction: column; gap: .6rem; max-width: 360px; width: 100%;
@@ -510,14 +528,9 @@
     .toast.hide { transform: translateX(14px); opacity: 0; transition: transform .25s ease, opacity .25s ease; }
     .toast-icon { font-size: .88rem; margin-top: 1px; flex-shrink: 0; }
     .toast-body { font-family: 'DM Sans', sans-serif; font-size: .85rem; color: var(--text-primary); line-height: 1.5; flex: 1; }
-    .toast-close {
-      flex-shrink: 0; background: none; border: none; cursor: pointer;
-      color: var(--text-faint); font-size: .72rem; padding: .1rem; border-radius: 4px;
-      transition: color .15s ease; margin-top: 1px;
-    }
+    .toast-close { flex-shrink: 0; background: none; border: none; cursor: pointer; color: var(--text-faint); font-size: .72rem; padding: .1rem; border-radius: 4px; transition: color .15s ease; margin-top: 1px; }
     .toast-close:hover { color: var(--text-primary); }
 
-    /* ── Tooltip ────────────────────────────────── */
     [data-tip] { position: relative; }
     [data-tip]::after {
       content: attr(data-tip);
@@ -530,15 +543,12 @@
     }
     [data-tip]:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
 
-    /* ── SR-only ────────────────────────────────── */
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
-    /* ── Container ──────────────────────────────── */
     .cx { max-width: 1280px; margin: 0 auto; padding: 0 1.25rem; }
     @media (min-width: 640px)  { .cx { padding: 0 2rem; } }
     @media (min-width: 1024px) { .cx { padding: 0 2.5rem; } }
 
-    /* Hidden helpers */
     .hidden-mobile { display: none; }
     @media (min-width: 640px)  { .hidden-mobile { display: flex; } }
     .hidden-md { display: none; }
@@ -548,20 +558,21 @@
     .mobile-only { display: flex; }
     @media (min-width: 1024px) { .mobile-only { display: none; } }
 
-    /* Footer grid */
-    .footer-grid {
-      display: grid; grid-template-columns: 1fr; gap: 2.5rem;
-    }
+    .footer-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
     @media (min-width: 640px)  { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .footer-grid { grid-template-columns: 5fr 2fr 2fr 5fr; } }
 
-    /* Announce transition */
-    #announcement-bar { max-height: 100px; }
+    /* Freelance rate pill in footer */
+    .rate-pill {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .28rem .72rem; border-radius: 8px;
+      background: rgba(235,94,40,.07); border: 1px solid rgba(235,94,40,.18);
+      font-family: 'Courier Prime', monospace; font-size: .7rem; font-weight: 700;
+      color: #eb5e28; letter-spacing: .06em;
+    }
   </style>
 
-  <!-- ═══════════════════════════════════════════════
-       STRUCTURED DATA
-  ═══════════════════════════════════════════════ -->
+  {# ── STRUCTURED DATA ───────────────────────────────────────────── #}
   {% block structured_data %}
   <script type="application/ld+json">
   {% if json_ld %}{{ json_ld|safe }}{% else %}{
@@ -574,11 +585,32 @@
   }{% endif %}
   </script>
   {% endblock %}
+
+  {# ── GOOGLE ANALYTICS 4 — only when ID is configured ──────────── #}
+  {% if site_settings.google_analytics_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site_settings.google_analytics_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ site_settings.google_analytics_id }}', {anonymize_ip: true});
+  </script>
+  {% endif %}
+
+  {# ── FACEBOOK PIXEL — only when ID is configured ───────────────── #}
+  {% if site_settings.facebook_pixel_id %}
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '{{ site_settings.facebook_pixel_id }}');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ site_settings.facebook_pixel_id }}&ev=PageView&noscript=1" alt=""/></noscript>
+  {% endif %}
 </head>
 
 <body>
 
-  <!-- ═══════ PAGE LOADER ═══════════════════════════ -->
+  {# ── PAGE LOADER ─────────────────────────────────────────────────── #}
   <div id="page-loader" role="presentation" aria-hidden="true">
     <div class="loader-monogram">BG</div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:.65rem;">
@@ -587,14 +619,24 @@
     </div>
   </div>
 
-  <!-- ═══════ READING PROGRESS ═════════════════════ -->
+  {# ── READING PROGRESS ────────────────────────────────────────────── #}
   <div id="reading-progress" aria-hidden="true"></div>
 
-  <!-- ═══════ SKIP LINK ════════════════════════════ -->
+  {# ── SKIP LINK ───────────────────────────────────────────────────── #}
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- ═══════ ANNOUNCEMENT BAR ═════════════════════ -->
-  {% if site_settings.available_for_work %}
+  {# ── STAFF MAINTENANCE BANNER — shown only to staff while maintenance is on #}
+  {% if site_settings.maintenance_mode and request.user.is_staff %}
+  <div id="staff-maintenance-banner" role="alert" aria-live="polite">
+    <i class="fas fa-triangle-exclamation"></i>
+    Maintenance mode is <strong>ON</strong> — this banner is visible to staff only.
+    Visitors see a "Be right back" page.
+  </div>
+  {% endif %}
+
+  {# ── ANNOUNCEMENT BAR ────────────────────────────────────────────── #}
+  {# Show bar only when "available for work" OR "available for freelance" is enabled #}
+  {% if site_settings.available_for_work or site_settings.available_for_freelance %}
   <div id="announcement-bar" role="banner" aria-label="Work availability">
     <div class="cx">
       <div class="announce-inner">
@@ -603,7 +645,20 @@
           <span style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.72);">Status</span>
         </div>
         <p class="announce-text">
-          Open to freelance projects &amp; full-time roles
+          {% if site_settings.available_for_work and site_settings.available_for_freelance %}
+            Open to full-time roles &amp; freelance projects
+          {% elif site_settings.available_for_work %}
+            Open to full-time opportunities
+          {% elif site_settings.available_for_freelance %}
+            Available for freelance &amp; contract work
+          {% endif %}
+          {# Hourly rate pill — show when available for freelance and rate is set #}
+          {% if site_settings.available_for_freelance and site_settings.hourly_rate %}
+          <span class="announce-rate-tag">
+            <i class="fas fa-dollar-sign" style="font-size:.55rem;"></i>
+            From ${{ site_settings.hourly_rate|floatformat:0 }}/hr
+          </span>
+          {% endif %}
           <a href="{% url 'contact' %}" class="announce-cta">
             Let's talk <i class="fas fa-arrow-right" style="font-size:.6rem;"></i>
           </a>
@@ -616,44 +671,46 @@
   </div>
   {% endif %}
 
-  <!-- ═══════ NAVBAR ════════════════════════════════ -->
+  {# ── NAVBAR ──────────────────────────────────────────────────────── #}
   <nav id="navbar" role="navigation" aria-label="Main navigation">
     <div class="nav-inner">
 
-      <!-- Logo -->
-      <a href="{% url 'home' %}" class="nav-logo" aria-label="Brian Getenga — Homepage">
+      {# Logo — uses site_settings name dynamically #}
+      <a href="{% url 'home' %}" class="nav-logo" aria-label="{{ site_settings.site_name|default:'Brian Getenga' }} — Homepage">
         <div class="nav-logo-mark">BG</div>
         <div class="nav-logo-text">
-          <div class="nav-logo-name">Brian Getenga</div>
+          <div class="nav-logo-name">{{ site_settings.site_name|default:"Brian Getenga" }}</div>
           <div class="nav-logo-role">Full Stack Dev</div>
         </div>
       </a>
 
-      <!-- Desktop Links -->
+      {# Desktop Links — blog hidden when disabled in admin #}
       <div class="nav-links" role="list" aria-label="Site pages">
         {% with request.resolver_match.url_name as u %}
-        <a href="{% url 'home' %}"     class="nav-link {% if u == 'home' %}active{% endif %}"                                       role="listitem">Home</a>
-        <a href="{% url 'projects' %}" class="nav-link {% if u == 'projects' or u == 'project_detail' %}active{% endif %}"          role="listitem">Projects</a>
-        <a href="{% url 'blog' %}"     class="nav-link {% if u == 'blog' or u == 'blog_detail' %}active{% endif %}"                 role="listitem">Blog</a>
-        <a href="{% url 'services' %}" class="nav-link {% if u == 'services' or u == 'service_detail' %}active{% endif %}"          role="listitem">Services</a>
-        <a href="{% url 'about' %}"    class="nav-link {% if u == 'about' %}active{% endif %}"                                      role="listitem">About</a>
+        <a href="{% url 'home' %}"     class="nav-link {% if u == 'home' %}active{% endif %}" role="listitem">Home</a>
+        <a href="{% url 'projects' %}" class="nav-link {% if u == 'projects' or u == 'project_detail' %}active{% endif %}" role="listitem">Projects</a>
+        {% if site_settings.enable_blog %}
+        <a href="{% url 'blog' %}"     class="nav-link {% if u == 'blog' or u == 'blog_detail' %}active{% endif %}" role="listitem">Blog</a>
+        {% endif %}
+        <a href="{% url 'services' %}" class="nav-link {% if u == 'services' or u == 'service_detail' %}active{% endif %}" role="listitem">Services</a>
+        <a href="{% url 'about' %}"    class="nav-link {% if u == 'about' %}active{% endif %}" role="listitem">About</a>
         {% endwith %}
       </div>
 
-      <!-- Right Actions -->
+      {# Right Actions #}
       <div class="nav-right">
-        <!-- Search -->
         <a href="{% url 'search' %}" class="btn btn-ghost btn-icon hidden-mobile" aria-label="Search" data-tip="Search site">
           <i class="fas fa-search" style="font-size:.82rem;"></i>
         </a>
 
-        <!-- Dark Mode Toggle -->
+        {# Dark mode toggle — only rendered when enabled in admin #}
+        {% if site_settings.enable_dark_mode %}
         <button id="dark-toggle" aria-label="Toggle dark/light mode" data-tip="Toggle theme">
           <i class="fas fa-sun  icon-sun"  aria-hidden="true" style="font-size:.82rem;"></i>
           <i class="fas fa-moon icon-moon" aria-hidden="true" style="font-size:.82rem;"></i>
         </button>
+        {% endif %}
 
-        <!-- Resume -->
         {% if site_settings.resume_file %}
         <a href="{% url 'download_resume' %}" class="btn btn-outline btn-sm hidden-md" aria-label="Download resume">
           <i class="fas fa-file-arrow-down" style="font-size:.78rem;"></i>
@@ -661,13 +718,11 @@
         </a>
         {% endif %}
 
-        <!-- Hire Me -->
         <a href="{% url 'contact' %}" class="btn btn-primary btn-sm hidden-mobile">
           <i class="fas fa-paper-plane" style="font-size:.72rem;"></i>
           Hire Me
         </a>
 
-        <!-- Mobile Toggle -->
         <button id="mobile-toggle" class="btn btn-ghost btn-icon mobile-only"
                 aria-expanded="false" aria-controls="mobile-panel" aria-label="Open navigation">
           <i class="fas fa-bars" style="font-size:.95rem;color:var(--text-muted);"></i>
@@ -676,23 +731,30 @@
     </div>
   </nav>
 
-  <!-- ═══════ MOBILE DRAWER ════════════════════════ -->
+  {# ── MOBILE DRAWER ───────────────────────────────────────────────── #}
   <div id="mobile-backdrop" aria-hidden="true" onclick="closeMobileNav()"></div>
 
   <aside id="mobile-panel" role="dialog" aria-modal="true" aria-label="Navigation menu" tabindex="-1">
-
-    <!-- Header -->
+    {# Header #}
     <div style="display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:.7rem;">
         <div style="width:34px;height:34px;border-radius:9px;background:#eb5e28;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;color:#fff;font-size:13px;flex-shrink:0;">BG</div>
-        <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:.92rem;color:var(--text-primary);">Brian Getenga</span>
+        <div>
+          <span style="font-family:'Playfair Display',serif;font-weight:700;font-size:.92rem;color:var(--text-primary);display:block;">{{ site_settings.site_name|default:"Brian Getenga" }}</span>
+          {# Show availability status chip in drawer header #}
+          {% if site_settings.available_for_work or site_settings.available_for_freelance %}
+          <span style="display:inline-flex;align-items:center;gap:.3rem;font-family:'Courier Prime',monospace;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#15803d;">
+            <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;"></span> Available
+          </span>
+          {% endif %}
+        </div>
       </div>
       <button onclick="closeMobileNav()" class="btn btn-ghost btn-icon" style="border:1px solid var(--border);" aria-label="Close navigation">
         <i class="fas fa-times" style="font-size:.88rem;color:var(--text-muted);"></i>
       </button>
     </div>
 
-    <!-- Nav Links -->
+    {# Nav Links #}
     <nav style="padding:.65rem .4rem;flex:1;" aria-label="Mobile navigation">
       {% with request.resolver_match.url_name as u %}
       <a href="{% url 'home' %}"     class="mobile-nav-link {% if u == 'home' %}active{% endif %}">
@@ -701,9 +763,11 @@
       <a href="{% url 'projects' %}" class="mobile-nav-link {% if u == 'projects' or u == 'project_detail' %}active{% endif %}">
         <i class="fas fa-code m-icon"></i>Projects{% if u == 'projects' or u == 'project_detail' %}<i class="fas fa-chevron-right m-chevron"></i>{% endif %}
       </a>
+      {% if site_settings.enable_blog %}
       <a href="{% url 'blog' %}"     class="mobile-nav-link {% if u == 'blog' or u == 'blog_detail' %}active{% endif %}">
         <i class="fas fa-pen-nib m-icon"></i>Blog{% if u == 'blog' or u == 'blog_detail' %}<i class="fas fa-chevron-right m-chevron"></i>{% endif %}
       </a>
+      {% endif %}
       <a href="{% url 'services' %}" class="mobile-nav-link {% if u == 'services' or u == 'service_detail' %}active{% endif %}">
         <i class="fas fa-briefcase m-icon"></i>Services{% if u == 'services' or u == 'service_detail' %}<i class="fas fa-chevron-right m-chevron"></i>{% endif %}
       </a>
@@ -717,9 +781,17 @@
         <i class="fas fa-search m-icon"></i>Search{% if u == 'search' %}<i class="fas fa-chevron-right m-chevron"></i>{% endif %}
       </a>
       {% endwith %}
+
+      {# Hourly rate info row inside drawer — shown when freelance is enabled + rate set #}
+      {% if site_settings.available_for_freelance and site_settings.hourly_rate %}
+      <div style="margin:.65rem .4rem 0;padding:.75rem 1.1rem;border-radius:10px;background:rgba(235,94,40,.06);border:1px solid rgba(235,94,40,.14);display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
+        <span style="font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-muted);">Freelance rate</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.8rem;font-weight:700;color:#eb5e28;">from ${{ site_settings.hourly_rate|floatformat:0 }}/hr</span>
+      </div>
+      {% endif %}
     </nav>
 
-    <!-- Footer Actions -->
+    {# Footer Actions #}
     <div style="padding:1rem .75rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:.55rem;">
       <a href="{% url 'contact' %}" class="btn btn-primary" style="justify-content:center;width:100%;" onclick="closeMobileNav()">
         <i class="fas fa-paper-plane" style="font-size:.72rem;"></i> Hire Me
@@ -730,48 +802,56 @@
       </a>
       {% endif %}
 
-      <!-- Theme toggle -->
+      {# Dark mode toggle in drawer — only when enabled in admin #}
+      {% if site_settings.enable_dark_mode %}
       <button onclick="toggleDark()" id="mobile-theme-btn"
               style="display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;padding:.65rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-muted);font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .2s ease;">
         <i class="fas fa-moon icon-moon" style="font-size:.82rem;"></i>
         <i class="fas fa-sun  icon-sun"  style="font-size:.82rem;display:none;"></i>
         <span class="mobile-theme-label">Switch to Dark Mode</span>
       </button>
+      {% endif %}
 
-      <!-- Socials -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;padding-top:.2rem;">
+      {# Social buttons — all platforms wired up #}
+      <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;padding-top:.2rem;">
         {% if site_settings.github_url %}
-        <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="GitHub">
-          <i class="fab fa-github"></i>
-        </a>
+        <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="GitHub"><i class="fab fa-github"></i></a>
         {% endif %}
         {% if site_settings.linkedin_url %}
-        <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
+        <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         {% endif %}
         {% if site_settings.twitter_url %}
-        <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitter / X">
-          <i class="fab fa-x-twitter"></i>
-        </a>
+        <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitter / X"><i class="fab fa-x-twitter"></i></a>
+        {% endif %}
+        {% if site_settings.instagram_url %}
+        <a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        {% endif %}
+        {% if site_settings.behance_url %}
+        <a href="{{ site_settings.behance_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Behance"><i class="fab fa-behance"></i></a>
+        {% endif %}
+        {% if site_settings.dribbble_url %}
+        <a href="{{ site_settings.dribbble_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Dribbble"><i class="fab fa-dribbble"></i></a>
         {% endif %}
       </div>
 
-      {% if site_settings.available_for_work %}
+      {# Availability badge in drawer footer #}
+      {% if site_settings.available_for_work or site_settings.available_for_freelance %}
       <div style="display:flex;align-items:center;justify-content:center;gap:.45rem;">
         <span class="availability-dot"></span>
-        <span style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#15803d;">Available for work</span>
+        <span style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#15803d;">
+          {% if site_settings.available_for_work and site_settings.available_for_freelance %}Available for work &amp; freelance{% elif site_settings.available_for_work %}Available for full-time{% else %}Available for freelance{% endif %}
+        </span>
       </div>
       {% endif %}
     </div>
   </aside>
 
-  <!-- ═══════ MAIN CONTENT ══════════════════════════ -->
+  {# ── MAIN CONTENT ────────────────────────────────────────────────── #}
   <main id="main-content" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- ═══════ MARQUEE STRIP ════════════════════════ -->
+  {# ── MARQUEE STRIP ───────────────────────────────────────────────── #}
   {% block marquee_strip %}
   <div aria-hidden="true" style="background:#eb5e28;padding:.65rem 0;overflow:hidden;">
     <div class="marquee-track">
@@ -787,55 +867,83 @@
   </div>
   {% endblock %}
 
-  <!-- ═══════ FOOTER ════════════════════════════════ -->
+  {# ── FOOTER ──────────────────────────────────────────────────────── #}
   <footer id="site-footer" role="contentinfo">
-
-    <!-- Top accent -->
     <div style="height:3px;background:linear-gradient(90deg,transparent,#eb5e28 30%,#ca4713 70%,transparent);"></div>
 
     <div class="cx" style="padding-top:3.5rem;padding-bottom:2rem;">
-
-      <!-- Main Grid -->
       <div class="footer-grid" style="padding-bottom:2.5rem;border-bottom:1px solid var(--border);">
 
-        <!-- Brand Column -->
+        {# Brand Column #}
         <div>
           <a href="{% url 'home' %}" style="display:inline-flex;align-items:center;gap:.7rem;text-decoration:none;margin-bottom:1.1rem;">
             <div style="width:42px;height:42px;border-radius:11px;background:#eb5e28;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;color:#fff;font-size:16px;flex-shrink:0;transition:transform .25s ease;"
                  onmouseover="this.style.transform='scale(1.07)'" onmouseout="this.style.transform='scale(1)'">BG</div>
             <div>
-              <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--text-primary);line-height:1.1;">Brian Getenga</div>
+              <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--text-primary);line-height:1.1;">{{ site_settings.site_name|default:"Brian Getenga" }}</div>
               <div style="font-family:'Courier Prime',monospace;font-size:.6rem;font-weight:700;color:#eb5e28;letter-spacing:.16em;text-transform:uppercase;margin-top:2px;">Full Stack Developer</div>
             </div>
           </a>
-          <p style="font-family:'DM Sans',sans-serif;font-size:.85rem;line-height:1.75;color:var(--text-faint);max-width:260px;margin-bottom:1.25rem;">
-            Crafting purposeful digital products from Nairobi, Kenya — with attention to craft, performance, and people.
+          <p style="font-family:'DM Sans',sans-serif;font-size:.85rem;line-height:1.75;color:var(--text-faint);max-width:260px;margin-bottom:1.1rem;">
+            {{ site_settings.site_description|default:"Crafting purposeful digital products from Nairobi, Kenya — with attention to craft, performance, and people." }}
           </p>
-          {% if site_settings.available_for_work %}
-          <div class="badge badge-green" style="margin-bottom:1.2rem;gap:.45rem;">
-            <span class="availability-dot"></span> Open to opportunities
+
+          {# Availability badges — driven entirely by SiteSettings flags #}
+          <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.15rem;">
+            {% if site_settings.available_for_work %}
+            <span class="badge badge-green" style="gap:.4rem;"><span class="availability-dot"></span> Open to work</span>
+            {% endif %}
+            {% if site_settings.available_for_freelance %}
+            <span class="badge badge-paprika" style="gap:.4rem;"><i class="fas fa-bolt" style="font-size:.6rem;"></i> Freelance</span>
+            {% endif %}
+          </div>
+
+          {# Hourly rate badge — shown only when freelance is on AND rate is set #}
+          {% if site_settings.available_for_freelance and site_settings.hourly_rate %}
+          <div class="rate-pill" style="margin-bottom:1.15rem;">
+            <i class="fas fa-dollar-sign" style="font-size:.6rem;"></i>
+            From ${{ site_settings.hourly_rate|floatformat:0 }}/hr
           </div>
           {% endif %}
+
+          {# Social icons — all seven platforms #}
           <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
             {% if site_settings.github_url %}
-            <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="GitHub profile"><i class="fab fa-github"></i></a>
+            <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="GitHub"><i class="fab fa-github"></i></a>
             {% endif %}
             {% if site_settings.linkedin_url %}
-            <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn profile"><i class="fab fa-linkedin-in"></i></a>
+            <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
             {% endif %}
             {% if site_settings.twitter_url %}
-            <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitter / X profile"><i class="fab fa-x-twitter"></i></a>
+            <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitter / X"><i class="fab fa-x-twitter"></i></a>
+            {% endif %}
+            {% if site_settings.instagram_url %}
+            <a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            {% endif %}
+            {% if site_settings.behance_url %}
+            <a href="{{ site_settings.behance_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Behance"><i class="fab fa-behance"></i></a>
+            {% endif %}
+            {% if site_settings.dribbble_url %}
+            <a href="{{ site_settings.dribbble_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Dribbble"><i class="fab fa-dribbble"></i></a>
+            {% endif %}
+            {% if site_settings.youtube_url %}
+            <a href="{{ site_settings.youtube_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            {% endif %}
+            {% if site_settings.facebook_url %}
+            <a href="{{ site_settings.facebook_url }}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
             {% endif %}
           </div>
         </div>
 
-        <!-- Navigate Column -->
+        {# Navigate Column — blog link gated by enable_blog #}
         <div>
           <h4 style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-primary);opacity:.55;margin-bottom:1.1rem;">Navigate</h4>
           <nav aria-label="Footer navigation links" style="display:flex;flex-direction:column;gap:.05rem;">
             <a href="{% url 'home' %}"     class="footer-link">Home</a>
             <a href="{% url 'projects' %}" class="footer-link">Projects</a>
+            {% if site_settings.enable_blog %}
             <a href="{% url 'blog' %}"     class="footer-link">Blog</a>
+            {% endif %}
             <a href="{% url 'services' %}" class="footer-link">Services</a>
             <a href="{% url 'about' %}"    class="footer-link">About</a>
             <a href="{% url 'contact' %}"  class="footer-link">Contact</a>
@@ -843,7 +951,7 @@
           </nav>
         </div>
 
-        <!-- Services Column -->
+        {# Services Column #}
         <div>
           <h4 style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-primary);opacity:.55;margin-bottom:1.1rem;">Services</h4>
           <div style="display:flex;flex-direction:column;gap:.05rem;">
@@ -858,10 +966,9 @@
           </div>
         </div>
 
-        <!-- Contact + Newsletter Column -->
+        {# Contact + Newsletter Column #}
         <div>
           <h4 style="font-family:'Courier Prime',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-primary);opacity:.55;margin-bottom:1.1rem;">Get In Touch</h4>
-          <!-- Contact info -->
           <div style="display:flex;flex-direction:column;gap:.85rem;margin-bottom:1.35rem;">
             <a href="mailto:{{ site_settings.email|default:'briangetenga3@gmail.com' }}" style="display:flex;align-items:center;gap:.7rem;text-decoration:none;">
               <div style="width:32px;height:32px;border-radius:8px;background:rgba(235,94,40,.1);border:1px solid rgba(235,94,40,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -874,6 +981,17 @@
                 </div>
               </div>
             </a>
+            {% if site_settings.phone %}
+            <a href="tel:{{ site_settings.phone }}" style="display:flex;align-items:center;gap:.7rem;text-decoration:none;">
+              <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-muted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-phone" style="color:#eb5e28;font-size:.72rem;"></i>
+              </div>
+              <div>
+                <div style="font-family:'Courier Prime',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:1px;">Phone</div>
+                <div style="font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-muted);">{{ site_settings.phone }}</div>
+              </div>
+            </a>
+            {% endif %}
             <div style="display:flex;align-items:center;gap:.7rem;">
               <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-muted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <i class="fas fa-location-dot" style="color:#eb5e28;font-size:.72rem;"></i>
@@ -884,12 +1002,15 @@
               </div>
             </div>
           </div>
+
           {% if site_settings.resume_file %}
           <a href="{% url 'download_resume' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.35rem;">
             <i class="fas fa-file-arrow-down" style="font-size:.75rem;"></i> Download CV
           </a>
           {% endif %}
-          <!-- Newsletter mini form -->
+
+          {# Newsletter mini form — gated by enable_newsletter flag #}
+          {% if site_settings.enable_newsletter %}
           <p style="font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;color:var(--text-secondary);margin-bottom:.6rem;">
             Stay in the loop <span style="color:#eb5e28;">→</span>
           </p>
@@ -908,10 +1029,16 @@
               <i class="fas fa-circle-check"></i> You're in! Check your inbox.
             </p>
           </div>
+          {% else %}
+          {# Newsletter is disabled — show a simple CTA instead #}
+          <a href="{% url 'contact' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-paper-plane" style="font-size:.72rem;"></i> Work With Me
+          </a>
+          {% endif %}
         </div>
       </div>
 
-      <!-- Bottom Bar -->
+      {# Bottom Bar #}
       <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;padding-top:1.4rem;">
         <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-faint);">
           {{ site_settings.footer_text|default:"© 2024 Brian Getenga. All rights reserved." }}
@@ -919,9 +1046,10 @@
         <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;">
           <a href="{% url 'search' %}"  style="font-family:'Courier Prime',monospace;font-size:.68rem;letter-spacing:.06em;color:var(--text-faint);text-decoration:none;transition:color .2s ease;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'">Search</a>
           <span style="color:var(--border-strong);">·</span>
-          <a href="/sitemap.xml"        style="font-family:'Courier Prime',monospace;font-size:.68rem;letter-spacing:.06em;color:var(--text-faint);text-decoration:none;transition:color .2s ease;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'">Sitemap</a>
+          <a href="/sitemap.xml" style="font-family:'Courier Prime',monospace;font-size:.68rem;letter-spacing:.06em;color:var(--text-faint);text-decoration:none;transition:color .2s ease;" onmouseover="this.style.color='#eb5e28'" onmouseout="this.style.color='var(--text-faint)'">Sitemap</a>
           <span style="color:var(--border-strong);">·</span>
           <span style="font-family:'Courier Prime',monospace;font-size:.68rem;color:var(--text-faint);">Made with <span style="color:#eb5e28;">♥</span> in Nairobi 🇰🇪</span>
+          {% if site_settings.enable_dark_mode %}
           <span style="color:var(--border-strong);">·</span>
           <button onclick="toggleDark()" aria-label="Toggle colour theme"
                   style="display:inline-flex;align-items:center;gap:.4rem;background:none;border:none;cursor:pointer;font-family:'Courier Prime',monospace;font-size:.68rem;color:var(--text-faint);padding:0;transition:color .2s ease;"
@@ -930,29 +1058,27 @@
             <i class="fas fa-sun  icon-sun"  style="font-size:.68rem;display:none;"></i>
             <span class="theme-label">Dark</span>
           </button>
+          {% endif %}
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- ═══════ BACK TO TOP ═══════════════════════════ -->
+  {# ── BACK TO TOP ─────────────────────────────────────────────────── #}
   <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top" data-tip="Back to top">
     <i class="fas fa-chevron-up"></i>
   </button>
 
-  <!-- ═══════ TOAST CONTAINER ══════════════════════ -->
+  {# ── TOAST CONTAINER ─────────────────────────────────────────────── #}
   <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
-  <!-- ═══════ PAGE-SPECIFIC SCRIPTS ════════════════ -->
+  {# ── PAGE-SPECIFIC SCRIPTS ───────────────────────────────────────── #}
   {% block extra_js %}{% endblock %}
 
-  <!-- ═══════ GLOBAL JAVASCRIPT ════════════════════ -->
+  {# ── GLOBAL JAVASCRIPT ───────────────────────────────────────────── #}
   <script>
-  /* ──────────────────────────────────────────────
-     UTILITIES
-  ────────────────────────────────────────────── */
+  /* ── UTILITIES ─────────────────────────────────────────────────────── */
   function getCookie(n){var v='; '+document.cookie,p=v.split('; '+n+'=');if(p.length===2)return decodeURIComponent(p.pop().split(';').shift());return null;}
-
   window.fetchWithCSRF = function(url, opts){
     opts = opts || {};
     return fetch(url, Object.assign({}, opts, {
@@ -960,71 +1086,70 @@
     }));
   };
 
-  /* ──────────────────────────────────────────────
-     PAGE LOADER
-  ────────────────────────────────────────────── */
+  /* Feature flags passed from Django to JS — child templates can read these */
+  window.SITE_FLAGS = {
+    enableBlog:         {{ site_settings.enable_blog|yesno:"true,false" }},
+    enableNewsletter:   {{ site_settings.enable_newsletter|yesno:"true,false" }},
+    enableTestimonials: {{ site_settings.enable_testimonials|yesno:"true,false" }},
+    enableDarkMode:     {{ site_settings.enable_dark_mode|yesno:"true,false" }},
+    availableForWork:   {{ site_settings.available_for_work|yesno:"true,false" }},
+    availableFreelance: {{ site_settings.available_for_freelance|yesno:"true,false" }},
+    maintenanceMode:    {{ site_settings.maintenance_mode|yesno:"true,false" }},
+  };
+
+  /* ── PAGE LOADER ───────────────────────────────────────────────────── */
   (function(){
     var loader = document.getElementById('page-loader');
     var label  = document.getElementById('loader-label');
     var steps  = ['Initializing…','Loading resources…','Almost there…','Welcome!'];
     var i = 0;
     var tick = setInterval(function(){ if(label && steps[++i]) label.textContent = steps[i]; }, 420);
-
     function hide(){
       clearInterval(tick);
       if(label) label.textContent = 'Welcome!';
       setTimeout(function(){ if(loader) loader.classList.add('loaded'); }, 80);
     }
-
     if(document.readyState === 'complete'){ hide(); }
     else { window.addEventListener('load', hide); setTimeout(hide, 2800); }
   })();
 
-  /* ──────────────────────────────────────────────
-     DARK MODE
-  ────────────────────────────────────────────── */
+  /* ── DARK MODE ─────────────────────────────────────────────────────── */
+  {% if site_settings.enable_dark_mode %}
   function applyTheme(t){
     var html = document.documentElement;
     if(t === 'dark'){ html.classList.add('dark'); } else { html.classList.remove('dark'); }
     html.setAttribute('data-theme', t);
     localStorage.setItem('bg-theme', t);
-
-    // sync all icons / labels
     document.querySelectorAll('.icon-sun').forEach(function(el){ el.style.display = t==='dark'?'block':'none'; });
     document.querySelectorAll('.icon-moon').forEach(function(el){ el.style.display = t==='dark'?'none':'block'; });
     document.querySelectorAll('.theme-label').forEach(function(el){ el.textContent = t==='dark'?'Light':'Dark'; });
     document.querySelectorAll('.mobile-theme-label').forEach(function(el){ el.textContent = t==='dark'?'Switch to Light Mode':'Switch to Dark Mode'; });
   }
-
   function toggleDark(){
     applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
   }
-
-  // Run on load to sync UI with stored value
   document.addEventListener('DOMContentLoaded', function(){
     var stored = localStorage.getItem('bg-theme');
     var prefer = window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
     applyTheme(stored||prefer);
   });
-
-  // OS change listener (only when no manual preference)
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e){
     if(!localStorage.getItem('bg-theme')) applyTheme(e.matches?'dark':'light');
   });
+  var _dt = document.getElementById('dark-toggle');
+  if(_dt) _dt.addEventListener('click', toggleDark);
+  {% else %}
+  /* Dark mode disabled — expose no-op so inline onclick="toggleDark()" calls don't throw */
+  function applyTheme(t){ /* dark mode disabled */ }
+  function toggleDark(){ /* dark mode disabled */ }
+  {% endif %}
 
-  document.getElementById('dark-toggle').addEventListener('click', toggleDark);
-
-  /* ──────────────────────────────────────────────
-     ANNOUNCEMENT BAR DISMISS
-  ────────────────────────────────────────────── */
+  /* ── ANNOUNCEMENT BAR DISMISS ──────────────────────────────────────── */
   (function(){
     var bar     = document.getElementById('announcement-bar');
     var dismiss = document.getElementById('announce-dismiss');
     if(!bar||!dismiss) return;
-
-    // Persist dismiss for session
     if(sessionStorage.getItem('ann-dismissed')==='1'){ bar.style.display='none'; return; }
-
     dismiss.addEventListener('click', function(){
       bar.style.transition = 'max-height .4s ease, opacity .35s ease, padding .35s ease';
       bar.style.maxHeight  = bar.scrollHeight + 'px';
@@ -1041,20 +1166,15 @@
     });
   })();
 
-  /* ──────────────────────────────────────────────
-     NAVBAR SCROLL STATE
-  ────────────────────────────────────────────── */
+  /* ── NAVBAR SCROLL STATE ───────────────────────────────────────────── */
   (function(){
-    var nav = document.getElementById('navbar');
-    var ticking = false;
+    var nav = document.getElementById('navbar'); var ticking = false;
     function update(){ nav.classList.toggle('scrolled', window.scrollY > 45); ticking=false; }
     window.addEventListener('scroll', function(){ if(!ticking){ requestAnimationFrame(update); ticking=true; } }, {passive:true});
     update();
   })();
 
-  /* ──────────────────────────────────────────────
-     MOBILE DRAWER
-  ────────────────────────────────────────────── */
+  /* ── MOBILE DRAWER ─────────────────────────────────────────────────── */
   function openMobileNav(){
     document.getElementById('mobile-panel').classList.add('open');
     document.getElementById('mobile-backdrop').classList.add('open');
@@ -1062,7 +1182,6 @@
     document.body.style.overflow = 'hidden';
     setTimeout(function(){ var el=document.querySelector('#mobile-panel a,#mobile-panel button'); if(el) el.focus(); }, 60);
   }
-
   function closeMobileNav(){
     document.getElementById('mobile-panel').classList.remove('open');
     document.getElementById('mobile-backdrop').classList.remove('open');
@@ -1070,11 +1189,8 @@
     document.body.style.overflow = '';
     document.getElementById('mobile-toggle').focus();
   }
-
   document.getElementById('mobile-toggle').addEventListener('click', openMobileNav);
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('mobile-panel').classList.contains('open')) closeMobileNav(); });
-
-  // Focus trap inside drawer
   document.getElementById('mobile-panel').addEventListener('keydown', function(e){
     if(e.key!=='Tab') return;
     var els = this.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])');
@@ -1083,10 +1199,7 @@
     else           { if(document.activeElement===last ){ e.preventDefault(); first.focus(); } }
   });
 
-  /* ──────────────────────────────────────────────
-     READING PROGRESS
-     Enable by adding class "with-progress" to <main>
-  ────────────────────────────────────────────── */
+  /* ── READING PROGRESS (opt-in: add class "with-progress" to <main>) ── */
   (function(){
     var bar  = document.getElementById('reading-progress');
     var main = document.getElementById('main-content');
@@ -1100,9 +1213,7 @@
     window.addEventListener('scroll', function(){ if(!ticking){ requestAnimationFrame(update); ticking=true; } }, {passive:true});
   })();
 
-  /* ──────────────────────────────────────────────
-     SCROLL REVEAL
-  ────────────────────────────────────────────── */
+  /* ── SCROLL REVEAL ─────────────────────────────────────────────────── */
   (function(){
     if(!('IntersectionObserver' in window)){
       document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('revealed'); });
@@ -1116,25 +1227,20 @@
     document.querySelectorAll('[data-reveal]').forEach(function(el){ obs.observe(el); });
   })();
 
-  /* ──────────────────────────────────────────────
-     BACK TO TOP
-  ────────────────────────────────────────────── */
+  /* ── BACK TO TOP ───────────────────────────────────────────────────── */
   (function(){
     var btn = document.getElementById('back-to-top'), ticking=false;
     function update(){ btn.classList.toggle('visible', window.scrollY>480); ticking=false; }
     window.addEventListener('scroll', function(){ if(!ticking){ requestAnimationFrame(update); ticking=true; } }, {passive:true});
   })();
 
-  /* ──────────────────────────────────────────────
-     TOAST SYSTEM
-  ────────────────────────────────────────────── */
+  /* ── TOAST SYSTEM ──────────────────────────────────────────────────── */
   var TOAST_CFG = {
     success:{icon:'fa-circle-check',        color:'#15803d', border:'rgba(34,197,94,.24)'},
     error:  {icon:'fa-circle-xmark',        color:'#dc2626', border:'rgba(239,68,68,.24)'},
     warning:{icon:'fa-triangle-exclamation',color:'#d97706', border:'rgba(245,158,11,.24)'},
     info:   {icon:'fa-circle-info',         color:'#eb5e28', border:'rgba(235,94,40,.24)'},
   };
-
   function showToast(msg, type, dur){
     type = type||'info'; dur = dur||4800;
     var c = TOAST_CFG[type]||TOAST_CFG.info;
@@ -1153,24 +1259,19 @@
     requestAnimationFrame(function(){ t.classList.add('show'); });
     t._timer = setTimeout(function(){ dismissToast(t); }, dur);
   }
-
   function dismissToast(el){
     if(!el||el._dismissed) return;
     el._dismissed=true; clearTimeout(el._timer);
     el.classList.remove('show'); el.classList.add('hide');
     setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 300);
   }
-
-  // Render Django flash messages
   document.addEventListener('DOMContentLoaded', function(){
     {% for message in messages %}
     showToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
     {% endfor %}
   });
 
-  /* ──────────────────────────────────────────────
-     SMOOTH ANCHOR SCROLL
-  ────────────────────────────────────────────── */
+  /* ── SMOOTH ANCHOR SCROLL ──────────────────────────────────────────── */
   document.addEventListener('click', function(e){
     var a = e.target.closest('a[href^="#"]');
     if(!a) return;
@@ -1183,9 +1284,8 @@
     window.scrollTo({top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - navH - 10), behavior:'smooth'});
   });
 
-  /* ──────────────────────────────────────────────
-     FOOTER NEWSLETTER FORM
-  ────────────────────────────────────────────── */
+  /* ── FOOTER NEWSLETTER FORM — gated by enable_newsletter ──────────── */
+  {% if site_settings.enable_newsletter %}
   (function(){
     var form = document.getElementById('footer-nl-form');
     if(!form) return;
@@ -1195,11 +1295,9 @@
       var nlText = form.querySelector('.nl-text');
       var nlSpin = form.querySelector('.nl-spin');
       var nlDone = document.querySelector('.nl-done');
-
       if(nlText) nlText.style.display='none';
       if(nlSpin) nlSpin.style.display='inline';
       if(btn)    btn.disabled=true;
-
       fetchWithCSRF('{% url "newsletter_subscribe" %}', {
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -1226,7 +1324,9 @@
       });
     });
   })();
+  {% endif %}
   </script>
 
 </body>
 </html>
+{% endif %}{# end maintenance gate #}

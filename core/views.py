@@ -204,14 +204,16 @@ class HomeView(TemplateView):
             context['faqs'] = FAQ.objects.filter(is_active=True).order_by('order')[:6]
             context['contact_form'] = ContactForm()
             context['newsletter_form'] = NewsletterForm()
+            
+            # Stats from database - all pulled directly, with zero as base
             context['stats'] = {
+                'years_experience': site_settings.years_experience if site_settings else 0,
                 'total_projects': Project.objects.filter(status='completed').count(),
+                'total_clients': site_settings.happy_clients if site_settings else 0,
+                'coffee_consumed': site_settings.coffee_consumed if site_settings else 0,
                 'total_blog_posts': BlogPost.objects.filter(status='published').count(),
                 'total_views': Project.objects.aggregate(total=Sum('views'))['total'] or 0,
-                'total_clients': site_settings.happy_clients if site_settings else 30,
                 'total_technologies': Skill.objects.filter(is_active=True).count(),
-                'years_experience': site_settings.years_experience if site_settings else 4,
-                'coffee_consumed': site_settings.coffee_consumed if site_settings else 1000,
             }
 
             # JSON-LD structured data
